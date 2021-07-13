@@ -18,7 +18,7 @@ import db_utils
 _MAX_MSG_SIZE = 4096
 
 
-def exec_python(player_id, command_text):
+def exec_python(player_id, command_text, **kwargs):
     code = command_text.lstrip()
     code = code.replace('~ ~ ', '    ').replace('. . ', '    ')  # TODO: maybe just "empty" char?
     try:
@@ -108,9 +108,11 @@ def _generate_output_filename():
     return 'command_output_%s.txt' % output_tag
 
 
-exec_python_command = command_system.AdminCommand()
-
-exec_python_command.keys = ['exec_python', 'exec_py', 'pyexec', 'py']
-exec_python_command.description = ' код на питоне - Выполнить указанный код.'
-exec_python_command.process = exec_python
+exec_python_command = command_system.Command(
+    process=exec_python,
+    keys=['exec_python', 'exec_py', 'pyexec', 'py'],
+    description='Выполнить указанный код',
+    signature='код_на_питоне',
+    allow_users=False
+)
 
