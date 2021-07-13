@@ -47,6 +47,13 @@ def exec_python(player_id, command_text, **kwargs):
         else:
             return response
 
+    def bash(command, do_print=True):
+        output = _exec_command_return_output(command)
+        if do_print:
+            print(output)
+        else:
+            return output
+
     connection = message_handler.create_connection()
     with connection:
         cur = connection.cursor()
@@ -58,7 +65,7 @@ def exec_python(player_id, command_text, **kwargs):
                     'print': print_to_output,
                     'add_action': add_action,
                     'act': functools.partial(act, cur=cur),
-                    'bash': _exec_command_return_output,
+                    'bash': bash,
 
                     'cur': cur,
                     'select': functools.partial(db_utils.select, cur),
