@@ -5,8 +5,8 @@ def execute(cursor, query, args=None):
 
 def exists(cursor, table_name, condition, args=None):
     query = f'SELECT * FROM {table_name} WHERE {condition};'
-    response = select(cursor, query, args)
-    return len(response) > 0
+    cursor.execute(query, args)
+    return cursor.fetchone() is not None
 
 
 # TODO: deprecated
