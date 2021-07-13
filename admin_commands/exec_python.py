@@ -3,6 +3,8 @@ import collections
 import functools
 import itertools
 import io
+import os
+import random
 
 import vk_api
 
@@ -56,6 +58,7 @@ def exec_python(player_id, command_text):
                     'print': print_to_output,
                     'add_action': add_action,
                     'act': functools.partial(act, cur=cur),
+                    'bash': _exec_command_return_output,
 
                     'cur': cur,
                     'select': functools.partial(db_utils.select, cur),
@@ -91,8 +94,23 @@ def exec_python(player_id, command_text):
     return actions + [result[i:i+_MAX_MSG_SIZE] for i in range(0, len(result), _MAX_MSG_SIZE)]
 
 
+def _exec_command_return_output(command):
+    output_filename = _generate_output_filename()
+    os.system(f'{command} > {output_filename}')
+    with open(output_filename) as fp:
+        output = fp.read()
+    return output
+
+
+def _generate_output_filename():
+    digits_n = 12
+    output_tag = hex(random.randrange(16**digits_n))[2:].zfill(digits_n)
+    return 'command_output_%s.txt' % output_tag
+
+
 exec_python_command = command_system.AdminCommand()
 
 exec_python_command.keys = ['exec_python', 'exec_py', 'pyexec', 'py']
 exec_python_command.description = ' код на питоне - Выполнить указанный код.'
 exec_python_command.process = exec_python
+
