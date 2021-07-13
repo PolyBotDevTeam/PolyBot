@@ -99,6 +99,7 @@ def _exec_command_return_output(command):
     os.system(f'{command} > {output_filename}')
     with open(output_filename) as fp:
         output = fp.read()
+    os.remove(output_filename)
     return output
 
 
