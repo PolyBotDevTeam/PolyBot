@@ -50,7 +50,7 @@ def exec_python(player_id, command_text, **kwargs):
     def bash(command, do_print=True):
         output = _exec_command_return_output(command)
         if do_print:
-            print(output)
+            print_to_output(output)
         else:
             return output
 
