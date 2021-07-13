@@ -4,11 +4,9 @@ def select(cursor, query, args=None):
     return tuple( cursor.fetchall() )
 
 
-# TODO: just suggestion
 def execute(cursor, query, args=None):
     cursor.execute(query, args)
     return cursor
-del execute
 
 
 # TODO: replace deprecated select with this
