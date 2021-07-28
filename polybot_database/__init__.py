@@ -1,4 +1,4 @@
-import database.ffa_games as _ffa_games_module
+import polybot_database._ffa_games as _ffa_games_module
 
 
 # TODO: should also create database.players, database.games etc.
