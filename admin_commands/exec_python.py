@@ -69,7 +69,7 @@ def exec_python(player_id, command_text, **kwargs):
 
                     'kwargs': kwargs,
                     'cur': cur,
-                    'select': functools.partial(db_utils.select, cur),
+                    'execute': functools.partial(db_utils.execute, cur),
                     'exists': functools.partial(db_utils.exists, cur),
 
                     'utils': utils,
