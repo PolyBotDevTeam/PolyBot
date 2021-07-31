@@ -67,6 +67,7 @@ def exec_python(player_id, command_text, **kwargs):
                     'act': functools.partial(act, cur=cur),
                     'bash': bash,
 
+                    'kwargs': kwargs,
                     'cur': cur,
                     'select': functools.partial(db_utils.select, cur),
                     'exists': functools.partial(db_utils.exists, cur),
