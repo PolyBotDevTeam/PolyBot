@@ -20,7 +20,7 @@ class PolyBotDatabase:
         warnings.warn(
             'PolyBotDatabase.create_connection is deprecated '
             'and will be removed in the future.',
-            warnings.DeprecationWarning
+            DeprecationWarning
         )
         return self._create_connection
 
