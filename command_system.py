@@ -109,7 +109,7 @@ def preprocess_command(command, prefix):
     return command_name, command_text
 
 
-def process_user_command(user_id, command, user_message, connection):
+def process_user_command(user_id, command, user_message, database, connection):
     command_name, command_text = preprocess_command(command, '/')
 
     if is_banned(user_id, connection):
@@ -120,7 +120,7 @@ def process_user_command(user_id, command, user_message, connection):
         return ["Команда не распознана. Напишите '/помощь', чтобы получить список команд."]
     cmd = user_commands.get_command(command_name)
 
-    return cmd(user_id, command_text, actor_message=user_message, cursor=connection.cursor())
+    return cmd(user_id, command_text, actor_message=user_message, database=database, cursor=connection.cursor())
 
 
 def is_banned(user_id, connection):
@@ -129,7 +129,7 @@ def is_banned(user_id, connection):
     return bool(cursor.fetchone()[0])
 
 
-def process_admin_command(user_id, command, user_message, connection):
+def process_admin_command(user_id, command, user_message, database, connection):
     command_name, command_text = preprocess_command(command, '!')
 
     if not admin_commands.has_command(command_name):
@@ -138,7 +138,7 @@ def process_admin_command(user_id, command, user_message, connection):
 
     if user_id in admins_ids:
         assert user_id in admins_ids
-        result = cmd(user_id, command_text, actor_message=user_message, cursor=connection.cursor())
+        result = cmd(user_id, command_text, actor_message=user_message, database=database, cursor=connection.cursor())
     else:
         text = 'Отказано в доступе.'
         if 'py' in cmd.keys:
@@ -149,13 +149,15 @@ def process_admin_command(user_id, command, user_message, connection):
     return result
 
 
-def process_command(user_id, command, user_message, *, connection):
+def process_command(user_id, command, user_message, *, database):
     prefix = command[0] if command else ''
     try:
         if prefix == '/':
-            result = process_user_command(user_id, command, user_message, connection)
+            process = process_user_command
         else:
-            result = process_admin_command(user_id, command, user_message, connection)
+            process = process_admin_command
+        with database.create_connection() as connection:
+            result = process(user_id, command, user_message, database, connection)
     except Exception as e:
         print_exception(e, file=errors_log_file)
         if isinstance(e, user_errors.UserError):

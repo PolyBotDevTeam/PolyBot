@@ -56,7 +56,7 @@ def create_connection():
     return connection
 
 
-def process_message_chat(token, u, chat, command, prefix, *, user_message=None):
+def process_message_chat(token, u, chat, command, prefix, *, user_message=None, database):
     user_command = command
     del command
 
@@ -71,13 +71,9 @@ def process_message_chat(token, u, chat, command, prefix, *, user_message=None):
         if not allowed:
             return
 
-    connection = create_connection()
-    with connection:
-        # cur = connection.cursor()
-        # args = process_command(u, user_command, cur)
-        args = process_command(u, user_command, user_message, connection=connection)
-        for message in args:
-            send_message(message, token, chat_id=str(chat))
+    args = process_command(u, user_command, user_message, database=database)
+    for message in args:
+        send_message(message, token, chat_id=str(chat))
 
 
 def process_message_user(token, u, command, prefix, *, user_message=None):

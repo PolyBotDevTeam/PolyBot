@@ -3,9 +3,11 @@ import sys
 import vk_api
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 
+from polybot_database import PolyBotDatabase
 import settings
 from settings import token, group_id, errors_log_file, commands_log_file, admin_chats, admins_ids
 import command_system
+import message_handler
 from message_handler import process_message_chat, load_modules, username as fetch_username
 from utils import print_exception
 
@@ -22,6 +24,8 @@ CHAT_PEER_ID_PREFIX = 2 * 10**9
 def main():
     print('PolyBot Started!', flush=True)
     load_modules()
+
+    polybot_database = PolyBotDatabase(create_connection=message_handler.create_connection)
 
     vk_session = vk_api.VkApi(token=token)
     vk = vk_session.get_api()
@@ -62,7 +66,15 @@ def main():
                         chat_id = message['peer_id'] - CHAT_PEER_ID_PREFIX
                         if message['text'] == '!restart' and message['from_id'] in admins_ids and chat_id in admin_chats:
                             sys.exit()
-                        process_message_chat(token=token, u=message['from_id'], chat=chat_id, command=text, prefix=prefix, user_message=message)
+                        process_message_chat(
+                            token=token,
+                            u=message['from_id'],
+                            chat=chat_id,
+                            command=text,
+                            prefix=prefix,
+                            user_message=message,
+                            database=polybot_database
+                        )
                     elif event.from_user:
                         pass
                         # process_message_user(token=token, u=message['from_id'], command=text, prefix=prefix)
