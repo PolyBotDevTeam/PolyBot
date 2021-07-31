@@ -9,7 +9,7 @@ class FFAGame:
         self._errors = _FFAGameErrors()
         # TODO: Probably should add _ensure_exists
 
-    @protected
+    @property
     def errors(self):
         return self._errors
 
