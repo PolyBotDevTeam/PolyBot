@@ -21,7 +21,7 @@ class FFAGames:
     def create_game(self, owner_id, description):
         [[game_id]] = self._execute(
             'INSERT ffa_games(owner_id, description) VALUES (%s, %s);\n'
-            'SELECT LAST_INSERT_ID();'
+            'SELECT LAST_INSERT_ID();',
             [owner_id, description]
         )
         return self.get_game_by_id(game_id)
