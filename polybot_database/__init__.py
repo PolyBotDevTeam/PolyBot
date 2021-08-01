@@ -24,7 +24,7 @@ class PolyBotDatabase:
         )
         return self._create_connection
 
-    def _execute_query(self, query, args):
+    def _execute_query(self, query, args=None):
         # TODO: probably should also create new connection here
         #       Reason: https://stackoverflow.com/questions/14827783/auto-increment-and-last-insert-id/14827987#14827987
         cursor = self._connection.cursor()
