@@ -5,7 +5,7 @@ class FFAGame:
 
     def __init__(self, *, game_id, execute_query):
         self._execute = execute_query
-        self._game_id = game_id
+        self._game_id = game_id  # TODO: Probably should rename to just self._id
         self._errors = _FFAGameErrors()
         # TODO: Probably should add _ensure_exists
 
@@ -14,7 +14,12 @@ class FFAGame:
         return self._errors
 
     def exists(self):
-        raise NotImplementedError
+        [[does_exist]] = self._execute(
+            'SELECT EXISTS'
+            '(SELECT * FROM ffa_games WHERE game_id = %s);',
+            [self._game_id]
+        )
+        return does_exist
 
     def add_player(self, player_id):
         if self.has_member(player_id):
