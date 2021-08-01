@@ -40,8 +40,7 @@ def load_modules():
         errors_log = io.StringIO()
         for error in exceptions:
             utils.print_exception(error, file=errors_log)
-        # error_text = '\n'.join('%s: %s' % (m, repr(e)) for m, e in exceptions)
-        send_message(errors_log.getvalue(), token=settings.token, chat_id=13)
+        send_message(errors_log.getvalue(), token=settings.token, chat_id=settings.polydev_chat_id)
 
 
 # TODO: deprecated
