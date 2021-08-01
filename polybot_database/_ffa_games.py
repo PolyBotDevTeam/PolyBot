@@ -27,7 +27,12 @@ class FFAGames:
         return self.get_game_by_id(game_id)
 
     def get_games_of_player(self, player_id):
-        raise NotImplementedError
+        response = self._execute(
+            'SELECT game_id FROM ffa_memberships WHERE member_id = %s;',
+            [player_id]
+        )
+        games = [self.get_game_by_id(game_id) for [game_id] in response]
+        return tuple(games)
 
 
 class _FFAGamesErrors:
