@@ -21,22 +21,22 @@ class FFAGame:
             raise self.errors.AlreadyMemberError('this player has already joined the game')
         self._execute(
             'INSERT ffa_memberships(member_id, game_id) VALUES (%s, %s);',
-            [player_id, game_id]
+            [player_id, self._game_id]
         )
 
     def remove_player(self, player_id):
         if not self.has_member(player_id):
-            raise self.errors.NotMemberError('this player is not in the game')
+            raise self.errors.NotAMemberError('this player is not in the game')
         self._execute(
             'DELETE FROM ffa_memberships WHERE member_id = %s AND game_id = %s;',
-            [player_id, game_id]
+            [player_id, self._game_id]
         )
 
     def has_member(self, player_id):
         [[result]] = self._execute(
             'SELECT EXISTS'
-            '(SELECT * FROM ffa_memberships WHERE member_id = %s AND game_id = %s);'
-            [player_id, game_id]
+            '(SELECT * FROM ffa_memberships WHERE member_id = %s AND game_id = %s);',
+            [player_id, self._game_id]
         )
         return result
 
@@ -46,7 +46,7 @@ class FFAGame:
     def get_members(self):
         response = self._execute(
             'SELECT member_id FROM ffa_memberships WHERE game_id = %s;',
-            game_id
+            self._game_id
         )
         [members_ids] = _utils.safe_zip(*response)
         return members_ids
