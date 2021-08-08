@@ -12,13 +12,13 @@ class FFAGames:
     def errors(self):
         return self._errors
 
-    def get_game_by_id(self, game_id):
+    def get_game_by_id(self, game_id: int):
         game = _ffa_game_module.FFAGame(game_id=game_id, execute_query=self._execute)
         if not game.exists():
             raise self.errors.GameNotFoundError('the game with this id does not exist')
         return game
 
-    def create_game(self, owner_id, description):
+    def create_game(self, owner_id: int, description: str):
         [[game_id]] = self._execute(
             'INSERT ffa_games(owner_id, description) VALUES (%s, %s);\n'
             'SELECT LAST_INSERT_ID();',
@@ -26,7 +26,7 @@ class FFAGames:
         )
         return self.get_game_by_id(game_id)
 
-    def get_games_of_player(self, player_id):
+    def get_games_of_player(self, player_id: int):
         response = self._execute(
             'SELECT game_id FROM ffa_memberships WHERE member_id = %s;',
             [player_id]

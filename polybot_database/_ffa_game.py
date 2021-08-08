@@ -3,7 +3,7 @@ import utils as _utils
 
 class FFAGame:
 
-    def __init__(self, *, game_id, execute_query):
+    def __init__(self, *, game_id: int, execute_query):
         self._execute = execute_query
         self._game_id = game_id  # TODO: Probably should rename to just self._id
         self._errors = _FFAGameErrors()
@@ -21,7 +21,7 @@ class FFAGame:
         )
         return does_exist
 
-    def add_player(self, player_id):
+    def add_player(self, player_id: int):
         if self.has_member(player_id):
             raise self.errors.AlreadyMemberError('this player has already joined the game')
         self._execute(
@@ -29,7 +29,7 @@ class FFAGame:
             [player_id, self._game_id]
         )
 
-    def remove_player(self, player_id):
+    def remove_player(self, player_id: int):
         if not self.has_member(player_id):
             raise self.errors.NotAMemberError('this player is not in the game')
         self._execute(
@@ -37,7 +37,7 @@ class FFAGame:
             [player_id, self._game_id]
         )
 
-    def has_member(self, player_id):
+    def has_member(self, player_id: int):
         [[result]] = self._execute(
             'SELECT EXISTS'
             '(SELECT * FROM ffa_memberships WHERE member_id = %s AND game_id = %s);',
@@ -56,10 +56,10 @@ class FFAGame:
         [members_ids] = _utils.safe_zip(*response)
         return members_ids
 
-    def start(self, game_name):
+    def start(self, game_name: str):
         raise NotImplementedError
 
-    def finish(self, winner_id):
+    def finish(self, winner_id: int):
         raise NotImplementedError
 
     def delete(self):
