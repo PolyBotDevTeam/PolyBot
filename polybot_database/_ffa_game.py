@@ -24,6 +24,8 @@ class FFAGame:
         return does_exist
 
     def add_player(self, player_id: int):
+        if self.is_started():
+            raise self.errors.AlreadyStartedError('can\'t add member if the game is already started')
         if self.has_member(player_id):
             raise self.errors.AlreadyMemberError('this player has already joined the game')
         self._execute(
@@ -32,6 +34,8 @@ class FFAGame:
         )
 
     def remove_player(self, player_id: int):
+        if self.is_started():
+            raise self.errors.AlreadyStartedError('can\'t remove member if the game is already started')
         if not self.has_member(player_id):
             raise self.errors.NotAMemberError('this player is not in the game')
         self._execute(
