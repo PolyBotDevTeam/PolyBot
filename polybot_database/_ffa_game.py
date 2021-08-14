@@ -5,9 +5,9 @@ class FFAGame:
 
     _WINNER_ID_FOR_DRAW = 0
 
-    def __init__(self, *, game_id: int, execute_query):
+    def __init__(self, *, id: int, execute_query):
         self._execute = execute_query
-        self._game_id = game_id  # TODO: Probably should rename to just self._id
+        self._id = id
         self._errors = _FFAGameErrors()
         # TODO: Probably should add _ensure_exists
 
@@ -19,7 +19,7 @@ class FFAGame:
         [[does_exist]] = self._execute(
             'SELECT EXISTS'
             '(SELECT * FROM ffa_games WHERE game_id = %s);',
-            [self._game_id]
+            [self._id]
         )
         return does_exist
 
@@ -30,7 +30,7 @@ class FFAGame:
             raise self.errors.AlreadyMemberError('this player has already joined the game')
         self._execute(
             'INSERT ffa_memberships(member_id, game_id) VALUES (%s, %s);',
-            [player_id, self._game_id]
+            [player_id, self._id]
         )
 
     def remove_member(self, player_id: int):
@@ -40,14 +40,14 @@ class FFAGame:
             raise self.errors.NotAMemberError('this player is not in the game')
         self._execute(
             'DELETE FROM ffa_memberships WHERE member_id = %s AND game_id = %s;',
-            [player_id, self._game_id]
+            [player_id, self._id]
         )
 
     def has_member(self, player_id: int):
         [[result]] = self._execute(
             'SELECT EXISTS'
             '(SELECT * FROM ffa_memberships WHERE member_id = %s AND game_id = %s);',
-            [player_id, self._game_id]
+            [player_id, self._id]
         )
         return result
 
@@ -57,7 +57,7 @@ class FFAGame:
     def get_members(self):
         response = self._execute(
             'SELECT member_id FROM ffa_memberships WHERE game_id = %s;',
-            self._game_id
+            self._id
         )
         [members_ids] = _utils.safe_zip(*response)
         return members_ids
@@ -91,14 +91,14 @@ class FFAGame:
     def _get_field(self, field_name):
         [[field_value]] = self._execute(
             'SELECT %s FROM ffa_games WHERE game_id = %s;',
-            [field_name, self._game_id]
+            [field_name, self._id]
         )
         return field_value
 
     def _set_field(self, field_name, new_value):
         self._execute(
             'UPDATE ffa_games SET %s = %s WHERE game_id = %s;',
-            [field_name, new_value, self._game_id]
+            [field_name, new_value, self._id]
         )
 
 

@@ -13,7 +13,7 @@ class FFAGames:
         return self._errors
 
     def get_game_by_id(self, game_id: int):
-        game = _ffa_game_module.FFAGame(game_id=game_id, execute_query=self._execute)
+        game = _ffa_game_module.FFAGame(id=game_id, execute_query=self._execute)
         if not game.exists():
             raise self.errors.GameNotFoundError('the game with this id does not exist')
         return game
