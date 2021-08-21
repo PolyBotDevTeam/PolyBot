@@ -33,7 +33,11 @@ def join(player_id, command_text):
         cur.execute('SELECT nickname FROM players WHERE player_id = %s;', host_id)
         ((host_nickname,),) = cur
 
-        cur.execute('SELECT NOT EXISTS(SELECT * FROM games WHERE host_id = %s AND away_id = %s);', (host_id, player_id))
+        cur.execute(
+            'SELECT NOT EXISTS'
+            '(SELECT * FROM games WHERE (host_id = %s AND away_id = %s) OR (host_id = %s AND away_id = %s));',
+            (host_id, player_id, player_id, host_id)
+        )
         ((is_first_game_of_this_pair,),) = cur
 
         cur.execute('UPDATE games SET away_id = %s, type = \'r\', time_updated = NOW() WHERE game_id = %s;', (player_id, game_id))
