@@ -45,9 +45,10 @@ def join(player_id, command_text):
         messages_for_away = [f'Вы успешно присоединились к игре {game_id}.']
         if is_first_game_of_this_pair:
             messages_for_away[0] += '\n\n'
-            messages_for_away[0] += 'Вам следует добавить своего противника в друзья в Политопии.\n'
-            messages_for_away[0] += 'Никнейм вашего противника:'
-            messages_for_away.append(host_nickname)
+            messages_for_away[0] += 'Вам следует добавить своего противника в друзья в Политопии.'
+        messages_for_away[0] += '\n'
+        messages_for_away[0] += 'Никнейм вашего противника:'
+        messages_for_away.append(host_nickname)
 
         host_mention = message_handler.create_mention(host_id)
         message_for_host = f'{host_mention}, ваша игра заполнена. Теперь вам нужно создать игру в Политопии. ' \
