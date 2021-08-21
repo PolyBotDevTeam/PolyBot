@@ -18,17 +18,37 @@ def join(player_id, command_text):
         if not fetch:
             message = 'Не найдено открытых игр с указанным ID.'
             return [message]
-        if fetch[0] == player_id:
+        (host_id,) = fetch
+
+        if host_id == player_id:
             message = 'Нельзя играть с самим собой.'
             return [message]
-        cur.execute('SELECT nickname FROM players WHERE player_id = %s;', (player_id, ))
-        player = cur.fetchone()
-        if not player:
+
+        cur.execute('SELECT nickname FROM players WHERE player_id = %s;', player_id)
+        fetch = cur.fetchone()
+        if not fetch:
             message = 'Вы не зарегистрированы в системе. Воспользуйтесь справкой: /помощь.'
             return [message]
+        (away_nickname,) = fetch
+        cur.execute('SELECT nickname FROM players WHERE player_id = %s;', host_id)
+        ((host_nickname,),) = cur
+
+        cur.execute('SELECT NOT EXISTS(SELECT * FROM games WHERE host_id = %s AND away_id = %s);', (host_id, player_id))
+        ((is_first_game_of_this_pair,),) = cur
+
         cur.execute('UPDATE games SET away_id = %s, type = \'r\', time_updated = NOW() WHERE game_id = %s;', (player_id, game_id))
-        message = 'Вы успешно присоединились к игре {0}.\n\n[id{1}|{2}], ваша игра заполнена. Теперь вам нужно создать игру в Политопии. Не забудьте применить команду /начать с названием новой игры. Никнейм вашего противника:'.format(str(game_id), fetch[0], message_handler.username(fetch[0]))
-        return [message, player[0]]
+
+        messages_for_away = [f'Вы успешно присоединились к игре {game_id}.']
+        if is_first_game_of_this_pair:
+            messages_for_away[0] += '\n\n'
+            messages_for_away[0] += 'Вам следует добавить своего противника в друзья в Политопии.\n'
+            messages_for_away[0] += 'Никнейм вашего противника:'
+            messages_for_away.append(host_nickname)
+
+        host_mention = message_handler.create_mention(host_id)
+        message_for_host = f'{host_mention}, ваша игра заполнена. Теперь вам нужно создать игру в Политопии. ' \
+                           f'Не забудьте применить команду /начать с названием новой игры. Никнейм вашего противника:'
+        return [*messages_for_away, message_for_host, away_nickname]
 
 
 join_command = command_system.UserCommand()
