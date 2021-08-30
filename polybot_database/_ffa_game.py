@@ -13,6 +13,10 @@ class FFAGame:
         self._id = id
         # TODO: Probably should add _ensure_exists
 
+    @property
+    def id(self):
+        return self._id
+
     def exists(self):
         [[does_exist]] = self._execute(
             'SELECT EXISTS'
