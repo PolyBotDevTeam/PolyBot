@@ -3,7 +3,8 @@ import utils as _utils
 
 class FFAGame:
 
-    _WINNER_ID_FOR_DRAW = 0
+    _WINNER_ID_FOR_DRAW = 0  # TODO: It will cause problems in the future
+    _MAX_DESCRIPTION_LENGTH = 32
 
     def __init__(self, *, id: int, execute_query):
         self._execute = execute_query
@@ -22,6 +23,18 @@ class FFAGame:
             [self._id]
         )
         return does_exist
+
+    def change_description(self, new_description: str):
+        self.verify_description(new_description)
+        self._set_field('description', new_description)
+
+    @classmethod
+    def verify_description(cls, description: str):
+        if not description:
+            raise cls.errors.EmptyDescriptionError('game description can\'t be empty')
+        if len(description) > self._MAX_DESCRIPTION_LENGTH:
+            raise cls.errors.DescriptionTooLongError('this description is too long')
+        pass
 
     def add_member(self, player_id: int):
         if self.is_started():
@@ -105,6 +118,15 @@ class FFAGame:
 class _FFAGameErrors:
 
     def __init__(self):
+        pass
+
+    class InvalidDescriptionError(ValueError):
+        pass
+
+    class EmptyDescriptionError(InvalidDescriptionError):
+        pass
+
+    class DescriptionTooLongError(InvalidDescriptionError):
         pass
 
     class AlreadyMemberError(ValueError):

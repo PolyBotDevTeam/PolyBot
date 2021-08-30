@@ -19,6 +19,7 @@ class FFAGames:
         return game
 
     def create_game(self, owner_id: int, description: str):
+        _ffa_game_module.FFAGame.verify_description(description)
         [[game_id]] = self._execute(
             'INSERT ffa_games(owner_id, description) VALUES (%s, %s);\n'
             'SELECT LAST_INSERT_ID();',
