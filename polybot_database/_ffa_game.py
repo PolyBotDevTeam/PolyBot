@@ -5,16 +5,12 @@ class FFAGame:
 
     _WINNER_ID_FOR_DRAW = 0  # TODO: It will cause problems in the future
     _MAX_DESCRIPTION_LENGTH = 32
+    errors = _FFAGameErrors
 
     def __init__(self, *, id: int, execute_query):
         self._execute = execute_query
         self._id = id
-        self._errors = _FFAGameErrors()
         # TODO: Probably should add _ensure_exists
-
-    @property
-    def errors(self):
-        return self._errors
 
     def exists(self):
         [[does_exist]] = self._execute(
