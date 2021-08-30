@@ -4,6 +4,8 @@ import polybot_database._ffa_game as _ffa_game_module
 # TODO: Rename this class
 class FFAGames:
 
+    FFAGame = _ffa_game_module.FFAGame
+
     def __init__(self, *, execute_query):
         self._execute = execute_query
         self._errors = _FFAGamesErrors()
@@ -13,13 +15,13 @@ class FFAGames:
         return self._errors
 
     def get_game_by_id(self, game_id: int):
-        game = _ffa_game_module.FFAGame(id=game_id, execute_query=self._execute)
+        game = self.FFAGame(id=game_id, execute_query=self._execute)
         if not game.exists():
             raise self.errors.GameNotFoundError('the game with this id does not exist')
         return game
 
     def create_game(self, owner_id: int, description: str):
-        _ffa_game_module.FFAGame.verify_description(description)
+        self.FFAGame.verify_description(description)
         [[game_id]] = self._execute(
             'INSERT ffa_games(owner_id, description) VALUES (%s, %s);\n'
             'SELECT LAST_INSERT_ID();',
