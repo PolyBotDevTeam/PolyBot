@@ -5,14 +5,10 @@ import polybot_database._ffa_game as _ffa_game_module
 class FFAGames:
 
     FFAGame = _ffa_game_module.FFAGame
+    errors = _FFAGamesErrors
 
     def __init__(self, *, execute_query):
         self._execute = execute_query
-        self._errors = _FFAGamesErrors()
-
-    @property
-    def errors(self):
-        return self._errors
 
     def get_game_by_id(self, game_id: int):
         game = self.FFAGame(id=game_id, execute_query=self._execute)
