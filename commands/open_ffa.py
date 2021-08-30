@@ -1,18 +1,21 @@
 import command_system
+import polybot_responses as responses
 
 
 def open_ffa(actor, description, *, database):
     ffa_games = database.ffa_games
+    errors = ffa_games.FFAGame.errors
+
     try:
         game = ffa_games.create_game(actor, description)
-    except ffa_games.FFAGame.errors.EmptyDescriptionError:
-        return ['Описание игры не может быть пустым. Оно указывается после имени команды через пробел.']
-    except ffa_games.FFAGame.errors.DescriptionTooLongError:
-        return ['Описание игры слишком длинное. Чтобы открыть игру, вам нужно сделать его короче.']
-    except ffa_games.FFAGame.errors.InvalidDescriptionError:
+    except errors.EmptyDescriptionError:
+        return [responses.EMPTY_DESCRIPTION_ERROR]
+    except errors.DescriptionTooLongError:
+        return [responses.DESCRIPTION_TOO_LONG_ERROR]
+    except errors.InvalidDescriptionError:
         raise
-    text = f'Игра {game.id} успешно создана!'
-    return [text]
+
+    return [responses.FFA_GAME_OPENED.format(game=game)]
 
 
 def _open_ffa_process(actor, command_text, *, database, **kwargs):
