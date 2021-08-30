@@ -1,3 +1,4 @@
+import polybot_utils as _polybot_utils
 import utils as _utils
 
 
@@ -77,7 +78,16 @@ class FFAGame:
     def start(self, game_name: str):
         if self.is_started():
             raise self.errors.AlreadyStartedError('the game is already started')
+        self._verify_game_name(game_name)
         self._set_field('game_name', game_name)
+
+    def rename(self, new_game_name: str):
+        self._verify_game_name(new_game_name)
+        self._set_field('game_name', new_game_name)
+
+    def _verify_game_name(self, game_name: str):
+        if not _polybot_utils.is_game_name_correct(game_name):
+            raise self.errors.InvalidGameNameError('this name can\'t be the name of game')
 
     def is_started(self):
         game_name = self._get_field('game_name')
@@ -123,6 +133,9 @@ class _FFAGameErrors:
         pass
 
     class DescriptionTooLongError(InvalidDescriptionError):
+        pass
+
+    class InvalidGameNameError(ValueError):
         pass
 
     class AlreadyMemberError(ValueError):
