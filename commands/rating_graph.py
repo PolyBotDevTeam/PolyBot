@@ -94,7 +94,7 @@ def build_graph(datetimes, hosts_elos, aways_elos, now, *, title=None):
     plt.style.use('dark_background')
     fig, ax = plt.subplots()
 
-    ax.set_ylim((700, 1550))
+    ax.set_ylim((700, 1600))
 
     """ax.plot_date(dates, values, fmt='-', color=(0, 0.5, 0.8))
     ax.plot_date(dates, values, fmt='o', markersize=2.5, color=(0.8, 0.8, 0.8), alpha=1)"""
