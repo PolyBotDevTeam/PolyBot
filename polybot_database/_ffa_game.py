@@ -6,7 +6,7 @@ class FFAGame:
 
     _WINNER_ID_FOR_DRAW = 0  # TODO: It will cause problems in the future
     _MAX_DESCRIPTION_LENGTH = 32
-    errors = _FFAGameErrors
+    errors = None  # Will be set later
 
     def __init__(self, *, id: int, execute_query):
         self._execute = execute_query
@@ -156,3 +156,5 @@ class _FFAGameErrors:
 
     class AlreadyFinishedError(ValueError):
         pass
+
+FFAGame.errors = _FFAGameErrors

@@ -5,7 +5,7 @@ import polybot_database._ffa_game as _ffa_game_module
 class FFAGames:
 
     FFAGame = _ffa_game_module.FFAGame
-    errors = _FFAGamesErrors
+    errors = None  # Will be set later
 
     def __init__(self, *, execute_query):
         self._execute = execute_query
@@ -41,3 +41,5 @@ class _FFAGamesErrors:
 
     class GameNotFoundError(ValueError):
         pass
+
+FFAGames.errors = _FFAGamesErrors
