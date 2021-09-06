@@ -18,12 +18,12 @@ def open_ffa(actor, description, *, database):
     return [responses.FFA_GAME_OPENED.format(game=game)]
 
 
-def _open_ffa_process(actor, command_text, *, database, **kwargs):
+def _process_open_ffa_command(actor, command_text, *, database, **kwargs):
     return open_ffa(actor, description=command_text, database=database)
 
 
 open_ffa_command = command_system.Command(
-    process=_open_ffa_process,
+    process=_process_open_ffa_command,
     keys=['открыть_ффа', 'открытьффа', 'создать_ффа', 'создатьффа', 'open_ffa', 'openffa'],
     description='Открыть новую ффа-игру в боте',
     signature='описание',
