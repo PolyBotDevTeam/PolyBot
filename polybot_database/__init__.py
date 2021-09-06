@@ -1,5 +1,6 @@
 import warnings
 
+import polybot_database._players as _players_module
 import polybot_database._ffa_games as _ffa_games_module
 
 
@@ -13,6 +14,7 @@ class PolyBotDatabase:
     def __init__(self, create_connection):
         self._create_connection = create_connection
         self._ffa_games = _ffa_games_module.FFAGames(execute_query=self._execute_query)
+        self._players = _players_module.Players(execute_query=self._execute_query)
 
     @property
     def create_connection(self):
@@ -37,3 +39,7 @@ class PolyBotDatabase:
     @property
     def ffa_games(self):
         return self._ffa_games
+
+    @property
+    def players(self):
+        return self._players
