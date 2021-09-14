@@ -1,4 +1,10 @@
 import command_system
+import vk_actions
+
+
+chat_rules = '''Относитесь друг к другу с уважением. Сюда относятся персональные атаки, претензии, попытки ввода в заблуждение и т.п., не относящиеся к партиям в Политопии.
+Если у вас есть к кому-то претензии, напишите ему или мне (@quasistellar) в лс, а не в беседу. Если вы не уверены, нарушает ваше сообщение правила или нет, то лучше не писать его.
+За нарушением следует предупреждение, а затем бан. И то и другое подтверждается @pyaive_oleg и @tampre во избежание предвзятых решений.'''
 
 
 games_rules = '''Правила игр.
@@ -32,7 +38,8 @@ games_rules = '''Правила игр.
 
 
 def rules(player_id, command_text):
-    return [games_rules]
+    chat_rules_message = vk_actions.Message(text=chat_rules, disable_mentions=True)
+    return [chat_rules_message, games_rules]
 
 
 rules_command = command_system.UserCommand()
