@@ -54,7 +54,7 @@ def create_connection():
     return connection
 
 
-def process_message_chat(token, u, chat, command, prefix, *, user_message=None, database):
+def process_message_chat(vk, u, chat, command, prefix, *, user_message=None, database):
     user_command = command
     del command
 
@@ -71,21 +71,21 @@ def process_message_chat(token, u, chat, command, prefix, *, user_message=None, 
 
     args = process_command(u, user_command, user_message, database=database)
     for message in args:
-        send_message(message, token, chat_id=str(chat))
+        send_message(message, vk=vk, chat_id=str(chat))
 
 
-def send_message(message, token, **kwargs):
+def send_message(message, vk, **kwargs):
     if not isinstance(message, vk_actions.Action) and isinstance(message, str):
         message = vk_actions.Message(text=str(message))
     while True:
         try:
-            api.messages.send(
-                access_token=token, random_id=vk_api.utils.get_random_id(),
+            vk.messages.send(
+                random_id=vk_api.utils.get_random_id(),
                 message=message.text, attachment=message.attachments, disable_mentions=message.disable_mentions,
                 **kwargs
             )
             break
-        except vk.exceptions.VkAPIError as e:
+        except vk_api.exceptions.VkApiError as e:
             if e.code == 9:
                 time.sleep(20)
             else:

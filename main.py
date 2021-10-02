@@ -34,7 +34,7 @@ def main():
         errors_log = io.StringIO()
         for error in exceptions:
             print_exception(error, file=errors_log)
-        message_handler.send_message(errors_log.getvalue(), token=settings.token, chat_id=settings.polydev_chat_id)
+        message_handler.send_message(errors_log.getvalue(), vk=vk, chat_id=settings.polydev_chat_id)
 
     polybot_database = PolyBotDatabase(create_connection=message_handler.create_connection)
 
@@ -75,7 +75,7 @@ def main():
                         if message['text'] == '!restart' and message['from_id'] in admins_ids and chat_id in admin_chats:
                             sys.exit()
                         process_message_chat(
-                            token=token,
+                            vk=vk,
                             u=message['from_id'],
                             chat=chat_id,
                             command=text,
