@@ -69,7 +69,7 @@ def process_message_chat(vk, u, chat, command, prefix, *, user_message=None, dat
         if not allowed:
             return
 
-    args = process_command(u, user_command, user_message, database=database)
+    args = process_command(u, user_command, user_message, database=database, vk=vk)
     for message in args:
         send_message(message, vk=vk, chat_id=str(chat))
 
