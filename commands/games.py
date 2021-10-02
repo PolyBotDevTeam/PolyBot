@@ -4,7 +4,7 @@ import message_handler
 
 
 # TODO: page system
-def games(player_id, command_text):
+def _process_games_command(player_id, command_text, **kwargs):
     elo.recalculate()
     connection = message_handler.create_connection()
     with connection:
@@ -37,8 +37,10 @@ def games(player_id, command_text):
         return messages
 
 
-games_command = command_system.UserCommand()
-
-games_command.keys = ['игры', 'открытые', 'открытые_игры', 'games', 'open_games']
-games_command.description = ' - Игры к которым можно присоединиться'
-games_command.process = games
+games_command = command_system.Command(
+    process=_process_games_command,
+    keys=['игры', 'открытые', 'открытые_игры', 'games', 'open_games'],
+    description='Игры к которым можно присоединиться',
+    signature='',
+    allow_users=True
+)
