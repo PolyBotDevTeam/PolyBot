@@ -85,7 +85,7 @@ def send_message(message, vk, **kwargs):
                 **kwargs
             )
             break
-        except vk_api.exceptions.VkApiError as e:
+        except vk_api.exceptions.ApiError as e:
             if e.code == 9:
                 time.sleep(20)
             else:
