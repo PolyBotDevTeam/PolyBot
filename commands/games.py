@@ -1,19 +1,27 @@
 import command_system
 import elo
 import message_handler
+import vk_utils
+
+import settings
 
 
 # TODO: page system
-def _process_games_command(player_id, command_text, **kwargs):
+def _process_games_command(player_id, command_text, *, vk, **kwargs):
     elo.recalculate()
     connection = message_handler.create_connection()
     with connection:
         cur = connection.cursor()
         cur.execute('SELECT game_id, host_id, description FROM games WHERE type = \'o\' ORDER BY time_updated ASC;')
         rows = cur.fetchall()
+
         texts_about_games = []
 
+        chat_members_ids = vk_utils.fetch_chat_members_ids(chat_id=settings.main_chat_id, vk=vk)
+
         for game_id, host_id, description in rows:
+            if host_id not in chat_members_ids:
+                continue
             cur.execute('SELECT host_elo FROM players WHERE player_id = %s;', host_id)
             rating = cur.fetchone()[0]
             host_username = message_handler.username(host_id)
