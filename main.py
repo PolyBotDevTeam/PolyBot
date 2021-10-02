@@ -1,3 +1,4 @@
+import io
 import sys
 
 import vk_api
@@ -20,14 +21,22 @@ polybot_welcome = """Приветствую, {username}!
 
 def main():
     print('PolyBot Started!', flush=True)
-    load_modules()
-
-    polybot_database = PolyBotDatabase(create_connection=message_handler.create_connection)
-
+    
     vk_session = vk_api.VkApi(token=token)
     vk = vk_session.get_api()
-
+    
     longpoll = VkBotLongPoll(vk_session, group_id)
+    
+    try:
+        load_modules()
+    except ImportError as e:
+        [exceptions] = e.args
+        errors_log = io.StringIO()
+        for error in exceptions:
+            print_exception(error, file=errors_log)
+        message_handler.send_message(errors_log.getvalue(), token=settings.token, chat_id=settings.polydev_chat_id)
+
+    polybot_database = PolyBotDatabase(create_connection=message_handler.create_connection)
 
     while True:
         try:

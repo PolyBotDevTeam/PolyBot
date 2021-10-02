@@ -16,9 +16,11 @@ import vk_actions
 import settings
 
 
-# TODO: probably should use vk_api.VkApi instead (or even sth other)
+# Deprecated
+# TODO: Remove
 session = vk.Session()
 api = vk.API(session, access_token=settings.token, v=5.107)
+
 
 def load_modules():
     exceptions = []
@@ -37,10 +39,7 @@ def load_modules():
                 exceptions.append(e)
 
     if exceptions:
-        errors_log = io.StringIO()
-        for error in exceptions:
-            utils.print_exception(error, file=errors_log)
-        send_message(errors_log.getvalue(), token=settings.token, chat_id=settings.polydev_chat_id)
+        raise ImportError(exceptions)
 
 
 # TODO: deprecated
