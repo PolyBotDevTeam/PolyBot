@@ -67,3 +67,10 @@ def fetch_usernames(users_ids, vk):
             username = vk.groups.getById(group_id=-user_id)[0]['name']
         result.append(username)
     return result
+
+
+def fetch_chat_members_ids(chat_id, vk):
+    peer_id = peer_id_by_chat_id(chat_id)
+    members = vk.messages.getConversationMembers(peer_id=peer_id)
+    members_ids = [member['member_id'] for member in members]
+    return members_ids
