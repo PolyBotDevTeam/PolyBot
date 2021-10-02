@@ -17,7 +17,7 @@ from db_utils import select, exists
 import settings
 
 
-def rating_graph(player_id, command_text):
+def _process_rating_graph_command(player_id, command_text, **kwargs):
     command_text = command_text.lstrip()
     pointer = command_text if command_text else None
 
@@ -143,8 +143,10 @@ def _remove_duplicate_neighbors(xs, ys, *, save_last=False):
     return xs, ys
 
 
-rating_graph_command = command_system.UserCommand()
-
-rating_graph_command.keys = ['рейтинг', 'график', 'rating', 'rating_graph', 'graph']
-rating_graph_command.description = ' игрок - История рейтинга пользователя.'
-rating_graph_command.process = rating_graph
+rating_graph_command = command_system.Command(
+    process=_process_rating_graph_command,
+    keys=['рейтинг', 'график', 'rating', 'rating_graph', 'graph'],
+    description='История рейтинга пользователя',
+    signature='игрок',
+    allow_users=True
+)
