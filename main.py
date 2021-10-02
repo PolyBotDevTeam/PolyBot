@@ -37,6 +37,8 @@ def main():
                     continue
                 message = event.obj.message
 
+                # TODO: Move out this code
+
                 tournament_chat_peer_id = vk_utils.peer_id_by_chat_id(settings.tournament_chat_id)
                 if message['peer_id'] == tournament_chat_peer_id:
                     action = message.get('action')
@@ -74,7 +76,6 @@ def main():
                         )
                     elif event.from_user:
                         pass
-                        # process_message_user(token=token, u=message['from_id'], command=text, prefix=prefix)
 
         except Exception as e:
             print_exception(e, file=errors_log_file)

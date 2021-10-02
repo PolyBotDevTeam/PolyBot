@@ -75,16 +75,6 @@ def process_message_chat(token, u, chat, command, prefix, *, user_message=None, 
         send_message(message, token, chat_id=str(chat))
 
 
-def process_message_user(token, u, command, prefix, *, user_message=None):
-    connection = create_connection()
-    with connection:
-        # cur = connection.cursor()
-        # args = process_command(u, command, cur)
-        args = process_command(u, command, user_message, connection=connection)
-        for message in args:
-            send_message(message, token, user_id=str(u))
-
-
 def send_message(message, token, **kwargs):
     if not isinstance(message, vk_actions.Action) and isinstance(message, str):
         message = vk_actions.Message(text=str(message))
