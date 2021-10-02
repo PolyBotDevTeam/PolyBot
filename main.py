@@ -10,15 +10,12 @@ import command_system
 import message_handler
 from message_handler import process_message_chat, load_modules, username as fetch_username
 from utils import print_exception
+import vk_utils
 
 
 polybot_welcome = """Приветствую, {username}!
 
 Чтобы зарегистрироваться в боте, отправьте сообщение [club{group_id}|/регистрация Nickname], указав вместо Nickname свой ник в Политопии."""
-
-
-# TODO: move out of this module
-CHAT_PEER_ID_PREFIX = 2 * 10**9
 
 
 def main():
@@ -40,7 +37,7 @@ def main():
                     continue
                 message = event.obj.message
 
-                tournament_chat_peer_id = CHAT_PEER_ID_PREFIX + settings.tournament_chat_id
+                tournament_chat_peer_id = vk_utils.peer_id_by_chat_id(settings.tournament_chat_id)
                 if message['peer_id'] == tournament_chat_peer_id:
                     action = message.get('action')
                     if action is not None and action['type'] == 'chat_invite_user_by_link':
@@ -48,7 +45,7 @@ def main():
                         text = 'Привет, {username}!\nПрочитай правила в закреплённом сообщении.'.format(username=username)
                         vk.messages.send(message=text, peer_id=tournament_chat_peer_id, random_id=vk_api.utils.get_random_id())
 
-                if message['peer_id'] == CHAT_PEER_ID_PREFIX + settings.main_chat_id:
+                if message['peer_id'] == vk_utils.peer_id_by_chat_id(settings.main_chat_id):
                     action = message.get('action')
                     if action is not None and action['type'] == 'chat_invite_user_by_link':
                         username = fetch_username(message['from_id']).split()[0]
@@ -63,7 +60,7 @@ def main():
                     if event.from_chat:
                         print(text, end='\n\n', file=commands_log_file, flush=True)
                         print(text, end='\n\n', file=errors_log_file, flush=True)
-                        chat_id = message['peer_id'] - CHAT_PEER_ID_PREFIX
+                        chat_id = vk_utils.chat_id_by_peer_id(message['peer_id'])
                         if message['text'] == '!restart' and message['from_id'] in admins_ids and chat_id in admin_chats:
                             sys.exit()
                         process_message_chat(

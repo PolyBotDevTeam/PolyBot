@@ -1,6 +1,17 @@
 import collections as _collections
 
 
+CHAT_PEER_ID_PREFIX = 2 * 10**9
+
+
+def peer_id_by_chat_id(chat_id):
+    return CHAT_PEER_ID_PREFIX + chat_id
+
+
+def chat_id_by_peer_id(peer_id):
+    return peer_id - CHAT_PEER_ID_PREFIX
+
+
 def protect_empty_lines(text):
     return text.replace('\n\n', '\n \n')
 
