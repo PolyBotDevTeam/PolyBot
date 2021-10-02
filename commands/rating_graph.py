@@ -14,10 +14,8 @@ import elo
 import message_handler
 from db_utils import select, exists
 
-import settings
 
-
-def _process_rating_graph_command(player_id, command_text, **kwargs):
+def _process_rating_graph_command(player_id, command_text, *, vk, **kwargs):
     command_text = command_text.lstrip()
     pointer = command_text if command_text else None
 
@@ -59,8 +57,6 @@ def _process_rating_graph_command(player_id, command_text, **kwargs):
     # image_host = build_graph(times, host_elos, remove_repeating=True, title='Рейтинг игрока "%s" (хост)' % username)
     # image_away = build_graph(times, away_elos, remove_repeating=True, title='Рейтинг игрока "%s" (второй)' % username)
 
-    vk_session = vk_api.VkApi(token=settings.token)
-    vk = vk_session.get_api()
     upload = vk_api.VkUpload(vk)
 
     photos = upload.photo_messages([image_common])  # , image_host, image_away])
