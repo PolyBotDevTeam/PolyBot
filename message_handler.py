@@ -1,3 +1,4 @@
+import functools
 import importlib
 import io
 import os
@@ -69,9 +70,27 @@ def process_message_chat(vk, u, chat, command, prefix, *, user_message=None, dat
         if not allowed:
             return
 
-    args = process_command(u, user_command, user_message, database=database, vk=vk)
-    for message in args:
-        send_message(message, vk=vk, chat_id=str(chat))
+    actions = process_command(
+        u,
+        user_command,
+        user_message,
+        process_exception=functools.partial(process_exception, vk=vk),
+        database=database,
+        vk=vk
+    )
+
+    for action in actions:
+        if isinstance(action, vk_actions.Message):
+            send_message(message=action, vk=vk, chat_id=str(chat))
+        else:
+            raise TypeError('unknown action type:', type(action))
+
+
+def process_exception(exception, *, vk):
+    utils.print_exception(e, file=settings.errors_log_file)
+    error_message = utils.represent_exception(e)
+    # TODO: Make it guaranteed (now it can just raise ApiError and forget to notify latter)
+    send_message(error_message, vk=vk, chat_id=settings.polydev_chat_id)
 
 
 def send_message(message, vk, **kwargs):

@@ -88,10 +88,7 @@ def main():
                         pass
 
         except Exception as e:
-            print_exception(e, file=errors_log_file)
-            error_message = utils.represent_exception(e)
-            # TODO: Make it guaranteed (now it can just raise ApiError and forget to notify latter)
-            message_handler.send_message(error_message, vk=vk, chat_id=settings.polydev_chat_id)
+            message_handler.process_exception(e)
             sys.exit()
 
 

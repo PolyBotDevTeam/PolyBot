@@ -161,7 +161,7 @@ def process_admin_command(user_id, command, user_message, database, connection, 
     return result
 
 
-def process_command(user_id, command, user_message, *, database, vk):
+def process_command(user_id, command, user_message, *, process_exception, database, vk):
     prefix = command[0] if command else ''
     try:
         if prefix == '/':
@@ -171,13 +171,14 @@ def process_command(user_id, command, user_message, *, database, vk):
         with database.create_connection() as connection:
             result = process(user_id, command, user_message, database, connection, vk)
     except Exception as e:
-        print_exception(e, file=errors_log_file)
         if isinstance(e, user_errors.UserError):
             result = [str(text) for text in e.args]
             if not result:
                 result = ['Неправильный формат ввода.']
+            print_exception(e, file=errors_log_file)
         else:
             result = ['Что-то пошло не так.']
+            process_exception(e)
 
     result = list(result)
     for i, x in enumerate(result):
