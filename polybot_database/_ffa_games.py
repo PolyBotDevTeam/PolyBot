@@ -25,6 +25,15 @@ class FFAGames:
         )
         return self.get_game_by_id(game_id)
 
+    # TODO: Add get_all_games() method
+
+    def get_open_games(self):
+        response = self._execute(
+            'SELECT game_id FROM ffa_games WHERE name = NULL;',
+        )
+        games = [self.get_game_by_id(game_id) for [game_id] in response]
+        return tuple(games)
+
     def get_games_of_player(self, player_id: int):
         response = self._execute(
             'SELECT game_id FROM ffa_memberships WHERE member_id = %s;',
