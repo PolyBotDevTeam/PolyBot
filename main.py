@@ -11,6 +11,7 @@ import command_system
 import message_handler
 from message_handler import process_message_chat, load_modules, username as fetch_username
 from utils import print_exception
+import utils
 import vk_utils
 
 
@@ -88,6 +89,9 @@ def main():
 
         except Exception as e:
             print_exception(e, file=errors_log_file)
+            error_message = utils.represent_exception(e)
+            # TODO: Make it guaranteed (now it can just raise ApiError and forget to notify latter)
+            message_handler.send_message(error_message, vk=vk, chat_id=settings.polydev_chat_id)
             sys.exit()
 
 
