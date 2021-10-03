@@ -99,7 +99,11 @@ def exec_python(player_id, command_text, **kwargs):
     result = output.getvalue()
     if not result or returned_value is not None:
         result += repr(returned_value) + '\n'
-    return actions + [result[i:i+_MAX_MSG_SIZE] for i in range(0, len(result), _MAX_MSG_SIZE)]
+
+    output_messages = [result[i:i+_MAX_MSG_SIZE] for i in range(0, len(result), _MAX_MSG_SIZE)]
+    output_messages = [message for message in output_messages if not (isinstance(message, str) and message.isspace())]
+
+    return actions + output_messages
 
 
 def _exec_command_return_output(command):
