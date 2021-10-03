@@ -14,7 +14,7 @@ def join_ffa(actor, game_id, *, database):
     except game.errors.AlreadyMemberError:
         return [responses.ALREADY_JOINED_ERROR]
 
-    return [responses.JOINED_FFA_GAME.format(game=game)]
+    return [responses.JOINED_FFA_GAME.format(game_id=game.id)]
 
 
 def _process_join_ffa_command(actor, command_text, *, database, **kwargs):
