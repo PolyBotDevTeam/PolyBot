@@ -17,6 +17,28 @@ class FFAGame:
     def id(self):
         return self._id
 
+    @property
+    def game_id(self):
+        return self._get_field('game_id')
+
+    @property
+    def owner_id(self):
+        return self._get_field('owner_id')
+
+    @property
+    def description(self):
+        return self._get_field('description')
+
+    # TODO: If NULL then probably should raise exception instead of returning
+
+    @property
+    def name(self):
+        return self._get_field('name')
+
+    @property
+    def winner_id(self):
+        return self._get_field('winner_id')
+
     def exists(self):
         [[does_exist]] = self._execute(
             'SELECT EXISTS'
