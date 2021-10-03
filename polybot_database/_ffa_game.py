@@ -105,18 +105,18 @@ class FFAGame:
         if self.is_started():
             raise self.errors.AlreadyStartedError('the game is already started')
         self._verify_game_name(game_name)
-        self._set_field('game_name', game_name)
+        self._set_field('name', game_name)
 
     def rename(self, new_game_name: str):
         self._verify_game_name(new_game_name)
-        self._set_field('game_name', new_game_name)
+        self._set_field('name', new_game_name)
 
     def _verify_game_name(self, game_name: str):
         if not _polybot_utils.is_game_name_correct(game_name):
             raise self.errors.InvalidGameNameError('this name can\'t be the name of game')
 
     def is_started(self):
-        game_name = self._get_field('game_name')
+        game_name = self._get_field('name')
         return game_name is not None
 
     def finish(self, winner_id: int):
