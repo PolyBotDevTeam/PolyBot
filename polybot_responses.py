@@ -24,3 +24,7 @@ INVALID_GAME_NAME_ERROR = 'Пожалуйста, введите именно т�
 EMPTY_GAME_NAME_ERROR = 'Вы забыли ввести название игры, указанное в Политопии.'
 ALREADY_STARTED_ERROR = 'Данная игра уже была начата.'
 FFA_GAME_STARTED = 'Игра {game_id} успешно начата!'
+
+OPEN_FFA_GAMES_HEADER = 'Открытые ффа-игры:'
+OPEN_FFA_GAMES_ITEM = '''ID: {game_id} - {owner_username}
+{description}'''
