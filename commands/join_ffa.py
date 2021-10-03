@@ -42,5 +42,5 @@ join_ffa_command = command_system.Command(
     ],
     description='Присоединиться к ффа-игре',
     signature='айди_игры',
-    allow_users=False
+    allow_users=True
 )

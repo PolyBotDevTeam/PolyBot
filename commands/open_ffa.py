@@ -27,5 +27,5 @@ open_ffa_command = command_system.Command(
     keys=['открыть_ффа', 'открытьффа', 'создать_ффа', 'создатьффа', 'open_ffa', 'openffa'],
     description='Открыть новую ффа-игру в боте',
     signature='описание',
-    allow_users=False
+    allow_users=True
 )

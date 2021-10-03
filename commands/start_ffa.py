@@ -46,5 +46,5 @@ start_ffa_command = command_system.Command(
     keys=['начать_ффа', 'начатьффа', 'start_ffa', 'startffa'],
     description='Начать ффа-игру',
     signature='айди_игры название_игры',
-    allow_users=False
+    allow_users=True
 )
