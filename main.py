@@ -88,7 +88,7 @@ def main():
                         pass
 
         except Exception as e:
-            message_handler.process_exception(e)
+            message_handler.process_exception(e, vk=vk)
             sys.exit()
 
 

@@ -87,8 +87,8 @@ def process_message_chat(vk, u, chat, command, prefix, *, user_message=None, dat
 
 
 def process_exception(exception, *, vk):
-    utils.print_exception(e, file=settings.errors_log_file)
-    error_message = utils.represent_exception(e)
+    utils.print_exception(exception, file=settings.errors_log_file)
+    error_message = utils.represent_exception(exception)
     # TODO: Make it guaranteed (now it can just raise ApiError and forget to notify latter)
     send_message(error_message, vk=vk, chat_id=settings.polydev_chat_id)
 
