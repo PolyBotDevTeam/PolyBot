@@ -31,16 +31,16 @@ class FFAGames:
         response = self._execute(
             'SELECT game_id FROM ffa_games WHERE name = NULL;',
         )
-        games = [self.get_game_by_id(game_id) for [game_id] in response]
-        return tuple(games)
+        games = (self.get_game_by_id(game_id) for [game_id] in response)
+        return games
 
     def get_games_of_player(self, player_id: int):
         response = self._execute(
             'SELECT game_id FROM ffa_memberships WHERE member_id = %s;',
             [player_id]
         )
-        games = [self.get_game_by_id(game_id) for [game_id] in response]
-        return tuple(games)
+        games = (self.get_game_by_id(game_id) for [game_id] in response)
+        return games
 
 
 class _FFAGamesErrors:
