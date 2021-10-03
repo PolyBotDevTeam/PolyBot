@@ -54,10 +54,15 @@ def split_one(string, sep=None, do_clear_sep=True):
     return fst, snd
 
 
-def print_exception(e, file=_sys.stdout):
+def represent_exception(e):
     error_msg_io = _io.StringIO()
     _traceback.print_exception(type(e), e, e.__traceback__, file=error_msg_io)
-    _builtins.print(error_msg_io.getvalue(), file=file, flush=True)
+    return error_msg_io.getvalue()
+
+
+def print_exception(e, file=_sys.stdout):
+    error_msg = represent_exception(e)
+    _builtins.print(error_msg, file=file, flush=True)
 
 
 def safe_zip(*args):
