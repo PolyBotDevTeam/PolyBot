@@ -22,8 +22,12 @@ class FFAGames:
             'INSERT ffa_games(owner_id, description) VALUES (%s, %s);',
             [owner_id, description]
         )
+
+        # TODO: Probably should use LAST_INSERT_ID() to avoid bugs
         [[game_id]] = self._execute('SELECT MAX(game_id) FROM ffa_games;')
-        return self.get_game_by_id(game_id)
+        game = self.get_game_by_id(game_id)
+        game.add_member(owner_id)
+        return game
 
     # TODO: Add get_all_games() method
 
