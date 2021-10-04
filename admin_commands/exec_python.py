@@ -54,47 +54,39 @@ def exec_python(player_id, command_text, **kwargs):
         else:
             return output
 
-    connection = message_handler.create_connection()
-    with connection:
-        cur = connection.cursor()
-        try:
-            vk_session = vk_api.VkApi(token=settings.token)
-            returned_value = procedure(
-                code,
-                {
-                    'print': print_to_output,
-                    'add_action': add_action,
-                    'act': functools.partial(act, cur=cur),
-                    'bash': bash,
-
-                    'kwargs': kwargs,
-                    'cur': cur,
-                    'execute': functools.partial(db_utils.execute, cur),
-                    'exists': functools.partial(db_utils.exists, cur),
-
-                    'utils': utils,
-
-                    'vk': vk_session.get_api(),
-                    'vk_api': vk_api,
-
-                    'mh': message_handler,
-                    'cs': command_system,
-                    'getcmd': command_system.get_command,
-
-                    'collections': collections,
-                    'functools': functools,
-                    'itertools': itertools
-                },
-                None
-            )
-        except Exception as e:
-            utils.print_exception(e, file=output)
-            returned_value = None
-
+    cursor = kwargs['cursor']
     try:
-        connection.close()
-    except:
-        pass
+        returned_value = procedure(
+            code,
+            {
+                'print': print_to_output,
+                'add_action': add_action,
+                'act': functools.partial(act, cur=cursor),
+                'bash': bash,
+
+                'kwargs': kwargs,
+                'cur': cursor,
+                'execute': functools.partial(db_utils.execute, cursor),
+                'exists': functools.partial(db_utils.exists, cursor),
+
+                'utils': utils,
+
+                'vk': kwargs['vk'],
+                'vk_api': vk_api,
+
+                'mh': message_handler,
+                'cs': command_system,
+                'getcmd': command_system.get_command,
+
+                'collections': collections,
+                'functools': functools,
+                'itertools': itertools
+            },
+            None
+        )
+    except Exception as e:
+        utils.print_exception(e, file=output)
+        returned_value = None
 
     result = output.getvalue()
     if not result or returned_value is not None:
