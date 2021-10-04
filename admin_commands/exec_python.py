@@ -55,35 +55,34 @@ def exec_python(player_id, command_text, **kwargs):
             return output
 
     cursor = kwargs['cursor']
+
+    available_globals = {
+        'print': print_to_output,
+        'add_action': add_action,
+        'act': functools.partial(act, cur=cursor),
+        'bash': bash,
+
+        'kwargs': kwargs,
+        'cur': cursor,
+        'execute': functools.partial(db_utils.execute, cursor),
+        'exists': functools.partial(db_utils.exists, cursor),
+
+        'utils': utils,
+
+        'vk': kwargs['vk'],
+        'vk_api': vk_api,
+
+        'mh': message_handler,
+        'cs': command_system,
+        'getcmd': command_system.get_command,
+
+        'collections': collections,
+        'functools': functools,
+        'itertools': itertools
+    }
+
     try:
-        returned_value = procedure(
-            code,
-            {
-                'print': print_to_output,
-                'add_action': add_action,
-                'act': functools.partial(act, cur=cursor),
-                'bash': bash,
-
-                'kwargs': kwargs,
-                'cur': cursor,
-                'execute': functools.partial(db_utils.execute, cursor),
-                'exists': functools.partial(db_utils.exists, cursor),
-
-                'utils': utils,
-
-                'vk': kwargs['vk'],
-                'vk_api': vk_api,
-
-                'mh': message_handler,
-                'cs': command_system,
-                'getcmd': command_system.get_command,
-
-                'collections': collections,
-                'functools': functools,
-                'itertools': itertools
-            },
-            None
-        )
+        returned_value = procedure(code, available_globals, None)
     except Exception as e:
         utils.print_exception(e, file=output)
         returned_value = None
