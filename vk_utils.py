@@ -69,6 +69,11 @@ def fetch_usernames(users_ids, vk):
     return result
 
 
+def fetch_username(user_id, vk):
+    [username] = fetch_usernames([user_id], vk=vk)
+    return username
+
+
 def fetch_chat_members_ids(chat_id, vk):
     peer_id = peer_id_by_chat_id(chat_id)
     members = vk.messages.getConversationMembers(peer_id=peer_id)['items']
