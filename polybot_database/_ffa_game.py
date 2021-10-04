@@ -55,7 +55,7 @@ class FFAGame:
     def verify_description(cls, description: str):
         if not description:
             raise cls.errors.EmptyDescriptionError('game description can\'t be empty')
-        if len(description) > self._MAX_DESCRIPTION_LENGTH:
+        if len(description) > cls._MAX_DESCRIPTION_LENGTH:
             raise cls.errors.DescriptionTooLongError('this description is too long')
         pass
 
