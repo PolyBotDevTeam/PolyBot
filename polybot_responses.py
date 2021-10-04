@@ -60,3 +60,5 @@ FINISHED_FFA_GAME_INFO = '''ФФА №{game_id}.
 Победитель: {winner_username}
 Участники:
 {members_usernames}'''
+
+UNKNOWN_FFA_COMMAND_TAG = 'Не удалось определить, какое действие вы хотите совершить. Воспользуйтесь командой /помощь ффа'
