@@ -140,17 +140,13 @@ class FFAGame:
         return self.finish(winner_id=self._WINNER_ID_FOR_DRAW)
 
     def _get_field(self, field_name):
-        [[field_value]] = self._execute(
-            'SELECT %s FROM ffa_games WHERE game_id = %s;',
-            [field_name, self._id]
-        )
+        query = f'SELECT {field_name} FROM ffa_games WHERE game_id = %s;'
+        [[field_value]] = self._execute(query, [self._id])
         return field_value
 
     def _set_field(self, field_name, new_value):
-        self._execute(
-            'UPDATE ffa_games SET %s = %s WHERE game_id = %s;',
-            [field_name, new_value, self._id]
-        )
+        query = f'UPDATE ffa_games SET {field_name} = %s WHERE game_id = %s;'
+        self._execute(query, [new_value, self._id])
 
 
 class _FFAGameErrors:
