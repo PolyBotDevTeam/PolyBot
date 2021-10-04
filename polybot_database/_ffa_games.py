@@ -18,18 +18,18 @@ class FFAGames:
 
     def create_game(self, owner_id: int, description: str):
         self.FFAGame.verify_description(description)
-        [[game_id]] = self._execute(
-            'INSERT ffa_games(owner_id, description) VALUES (%s, %s);\n'
-            'SELECT LAST_INSERT_ID();',
+        self._execute(
+            'INSERT ffa_games(owner_id, description) VALUES (%s, %s);',
             [owner_id, description]
         )
+        [[game_id]] = self._execute('SELECT MAX(game_id) FROM ffa_games;')
         return self.get_game_by_id(game_id)
 
     # TODO: Add get_all_games() method
 
     def get_open_games(self):
         response = self._execute(
-            'SELECT game_id FROM ffa_games WHERE name = NULL;',
+            'SELECT game_id FROM ffa_games WHERE name is NULL;',
         )
         games = (self.get_game_by_id(game_id) for [game_id] in response)
         return games
