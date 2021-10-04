@@ -20,7 +20,7 @@ def view_ffa_game(game_id, *, database, vk):
         'members_usernames': members_usernames_lines
     }
 
-    if not game.is_started()
+    if not game.is_started():
         template = responses.OPEN_FFA_GAME_INFO
     elif not game.is_finished():
         template = responses.STARTED_FFA_GAME_INFO
