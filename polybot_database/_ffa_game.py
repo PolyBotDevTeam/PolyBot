@@ -98,6 +98,10 @@ class FFAGame:
         [members_ids] = _utils.safe_zip(*response)
         return members_ids
 
+    @property
+    def members(self):
+        return self.get_members()
+
     def delete(self):
         raise NotImplementedError
 
