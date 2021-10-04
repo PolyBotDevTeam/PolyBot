@@ -28,3 +28,24 @@ FFA_GAME_STARTED = 'Игра {game_id} успешно начата!'
 OPEN_FFA_GAMES_HEADER = 'Открытые ффа-игры:'
 OPEN_FFA_GAMES_ITEM = '''ID: {game_id} - {owner_username}
 {description}'''
+
+OPEN_FFA_GAME_INFO = '''ФФА №{game_id}.
+Создатель: {owner_username}
+Описание: {description}
+Участники:
+{members_usernames}'''
+
+STARTED_FFA_GAME_INFO = '''ФФА №{game_id}.
+Создатель: {owner_username}
+Описание: {description}
+Название: {name}
+Участники:
+{members_usernames}'''
+
+FINISHED_FFA_GAME_INFO = '''ФФА №{game_id}.
+Создатель: {owner_username}
+Описание: {description}
+Название: {name}
+Победитель: {winner_username}
+Участники:
+{members_usernames}'''
