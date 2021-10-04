@@ -33,14 +33,20 @@ def _process_finish_ffa_command(actor, command_text, *, database, vk, cursor, **
     if not command_text:
         return [responses.FINISH_FFA_NO_ARGUMENTS_ERROR]
 
-    game_id, winner = utils.split_one(command_text)
+    game_id, specified_winner = utils.split_one(command_text)
 
     try:
         game_id = int(game_id)
     except ValueError:
         return [responses.INVALID_ID_SYNTAX_ERROR]
 
-    winner_id = message_handler.try_to_identify_id(winner, cursor)
+    if not specified_winner:
+        return [responses.WINNER_IS_NOT_SPECIFIED_ERROR]
+
+    try:
+        winner_id = message_handler.try_to_identify_id(specified_winner, cursor)
+    except ValueError:
+        return [responses.UNABLE_TO_IDENTIFY_USER]
 
     return finish_ffa(actor, game_id, winner_id, database=database, vk=vk)
 
