@@ -95,7 +95,7 @@ class FFAGame:
             'SELECT member_id FROM ffa_memberships WHERE game_id = %s;',
             self._id
         )
-        [members_ids] = _utils.safe_zip(*response)
+        [members_ids] = _utils.safe_zip(*response, result_length=1)
         return members_ids
 
     @property

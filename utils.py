@@ -65,8 +65,26 @@ def print_exception(e, file=_sys.stdout):
     _builtins.print(error_msg, file=file, flush=True)
 
 
-def safe_zip(*args):
+def safe_zip(*args, result_length=None):
     args = [tuple(arg) for arg in args]
-    if len(set(map(len, args))) > 1:
-        raise ValueError('lengths do not match')
-    return tuple(zip(*args))
+
+    length_variants = set(map(len, args))
+    if len(length_variants) > 1:
+        raise ValueError('arguments lengths do not match')
+
+    if result_length is not None:
+        length_variants.add(result_length)
+
+    if len(length_variants) > 1:
+        raise ValueError('arguments lengths do not match with specified result length')
+    elif not length_variants:
+        raise ValueError('can\'t determine result length without arguments')
+
+    [result_length] = length_variants
+
+    result = tuple(zip(*args))
+    if len(result) != result_length:
+        assert not result and not args
+        result = tuple(() for i in range(result_length))
+
+    return result
