@@ -22,12 +22,12 @@ polybot_welcome = """Приветствую, {username}!
 
 def main():
     print('PolyBot Started!', flush=True)
-    
+
     vk_session = vk_api.VkApi(token=token)
     vk = vk_session.get_api()
-    
+
     longpoll = VkBotLongPoll(vk_session, group_id)
-    
+
     try:
         load_modules()
     except ImportError as e:
@@ -42,54 +42,55 @@ def main():
     while True:
         try:
             for event in longpoll.listen():
-                # print('New Event:', event, end='\n\n', flush=True)
-                if event.type != VkBotEventType.MESSAGE_NEW:
-                    continue
-                message = event.obj.message
-
-                # TODO: Move out this code
-
-                tournament_chat_peer_id = vk_utils.peer_id_by_chat_id(settings.tournament_chat_id)
-                if message['peer_id'] == tournament_chat_peer_id:
-                    action = message.get('action')
-                    if action is not None and action['type'] == 'chat_invite_user_by_link':
-                        username = fetch_username(message['from_id']).split()[0]
-                        text = 'Привет, {username}!\nПрочитай правила в закреплённом сообщении.'.format(username=username)
-                        vk.messages.send(message=text, peer_id=tournament_chat_peer_id, random_id=vk_api.utils.get_random_id())
-
-                if message['peer_id'] == vk_utils.peer_id_by_chat_id(settings.main_chat_id):
-                    action = message.get('action')
-                    if action is not None and action['type'] == 'chat_invite_user_by_link':
-                        username = fetch_username(message['from_id']).split()[0]
-                        text = polybot_welcome.format(username=username, group_id=group_id)
-                        vk.messages.send(message=text, peer_id=message['peer_id'], random_id=vk_api.utils.get_random_id())
-
-                text = message['text']
-                if not text:
-                    continue
-                prefix = text[0]
-                if prefix in ('/', '!'):
-                    if event.from_chat:
-                        print(text, end='\n\n', file=commands_log_file, flush=True)
-                        print(text, end='\n\n', file=errors_log_file, flush=True)
-                        chat_id = vk_utils.chat_id_by_peer_id(message['peer_id'])
-                        if message['text'] == '!restart' and message['from_id'] in admins_ids and chat_id in admin_chats:
-                            sys.exit()
-                        process_message_chat(
-                            vk=vk,
-                            u=message['from_id'],
-                            chat=chat_id,
-                            command=text,
-                            prefix=prefix,
-                            user_message=message,
-                            database=polybot_database
-                        )
-                    elif event.from_user:
-                        pass
-
+                _process_event(event, vk=vk, polybot_database=polybot_database)
         except Exception as e:
             message_handler.process_exception(e, vk=vk)
             sys.exit()
+
+
+def _process_event(event, *, vk, polybot_database):
+    # print('New Event:', event, end='\n\n', flush=True)
+    if event.type != VkBotEventType.MESSAGE_NEW:
+        return
+    message = event.obj.message
+
+    tournament_chat_peer_id = vk_utils.peer_id_by_chat_id(settings.tournament_chat_id)
+    if message['peer_id'] == tournament_chat_peer_id:
+        action = message.get('action')
+        if action is not None and action['type'] == 'chat_invite_user_by_link':
+            username = fetch_username(message['from_id']).split()[0]
+            text = 'Привет, {username}!\nПрочитай правила в закреплённом сообщении.'.format(username=username)
+            vk.messages.send(message=text, peer_id=tournament_chat_peer_id, random_id=vk_api.utils.get_random_id())
+
+    if message['peer_id'] == vk_utils.peer_id_by_chat_id(settings.main_chat_id):
+        action = message.get('action')
+        if action is not None and action['type'] == 'chat_invite_user_by_link':
+            username = fetch_username(message['from_id']).split()[0]
+            text = polybot_welcome.format(username=username, group_id=group_id)
+            vk.messages.send(message=text, peer_id=message['peer_id'], random_id=vk_api.utils.get_random_id())
+
+    text = message['text']
+    if not text:
+        return
+    prefix = text[0]
+    if prefix in ('/', '!'):
+        if event.from_chat:
+            print(text, end='\n\n', file=commands_log_file, flush=True)
+            print(text, end='\n\n', file=errors_log_file, flush=True)
+            chat_id = vk_utils.chat_id_by_peer_id(message['peer_id'])
+            if message['text'] == '!restart' and message['from_id'] in admins_ids and chat_id in admin_chats:
+                sys.exit()
+            process_message_chat(
+                vk=vk,
+                u=message['from_id'],
+                chat=chat_id,
+                command=text,
+                prefix=prefix,
+                user_message=message,
+                database=polybot_database
+            )
+        elif event.from_user:
+            pass
 
 
 if __name__ == '__main__':
