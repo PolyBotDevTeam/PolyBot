@@ -124,6 +124,8 @@ class FFAGame:
         return game_name is not None
 
     def finish(self, winner_id: int):
+        if not self.has_member(winner_id):
+            raise self.errors.NotAMemberError('specified winner is not in the game')
         if not self.is_started():
             raise self.errors.NotStartedError('unable to finish a game that has not been started')
         if self.is_finished():
