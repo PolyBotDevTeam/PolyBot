@@ -67,25 +67,11 @@ def _process_event(event, *, vk, polybot_database):
             text = template.format(username=username, group_id=group_id)
             message_handler.send_message(text, vk=vk, chat_id=chat_id)
 
-    text = message['text']
-    if not text:
-        return
-    prefix = text[0]
-    if prefix in ('/', '!'):
-        print(text, end='\n\n', file=settings.commands_log_file, flush=True)
-        print(text, end='\n\n', file=settings.errors_log_file, flush=True)
-        chat_id = vk_utils.chat_id_by_peer_id(message['peer_id'])
-        if message['text'] == '!restart' and message['from_id'] in settings.admins_ids and chat_id in settings.admin_chats:
-            sys.exit()
-        message_handler.process_message_chat(
-            vk=vk,
-            u=message['from_id'],
-            chat=chat_id,
-            command=text,
-            prefix=prefix,
-            user_message=message,
-            database=polybot_database
-        )
+    message_handler.process_message_from_chat(
+        vk=vk,
+        message=message,
+        database=polybot_database
+    )
 
 
 if __name__ == '__main__':

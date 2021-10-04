@@ -1,7 +1,7 @@
 import functools
 import importlib
-import io
 import os
+import sys
 import time
 
 import vk
@@ -55,12 +55,28 @@ def create_connection():
     return connection
 
 
-def process_message_chat(vk, u, chat, command, prefix, *, user_message=None, database):
-    user_command = command
-    del command
+def process_message_from_chat(message, *, vk, database):
+    chat_id = vk_utils.chat_id_by_peer_id(message['peer_id'])
+
+    triggering_prefixes = {'/', '!'}
+    text = message['text']
+
+    if not any(text.startswith(prefix) for prefix in triggering_prefixes):
+        return
+
+    assert text
+    prefix = text[0]
+    user_command = text
+
+    actor = message['from_id']
+
+    print(text, end='\n\n', file=settings.commands_log_file, flush=True)
+    print(text, end='\n\n', file=settings.errors_log_file, flush=True)
+    if user_command == '!restart' and actor in settings.admins_ids and chat_id in settings.admin_chats:
+        sys.exit()
 
     # TODO: command attr "admin_chat_required"
-    if chat not in settings.admin_chats:
+    if chat_id not in settings.admin_chats:
         whitelisted_commands = ['/спать', '/выбор_племени', '!py']
         whitelisted_data = [(x[0], command_system.get_command(x).keys) for x in whitelisted_commands]
         allowed = False
@@ -71,9 +87,9 @@ def process_message_chat(vk, u, chat, command, prefix, *, user_message=None, dat
             return
 
     actions = process_command(
-        u,
+        actor,
         user_command,
-        user_message,
+        message,
         process_exception=functools.partial(process_exception, vk=vk),
         database=database,
         vk=vk
@@ -81,7 +97,7 @@ def process_message_chat(vk, u, chat, command, prefix, *, user_message=None, dat
 
     for action in actions:
         if isinstance(action, vk_actions.Message):
-            send_message(message=action, vk=vk, chat_id=str(chat))
+            send_message(message=action, vk=vk, chat_id=chat_id)
         else:
             raise TypeError('unknown action type:', type(action))
 
