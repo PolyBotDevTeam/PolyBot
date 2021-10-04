@@ -48,8 +48,10 @@ def _process_ffa_game_command(actor, command_text, *, database, vk, **kwargs):
 ffa_game_command = command_system.Command(
     process=_process_ffa_game_command,
     keys=[
+        'ффа',
         'игра_ффа', 'играффа',
         'ффа_игра', 'ффаигра',
+        'ffa',
         'game_ffa', 'gameffa',
         'ffa_game', 'ffagame'
     ],
