@@ -12,7 +12,7 @@ def finish_ffa(actor, game_id, winner_id, *, database, vk):
     except ffa_games.errors.GameNotFoundError:
         return [responses.GAME_NOT_FOUND_ERROR]
 
-    if not game.is_owner(actor):
+    if actor != game.owner_id:
         return [responses.NOT_FFA_OWNER_ERROR]
 
     try:
