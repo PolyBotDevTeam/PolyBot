@@ -46,8 +46,8 @@ def exec_python(player_id, command_text, **kwargs):
             command,
             user_message=None,
             process_exception=process_exception,
-            database=database,
-            vk=vk
+            database=kwargs['database'],
+            vk=kwargs['vk']
         )
         if do_act:
             for action in response:
