@@ -20,15 +20,19 @@ def view_ffa_game(game_id, *, database, vk):
         'members_usernames': members_usernames_lines
     }
 
-    if not game.is_started():
-        template = responses.OPEN_FFA_GAME_INFO
-    elif not game.is_finished():
-        template = responses.STARTED_FFA_GAME_INFO
+    if game.is_started():
         formatting_params['name'] = game.name
-    else:
-        template = responses.FINISHED_FFA_GAME_INFO
-        [winner_username] = vk_utils.fetch_usernames([game.winner_id], vk=vk)
+
+    if game.is_finished():
+        winner_username = vk_utils.fetch_username(game.winner_id, vk=vk)
         formatting_params['winner_username'] = winner_username
+
+    if game.is_finished():
+        template = responses.FINISHED_FFA_GAME_INFO
+    elif game.is_started():
+        template = responses.STARTED_FFA_GAME_INFO
+    else:
+        template = responses.OPEN_FFA_GAME_INFO
 
     game_info = template.format(**formatting_params)
 
