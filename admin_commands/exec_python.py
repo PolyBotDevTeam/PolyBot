@@ -38,8 +38,17 @@ def exec_python(player_id, command_text, **kwargs):
     def add_action(action):
         actions.append(action)
 
-    def act(command, *, cur, do_act=True):
-        response = command_system.process_command(-settings.group_id, command, cur)
+    def act(command, *, do_act=True):
+        def process_exception(e):
+            raise e
+        response = command_system.process_command(
+            -settings.group_id,
+            command,
+            user_message=None,
+            process_exception=process_exception,
+            database=database,
+            vk=vk
+        )
         if do_act:
             for action in response:
                 add_action(action)
@@ -59,7 +68,7 @@ def exec_python(player_id, command_text, **kwargs):
     available_globals = {
         'print': print_to_output,
         'add_action': add_action,
-        'act': functools.partial(act, cur=cursor),
+        'act': act,
         'bash': bash,
 
         'kwargs': kwargs,
