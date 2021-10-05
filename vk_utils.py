@@ -48,6 +48,12 @@ def id_by_mention(mention):
     return +value if prefix == 'id' else -value
 
 
+def create_mention(user_id, vk):
+    prefix = 'id' if user_id >= 0 else 'club'
+    name = fetch_username(user_id, vk=vk)
+    return f'[{prefix}{user_id}|{name}]'
+
+
 def fetch_usernames(users_ids, vk):
     users_ids = tuple(users_ids)
     assert len(users_ids) <= 1000

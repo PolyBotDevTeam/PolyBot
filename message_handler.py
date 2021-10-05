@@ -178,16 +178,6 @@ def player_id_by_username(username, cur):
     return players_ids[usernames.index(uname_need)]
 
 
-def fetch_usernames(users_ids):
-    return vk_utils.fetch_usernames(users_ids=users_ids, vk=api)
-
-
-def username(user_id):
-    (result,) = fetch_usernames([user_id])
-    return result
-
-
-def create_mention(user_id):
-    prefix = 'id' if user_id >= 0 else 'club'
-    name = username(user_id)
-    return f'[{prefix}{user_id}|{name}]'
+fetch_usernames = functools.partial(vk_utils.fetch_usernames, vk=api)
+username = functools.partial(vk_utils.fetch_username, vk=api)
+create_mention = functools.partial(vk_utils.create_mention, vk=api)
