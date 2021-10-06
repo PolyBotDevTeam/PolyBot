@@ -33,7 +33,14 @@ class FFAGames:
 
     def get_open_games(self):
         response = self._execute(
-            'SELECT game_id FROM ffa_games WHERE name is NULL;',
+            'SELECT game_id FROM ffa_games WHERE name IS NULL;',
+        )
+        games = (self.get_game_by_id(game_id) for [game_id] in response)
+        return games
+
+    def get_incomplete_games(self):
+        response = self._execute(
+            'SELECT game_id FROM ffa_games WHERE name IS NOT NULL AND winner_id IS NULL;',
         )
         games = (self.get_game_by_id(game_id) for [game_id] in response)
         return games
