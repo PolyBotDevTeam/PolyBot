@@ -40,7 +40,7 @@ UNABLE_TO_FINISH_UNSTARTED_GAME = 'Данная игра ещё не начат�
 ALREADY_FINISHED_ERROR = 'Данная игра уже завершена.'
 FFA_GAME_FINISHED = 'ФФА {game_id} завершена, победитель - {winner_mention}!'
 
-OPEN_FFA_GAMES_HEADER = 'Открытые ффа-игры:'
+OPEN_FFA_GAMES_HEADER = 'Открытые ФФА:'
 OPEN_FFA_GAMES_ITEM = '''ID: {game_id} - {owner_username}
 {description}'''
 
