@@ -15,7 +15,12 @@ def open_ffa(actor, description, *, database):
     except errors.InvalidDescriptionError:
         raise
 
-    return [responses.FFA_GAME_OPENED.format(game_id=game.id)]
+    message_about_opened_game = responses.FFA_GAME_OPENED.format(
+        game_id=game.id,
+        description=game.description
+    )
+
+    return [message_about_opened_game]
 
 
 def _process_open_ffa_command(actor, command_text, *, database, **kwargs):

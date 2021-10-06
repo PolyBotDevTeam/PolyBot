@@ -6,7 +6,8 @@ UNABLE_TO_IDENTIFY_USER = 'Не удалось обнаружить пользо
 
 EMPTY_DESCRIPTION_ERROR = 'Описание игры не может быть пустым. Оно указывается в конце команды.'
 DESCRIPTION_TOO_LONG_ERROR = 'Описание игры слишком длинное. Чтобы открыть игру, вам нужно сделать его короче.'
-FFA_GAME_OPENED = 'Игра {game_id} создана!'
+FFA_GAME_OPENED = '''Игра {game_id} создана!
+Описание: {description}'''
 
 GAME_NOT_FOUND_ERROR = 'Не удалось найти игру с таким айди.'
 
@@ -37,26 +38,26 @@ WINNER_IS_NOT_SPECIFIED_ERROR = 'Вы забыли указать победит
 WINNER_IS_NOT_A_MEMBER_ERROR = 'Указанный победитель не является участником данной игры.'
 UNABLE_TO_FINISH_UNSTARTED_GAME = 'Данная игра ещё не начата.'
 ALREADY_FINISHED_ERROR = 'Данная игра уже завершена.'
-FFA_GAME_FINISHED = 'ФФА {game_id} завершена, победитель - {winner_username}!'
+FFA_GAME_FINISHED = 'ФФА {game_id} завершена, победитель - {winner_mention}!'
 
 OPEN_FFA_GAMES_HEADER = 'Открытые ффа-игры:'
 OPEN_FFA_GAMES_ITEM = '''ID: {game_id} - {owner_username}
 {description}'''
 
-OPEN_FFA_GAME_INFO = '''ФФА №{game_id}.
+OPEN_FFA_GAME_INFO = '''ФФА №{game_id} - Открыта.
 Создатель: {owner_username}
 Описание: {description}
 Участники:
 {members_usernames}'''
 
-STARTED_FFA_GAME_INFO = '''ФФА №{game_id}.
+STARTED_FFA_GAME_INFO = '''ФФА №{game_id} - Идёт.
 Создатель: {owner_username}
 Описание: {description}
 Название: {name}
 Участники:
 {members_usernames}'''
 
-FINISHED_FFA_GAME_INFO = '''ФФА №{game_id}.
+FINISHED_FFA_GAME_INFO = '''ФФА №{game_id} - Завершена.
 Создатель: {owner_username}
 Описание: {description}
 Название: {name}

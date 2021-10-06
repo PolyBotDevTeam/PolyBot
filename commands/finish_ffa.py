@@ -24,9 +24,14 @@ def finish_ffa(actor, game_id, winner_id, *, database, vk):
     except game.errors.AlreadyFinishedError:
         return [responses.ALREADY_FINISHED_ERROR]
 
-    [winner_username] = vk_utils.fetch_usernames([winner_id], vk=vk)
+    winner_mention = vk_utils.create_mention(winner_id, vk=vk)
 
-    return [responses.FFA_GAME_FINISHED.format(game_id=game.id, winner_username=winner_username)]
+    message_about_game_finish = responses.FFA_GAME_FINISHED.format(
+        game_id=game.id,
+        winner_mention=winner_mention
+    )
+
+    return [message_about_game_finish]
 
 
 def _process_finish_ffa_command(actor, command_text, *, database, vk, cursor, **kwargs):
