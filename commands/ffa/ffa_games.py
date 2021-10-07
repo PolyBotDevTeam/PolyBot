@@ -65,8 +65,8 @@ _description = (
 
 ffa_games_command = command_system.Command(
     process=_process_ffa_games_command,
-    keys=['show_ffa_list'],
+    keys=['показать_список_ффа', 'show_ffa_list'],
     description=_description,
     signature='[стадия]',
-    allow_users=False
+    allow_users=True
 )

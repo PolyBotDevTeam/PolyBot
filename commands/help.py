@@ -14,6 +14,8 @@ def help(player_id, command_text):
         message = command_text + command.description
         return [message]
 
+    get_user_command = command_system.user_commands.get_command
+
     groups = [
         ['гайд', 'помощь', 'правила'],
         ['игрок', 'ник', 'сменить_ник', 'топ', 'рейтинг', 'шанс'],
@@ -23,22 +25,30 @@ def help(player_id, command_text):
         ['ффа']
     ]
 
+    commands_to_ignore = [
+        'открыть_ффа', 'войти_в_ффа', 'начать_ффа', 'завершить_ффа',
+        'игра_ффа', 'показать_список_ффа'
+    ]
+    commands_to_ignore = [get_user_command(name) for name in commands_to_ignore]
+
     commands_shown = []
 
     message = 'Список команд:\n\n'
     for group in groups:
         message += '* * *\n\n'
         for cmd_name in group:
-            c = command_system.user_commands.get_command(cmd_name)
+            c = get_user_command(cmd_name)
             message += '/' + c.keys[0] + c.description + '\n\n'
             commands_shown.append(c)
 
-    first = True
-    for c in command_system.get_user_command_list():
-        if c not in commands_shown:
-            if first:
-                message += '* * *\n\n'
-                first = False
+    commands_missed = [
+        c for c in command_system.get_user_command_list()
+        if c not in commands_shown + commands_to_ignore
+    ]
+
+    if commands_missed:
+        message += '* * *\n\n'
+        for c in commands_missed:
             message += '/' + c.keys[0] + c.description + '\n\n'
 
     message = vk_utils.protect_empty_lines(message)

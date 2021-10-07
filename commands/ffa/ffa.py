@@ -41,9 +41,9 @@ def _process_ffa_command(actor, command_text, **kwargs):
     if tag in _TAGS_FOR_SHOWING_GAME_INFO:
         command_name = '/ffa_game'
     elif tag in _TAGS_FOR_SHOWING_OPEN_GAMES:
-        command_name = '!show_ffa_list'
+        command_name = '/show_ffa_list'
     elif tag in _TAGS_FOR_SHOWING_INCOMPLETE_GAMES:
-        command_name = '!show_ffa_list'
+        command_name = '/show_ffa_list'
         command_text = f'incomplete {command_text}'
     elif tag in _TAGS_FOR_OPENING_GAME:
         command_name = '/open_ffa'
