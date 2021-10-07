@@ -3,12 +3,10 @@ import io as _io
 import sys as _sys
 import traceback as _traceback
 
-import settings as _settings
 
-
-# TODO: move to vk_utils.py
-# TODO: just specify special parameter instead
-def delete_mentions(string):
+# TODO: Maybe should move to vk_utils.py
+# TODO: Or even remove it
+def delete_mentions(string, *, address_replacement='club0'):
     new_string, *parts = string.split('[')
     for s in parts:
         new_string += '['
@@ -19,7 +17,7 @@ def delete_mentions(string):
             if i == len(s):
                 new_string += s[:i]
             else:
-                new_string += f'club{_settings.group_id}'
+                new_string += address_replacement
             new_string += s[i:]
     new_string = new_string.replace('all', 'аll').replace('everyone', 'еveryone').replace('online', 'оnline').replace('here', 'hеre')
     new_string = new_string.replace('все', 'вcе').replace('онлайн', 'oнлайн').replace('тут', 'тyт').replace('здесь', 'здeсь')
