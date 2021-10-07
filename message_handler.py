@@ -23,7 +23,7 @@ session = vk.Session()
 api = vk.API(session, access_token=settings.token, v=5.107)
 
 
-def load_modules():
+def load_commands():
     exceptions = []
 
     project_folder = settings.project_folder

@@ -21,7 +21,7 @@ def main():
     longpoll = VkBotLongPoll(vk_session, settings.group_id)
 
     try:
-        message_handler.load_modules()
+        message_handler.load_commands()
     except ImportError as e:
         [exceptions] = e.args
         errors_log = io.StringIO()
