@@ -27,18 +27,17 @@ def load_modules():
     exceptions = []
 
     project_folder = settings.project_folder
-    for folder in ['commands/', 'admin_commands/']:
-        folder = os.path.join(project_folder, folder)
-        for package_path, dirs, files in os.walk(folder):
-            modules_names = filter(lambda x: x.endswith('.py'), files)
-            for module_name in modules_names:
-                module_path = os.path.join(package_path, module_name)
-                spec = importlib.util.spec_from_file_location(module_name, module_path)
-                foo = importlib.util.module_from_spec(spec)
-                try:
-                    spec.loader.exec_module(foo)
-                except Exception as e:
-                    exceptions.append(e)
+    commands_folder = os.path.join(project_folder, 'commands/')
+    for package_path, subdirs, files in os.walk(commands_folder):
+        modules_names = filter(lambda x: x.endswith('.py'), files)
+        for module_name in modules_names:
+            module_path = os.path.join(package_path, module_name)
+            spec = importlib.util.spec_from_file_location(module_name, module_path)
+            module = importlib.util.module_from_spec(spec)
+            try:
+                spec.loader.exec_module(module)
+            except Exception as e:
+                exceptions.append(e)
 
     if exceptions:
         raise ImportError(exceptions)
