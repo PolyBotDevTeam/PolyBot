@@ -23,13 +23,13 @@ def ffa_games(command_mode_key, *, database, vk):
     else:
         raise ValueError('invalid command mode:', command_mode_key)
 
-    games_list = _format_ffa_games(games, game_template)
+    games_list = _format_ffa_games(games, game_template, vk=vk)
     result_message_text = whole_message_template.format(games_list=games_list)
 
     return [result_message_text]
 
 
-def _format_ffa_games(games, game_template, *, separator='\n\n'):
+def _format_ffa_games(games, game_template, *, separator='\n\n', vk):
     texts_about_games = []
 
     for game in games:
