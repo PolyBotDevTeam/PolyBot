@@ -45,6 +45,8 @@ def _format_ffa_games(games, game_template, *, separator='\n\n', vk):
             'game_name': game.name if game.is_started() else None,
             'winner_username': winner_username
         }
+        # TODO: members
+        # TODO: move out even more, maybe smart format class?
         text_about_game = game_template.format(**formatting_kwargs)
         texts_about_games.append(text_about_game)
 
