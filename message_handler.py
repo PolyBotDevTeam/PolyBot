@@ -29,15 +29,16 @@ def load_modules():
     project_folder = settings.project_folder
     for folder in ['commands/', 'admin_commands/']:
         folder = os.path.join(project_folder, folder)
-        files = os.listdir(folder)
-        modules = filter(lambda x: x.endswith('.py'), files)
-        for m in modules:
-            spec = importlib.util.spec_from_file_location(m, os.path.join(folder, m))
-            foo = importlib.util.module_from_spec(spec)
-            try:
-                spec.loader.exec_module(foo)
-            except Exception as e:
-                exceptions.append(e)
+        for package_path, dirs, files in os.walk(folder):
+            modules_names = filter(lambda x: x.endswith('.py'), files)
+            for module_name in modules_names:
+                module_path = os.path.join(package_path, module_name)
+                spec = importlib.util.spec_from_file_location(module_name, module_path)
+                foo = importlib.util.module_from_spec(spec)
+                try:
+                    spec.loader.exec_module(foo)
+                except Exception as e:
+                    exceptions.append(e)
 
     if exceptions:
         raise ImportError(exceptions)
