@@ -13,6 +13,8 @@ def change_description(player_id, command_text):
         message = 'После команды первым необходимо ввести ID игры.'
         return [message]
 
+    new_description = command_text
+
     if not new_description:
         return ['Необходимо ввести новое описание игры.']
 
