@@ -3,29 +3,14 @@ import io as _io
 import sys as _sys
 import traceback as _traceback
 
-
-# TODO: Maybe should move to vk_utils.py
-# TODO: Or even remove it
-def delete_mentions(string, *, address_replacement='club0'):
-    new_string, *parts = string.split('[')
-    for s in parts:
-        new_string += '['
-        if s.startswith('id'):
-            i = 0
-            while i < len(s) and s[i] != '|':
-                i += 1
-            if i == len(s):
-                new_string += s[:i]
-            else:
-                new_string += address_replacement
-            new_string += s[i:]
-    new_string = new_string.replace('all', 'аll').replace('everyone', 'еveryone').replace('online', 'оnline').replace('here', 'hеre')
-    new_string = new_string.replace('все', 'вcе').replace('онлайн', 'oнлайн').replace('тут', 'тyт').replace('здесь', 'здeсь')
-    return new_string
+# TODO: Should remove block with delete_mentions, it's only here for backward compatibility
+import vk_utils as _vk_utils
 
 
-# split_some?
+delete_mentions = _vk_utils.break_mentions
 
+
+# TODO: split_some?
 
 # TODO: use str.split(..., 1) instead
 def split_one(string, sep=None, do_clear_sep=True):

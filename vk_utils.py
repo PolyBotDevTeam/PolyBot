@@ -27,6 +27,24 @@ def highlight_marked_text_areas(
     return message_text
 
 
+def break_mentions(string, *, address_replacement='club0'):
+    new_string, *parts = string.split('[')
+    for s in parts:
+        new_string += '['
+        if s.startswith('id'):
+            i = 0
+            while i < len(s) and s[i] != '|':
+                i += 1
+            if i == len(s):
+                new_string += s[:i]
+            else:
+                new_string += address_replacement
+            new_string += s[i:]
+    new_string = new_string.replace('all', 'аll').replace('everyone', 'еveryone').replace('online', 'оnline').replace('here', 'hеre')
+    new_string = new_string.replace('все', 'вcе').replace('онлайн', 'oнлайн').replace('тут', 'тyт').replace('здесь', 'здeсь')
+    return new_string
+
+
 class InvalidMentionError(ValueError):
     pass
 
