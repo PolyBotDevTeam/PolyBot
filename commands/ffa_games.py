@@ -4,6 +4,7 @@ import vk_utils
 
 
 _OPEN_MODE_KEYS = ('', 'open')
+_INCOMPLETE_MODE_KEYS = ('incomplete',)
 
 
 def ffa_games(command_mode_key, *, database, vk):
@@ -13,6 +14,12 @@ def ffa_games(command_mode_key, *, database, vk):
         games = ffa_games.get_open_games()
         game_template = responses.OPEN_FFA_GAMES_ITEM
         whole_message_template = responses.OPEN_FFA_GAMES
+
+    elif command_mode_key in _INCOMPLETE_MODE_KEYS:
+        games = ffa_games.get_incomplete_games()
+        game_template = responses.INCOMPLETE_FFA_GAMES_ITEM
+        whole_message_template = responses.INCOMPLETE_FFA_GAMES
+
     else:
         raise ValueError('invalid command mode:', command_mode_key)
 

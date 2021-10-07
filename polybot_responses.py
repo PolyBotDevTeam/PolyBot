@@ -48,6 +48,13 @@ OPEN_FFA_GAMES = '''Открытые ФФА:
 OPEN_FFA_GAMES_ITEM = '''ID: {game_id} - {owner_username}
 Описание: {description}'''
 
+INCOMPLETE_FFA_GAMES = '''Текущие ФФА:
+
+{games_list}'''
+INCOMPLETE_FFA_GAMES_ITEM = '''ID: {game_id} - {game_name}
+Создатель: {owner_username}
+Описание: {description}'''
+
 
 OPEN_FFA_GAME_INFO = '''ФФА №{game_id} - Открыта.
 Создатель: {owner_username}

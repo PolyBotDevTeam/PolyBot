@@ -5,6 +5,7 @@ import utils
 
 _TAGS_FOR_SHOWING_GAME_INFO = ('game', 'игра', 'info', 'инфо')
 _TAGS_FOR_SHOWING_OPEN_GAMES = ('', 'open_list', 'список_открытых', 'открытые')
+_TAGS_FOR_SHOWING_INCOMPLETE_GAMES = ('текущие', 'incomplete')
 _TAGS_FOR_OPENING_GAME = ('open', 'create', 'открыть', 'создать')
 _TAGS_FOR_JOINING_GAME = ('join', 'войти', 'зайти')
 _TAGS_FOR_STARTING_GAME = ('start', 'начать')
@@ -41,6 +42,9 @@ def _process_ffa_command(actor, command_text, **kwargs):
         command_name = '/ffa_game'
     elif tag in _TAGS_FOR_SHOWING_OPEN_GAMES:
         command_name = '!show_ffa_list'
+    elif tag in _TAGS_FOR_SHOWING_INCOMPLETE_GAMES:
+        command_name = '!show_ffa_list'
+        command_text = f'incomplete {command_text}'
     elif tag in _TAGS_FOR_OPENING_GAME:
         command_name = '/open_ffa'
     elif tag in _TAGS_FOR_JOINING_GAME:
