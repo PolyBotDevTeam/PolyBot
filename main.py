@@ -6,7 +6,6 @@ from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 
 from polybot_database import PolyBotDatabase
 import settings
-from settings import group_id
 import command_system
 import message_handler
 import utils
@@ -19,7 +18,7 @@ def main():
     vk_session = vk_api.VkApi(token=settings.token)
     vk = vk_session.get_api()
 
-    longpoll = VkBotLongPoll(vk_session, group_id)
+    longpoll = VkBotLongPoll(vk_session, settings.group_id)
 
     try:
         message_handler.load_modules()
@@ -43,7 +42,9 @@ def main():
 
 polybot_welcome = """Приветствую, {username}!
 
-Чтобы зарегистрироваться в боте, отправьте сообщение [club{group_id}|/регистрация Nickname], указав вместо Nickname свой ник в Политопии."""
+Чтобы зарегистрироваться в боте, отправьте сообщение </регистрация Nickname>, указав вместо Nickname свой ник в Политопии."""
+
+polybot_welcome = vk_utils.highlight_marked_text_areas(polybot_welcome)
 
 
 def _process_event(event, *, vk, polybot_database):
@@ -64,7 +65,7 @@ def _process_event(event, *, vk, polybot_database):
         action = message.get('action')
         if action is not None and action['type'] == 'chat_invite_user_by_link':
             username = vk_utils.fetch_username(message['from_id'], vk=vk).split()[0]
-            text = template.format(username=username, group_id=group_id)
+            text = template.format(username=username)
             message_handler.send_message(text, vk=vk, chat_id=chat_id)
 
     message_handler.process_message_from_chat(

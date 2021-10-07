@@ -1,7 +1,7 @@
 import command_system
 from elo import DEFAULT_ELO
 import message_handler
-import settings
+import vk_utils
 
 
 guide_after_registration = """
@@ -17,7 +17,10 @@ guide_after_registration = """
 Не забывайте, что у игр в боте есть </правила>.
 Полный список команд можно просмотреть командой </команды>.
 Чтобы получить помощь по какой-либо команде, напишите </помощь имя_команды>.
-""".strip().replace('<', f'[club{settings.group_id}|').replace('>', ']')
+"""
+guide_after_registration = guide_after_registration.strip()
+
+guide_after_registration = vk_utils.highlight_marked_text_areas(guide_after_registration)
 
 
 def set_nickname(player_id, command_text):

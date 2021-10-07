@@ -16,6 +16,17 @@ def protect_empty_lines(text):
     return text.replace('\n\n', '\n \n')
 
 
+def highlight_marked_text_areas(
+    message_text, *,
+    start_syntax='<',
+    stop_syntax='>',
+    mentions_address_str='club0'
+):
+    message_text = message_text.replace(start_syntax, f'[{mentions_address_str}|')
+    message_text = message_text.replace(stop_syntax, ']')
+    return message_text
+
+
 class InvalidMentionError(ValueError):
     pass
 

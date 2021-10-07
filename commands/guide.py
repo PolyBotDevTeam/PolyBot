@@ -1,5 +1,5 @@
 import command_system
-import settings
+import vk_utils
 
 
 guide_text = '''Гайд по пользованию ботом.
@@ -29,7 +29,9 @@ guide_text = '''Гайд по пользованию ботом.
 Посмотреть список оконченных игр можно с помощью команды </завершённые>, неоконченных - </текущие>.
 
 Список игроков с наивысшим рейтингом покажет команда </топ>.
-Приятной игры!'''.replace('<', f'[club{settings.group_id}|').replace('>', ']')
+Приятной игры!'''
+
+guide_text = vk_utils.highlight_marked_text_areas(guide_text)
 
 
 def guide(player_id, command_text):
