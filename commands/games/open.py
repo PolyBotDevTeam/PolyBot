@@ -1,14 +1,13 @@
 import command_system
 import message_handler
-import utils
+import vk_utils
 
 
 def open(player_id, command_text):
-    description = command_text.lstrip()
+    description = command_text
     if not description:
         message = 'Необходимо ввести описание игры. Это может быть имя игрока с которым вы хотите сыграть, минимальный/максимальный рейтинг для вступления, какие-либо дополнительные правила на ваше усмотрение. По умолчанию игра создаётся на карте размера Normal в режиме Might.'
         return [message]
-    description = utils.delete_mentions(description)
 
     connection = message_handler.create_connection()
     with connection:
@@ -37,8 +36,10 @@ def open(player_id, command_text):
         cur.execute('INSERT games(type, host_id, description, time_updated) VALUES (\'o\', %s, %s, NOW());', (player_id, description))
         cur.execute('SELECT MAX(game_id) FROM games')
         new_id = cur.fetchone()[0]
-        message = f'Игра успешно открыта.\nID игры в системе: {new_id}\nОписание: {description}'
-        return [message]
+
+    message = f'Игра успешно открыта.\nID игры в системе: {new_id}\nОписание: {description}'
+    message = vk_utils.break_mentions(message)
+    return [message]
 
 
 open_command = command_system.UserCommand()

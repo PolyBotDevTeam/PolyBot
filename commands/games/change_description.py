@@ -2,6 +2,7 @@ import command_system
 import message_handler
 import utils
 import db_utils
+import vk_utils
 
 
 def change_description(player_id, command_text):
@@ -12,7 +13,6 @@ def change_description(player_id, command_text):
         message = 'После команды первым необходимо ввести ID игры.'
         return [message]
 
-    new_description = utils.delete_mentions(command_text)
     if not new_description:
         return ['Необходимо ввести новое описание игры.']
 
@@ -33,10 +33,13 @@ def change_description(player_id, command_text):
         assert game_type in ('o', 'r')
 
         cur.execute('UPDATE games SET description = %s, time_updated = NOW() WHERE game_id = %s;', (new_description, game_id))
-        message = f'Описание игры {game_id} успешно изменено.\n\nСтарое описание: {old_description}\n\nНовое описание: {new_description}'
-        if away_id is not None:
-            message += f'\n\n[id{away_id}|{message_handler.username(away_id)}], не пропустите изменения.'
-        return [message]
+
+    message = f'Описание игры {game_id} успешно изменено.\n\nСтарое описание: {old_description}\n\nНовое описание: {new_description}'
+    message = vk_utils.break_mentions(message)
+    if away_id is not None:
+        message += f'\n\n[id{away_id}|{message_handler.username(away_id)}], не пропустите изменения.'
+
+    return [message]
 
 
 change_description_command = command_system.UserCommand()

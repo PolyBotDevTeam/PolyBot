@@ -1,19 +1,19 @@
 import command_system
-from utils import delete_mentions, split_one
 import message_handler
 import polybot_utils
+import utils
+import vk_utils
 
 
 def start(player_id, command_text):
-    command_text = command_text.lstrip()
+    command_text = command_text
     try:
-        game_id, name = split_one(command_text)
+        game_id, name = utils.split_one(command_text)
         game_id = int(game_id)
     except:
         message = 'После имени команды необходимо ввести ID игры, а затем её название в Политопии.'
         return [message]
 
-    name = delete_mentions(name)
     if not name:
         return ['После айди игры необходимо ввести название игры в Политопии.']
     if not polybot_utils.is_game_name_correct(name):
@@ -31,8 +31,10 @@ def start(player_id, command_text):
         (away_id,) = fetch
         del fetch
         cur.execute('UPDATE games SET name = %s, type = \'i\', time_updated = NOW() WHERE game_id = %s;', (name, game_id))
-        message = f'Игра {game_id} успешно создана.\n\n[id{away_id}|{message_handler.username(away_id)}], в ближайшее время вы будете приглашены в игру {name}.'
-        return [message]
+
+    name = vk_utils.break_mentions(name)
+    message = f'Игра {game_id} успешно создана.\n\n[id{away_id}|{message_handler.username(away_id)}], в ближайшее время вы будете приглашены в игру {name}.'
+    return [message]
 
 
 start_command = command_system.UserCommand()

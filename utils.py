@@ -3,12 +3,6 @@ import io as _io
 import sys as _sys
 import traceback as _traceback
 
-# TODO: Should remove block with delete_mentions, it's only here for backward compatibility
-import vk_utils as _vk_utils
-
-
-delete_mentions = _vk_utils.break_mentions
-
 
 # TODO: split_some?
 

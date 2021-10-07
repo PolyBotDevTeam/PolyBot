@@ -2,12 +2,13 @@ import command_system
 import elo
 from message_handler import username
 import message_handler
-from utils import split_one
+import utils
+import vk_utils
 
 
 def game(player_id, command_text):
     try:
-        game_id, command_text = split_one(command_text)
+        game_id, command_text = utils.split_one(command_text)
         del command_text
         game_id = int(game_id)
     except ValueError:
@@ -25,6 +26,11 @@ def game(player_id, command_text):
         game_type, host_id, away_id, description, time_updated, host_winner, name = fetch
         del fetch
 
+        if description is not None:
+            description = vk_utils.break_mentions(description)
+        if name is not None:
+            name = vk_utils.break_mentions(name)
+
         host_username = username(host_id)
         away_username = username(away_id) if away_id is not None else None
         if host_winner is not None:
@@ -35,11 +41,11 @@ def game(player_id, command_text):
 
         if game_type == 'o':
             message = 'Игра №{0}.\nХост: {1}\nОписание: {2}\nИгра открыта, к ней можно присоединиться командой /войти {0}'.format(str(game_id), host_username, description)
-            return [message]
-        if game_type == 'r':
+        elif game_type == 'r':
             message = 'Игра №{0}.\n{1} vs {3}\nОписание: {4}\nИгра ждёт своего начала. [id{2}|{1}], начните игру.'.format(str(game_id), host_username, host_id, away_username, description)
-            return [message]
-        message = 'Игра №{0} - {1}.\n{2} vs {3}\nОписание: {4}\n'.format(str(game_id), name, host_username, away_username, description)
+        else:
+            message = 'Игра №{0} - {1}.\n{2} vs {3}\nОписание: {4}\n'.format(str(game_id), name, host_username, away_username, description)
+
         if game_type == 'c':
             message += 'Победитель: %s\n' % winner_username
             deltas = elo.fetch_rating_deltas(game_id, cur)
@@ -55,6 +61,7 @@ def game(player_id, command_text):
                 message += '{1} объявлен победителем. [id{3}|{2}], подтвердите победу противника командой /победил противник {0}'.format(game_id, host_username, away_username, away_id)
             else:
                 message += '{2} объявлен победителем. [id{3}|{1}], подтвердите победу противника командой /победил противник {0}'.format(game_id, host_username, away_username, host_id)
+
         return [message]
 
 

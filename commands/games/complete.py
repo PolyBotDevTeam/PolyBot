@@ -4,6 +4,7 @@ import command_system
 import message_handler
 from message_handler import username
 import utils
+import vk_utils
 
 
 def complete(actor_id, command_text):
@@ -39,6 +40,7 @@ def complete(actor_id, command_text):
                 message += f'{game_id} - {name}\n{username(host_id)} vs {username(away_id)}\n{description}\n{result}\n\n'
             count += 1
 
+        message = vk_utils.break_mentions(message)
         messages = [message]
         if page == 1:
             hint_about_next_page = f'Для просмотра следующей страницы напишите /завершённые {page+1}'

@@ -3,6 +3,7 @@ import message_handler
 import polybot_utils
 import utils
 import db_utils
+import vk_utils
 
 
 def rename(player_id, command_text):
@@ -13,7 +14,7 @@ def rename(player_id, command_text):
         message = 'После имени команды необходимо ввести ID игры, а затем её название в Политопии.'
         return [message]
 
-    new_game_name = utils.delete_mentions(command_text)
+    new_game_name = command_text
     if not new_game_name:
         return ['После айди игры необходимо ввести название игры в Политопии.']
     if not polybot_utils.is_game_name_correct(new_game_name):
@@ -42,8 +43,11 @@ def rename(player_id, command_text):
         assert game_type == 'i'
 
         cur.execute(f'UPDATE games SET name = %s, time_updated = NOW() WHERE game_id = %s;', (new_game_name, game_id))
-        message = f'Игра {game_id} успешно переименована.\n\n[id{away_id}|{message_handler.username(away_id)}], в ближайшее время вы будете приглашены в игру {new_game_name}, из старой игры ({old_game_name}) можно выйти.'
-        return [message]
+
+    old_game_name = vk_utils.break_mentions(old_game_name)
+    new_game_name = vk_utils.break_mentions(new_game_name)
+    message = f'Игра {game_id} успешно переименована.\n\n[id{away_id}|{message_handler.username(away_id)}], в ближайшее время вы будете приглашены в игру {new_game_name}, из старой игры ({old_game_name}) можно выйти.'
+    return [message]
 
 
 rename_command = command_system.UserCommand()

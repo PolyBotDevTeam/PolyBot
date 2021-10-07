@@ -1,5 +1,6 @@
 import command_system
 import message_handler
+import vk_utils
 
 
 def _all(player_id, command_text):
@@ -37,6 +38,7 @@ def _all(player_id, command_text):
                         message += 'ID: ' + str(row[0]) + ' - ' + str(row[1]) + '\n' + message_handler.username(row[2]) + ' vs ' + message_handler.username(row[3]) + '\n' + str(row[4]) + '\nПобедитель: ' + message_handler.username(row[3-row[5]]) + '\n\n'
                 count += 1
 
+        message = vk_utils.break_mentions(message)
         messages = [message]
         if page == 1:
             message_about_next_page = f'Для просмотра следующей страницы напишите /все {page+1}'

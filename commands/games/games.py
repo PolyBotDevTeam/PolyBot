@@ -42,6 +42,8 @@ def _process_games_command(player_id, command_text, *, vk, **kwargs):
                 current_page = '\n\n'.join(texts_for_current_page)
                 messages.append(current_page)
 
+        messages = [vk_utils.break_mentions(message) for message in messages]
+
         return messages
 
 
