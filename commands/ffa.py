@@ -40,7 +40,7 @@ def _process_ffa_command(actor, command_text, **kwargs):
     if tag in _TAGS_FOR_SHOWING_GAME_INFO:
         command_name = '/ffa_game'
     elif tag in _TAGS_FOR_SHOWING_OPEN_GAMES:
-        command_name = '/ffa_games'
+        command_name = '!show_ffa_list'
     elif tag in _TAGS_FOR_OPENING_GAME:
         command_name = '/open_ffa'
     elif tag in _TAGS_FOR_JOINING_GAME:
@@ -67,7 +67,7 @@ description = (
 
 ffa_command = command_system.Command(
     process=_process_ffa_command,
-    keys=['ффа', 'ffa'],
+    keys=['ффа', 'игры_ффа', 'ffa', 'games_ffa', 'ffa_games'],
     description=description,
     signature='[айди_игры] [ключевое_слово] [аргументы]',
     allow_users=True
