@@ -31,13 +31,14 @@ def main():
 
     polybot_database = PolyBotDatabase(create_connection=message_handler.create_connection)
 
-    while True:
-        try:
-            for event in longpoll.listen():
+    try:
+        while True:
+            new_events = longpoll.check()
+            for event in new_events:
                 _process_event(event, vk=vk, polybot_database=polybot_database)
-        except Exception as e:
-            message_handler.process_exception(e, vk=vk)
-            sys.exit()
+    except Exception as e:
+        message_handler.process_exception(e, vk=vk)
+        sys.exit()
 
 
 polybot_welcome = """Приветствую, {username}!
