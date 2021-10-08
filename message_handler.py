@@ -102,11 +102,12 @@ def process_message_from_chat(message, *, vk, database):
             raise TypeError('unknown action type:', type(action))
 
 
-def process_exception(exception, *, vk):
+def process_exception(exception, *, vk, is_important=True):
     utils.print_exception(exception, file=settings.errors_log_file)
     error_message = utils.represent_exception(exception)
     # TODO: Make it guaranteed (now it can just raise ApiError and forget to notify latter)
-    send_message(error_message, vk=vk, chat_id=settings.polydev_chat_id)
+    if is_important:
+        send_message(error_message, vk=vk, chat_id=settings.polydev_chat_id)
 
 
 def send_message(message, vk, **kwargs):

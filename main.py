@@ -1,6 +1,7 @@
 import io
 import sys
 
+import requests.exceptions
 import vk_api
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 
@@ -33,12 +34,23 @@ def main():
 
     try:
         while True:
-            new_events = longpoll.check()
+            try:
+                new_events = longpoll.check()
+            except requests.exceptions.ReadTimeout as e:
+                new_events = []
+                _process_read_timeout_exception(e, vk=vk)
+
             for event in new_events:
                 _process_event(event, vk=vk, polybot_database=polybot_database)
+
     except Exception as e:
         message_handler.process_exception(e, vk=vk)
         sys.exit()
+
+
+def _process_read_timeout_exception(exception, *, vk):
+    message_handler.send_message('Yet Another ReadTimeout', vk=vk, chat_id=settings.polydev_chat_id)
+    message_handler.process_exception(exception, vk=vk, is_important=False)
 
 
 polybot_welcome = """Приветствую, {username}!
