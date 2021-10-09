@@ -39,6 +39,13 @@ class FFAGame:
     def winner_id(self):
         return self._get_field('winner_id')
 
+    @property
+    def finish_time(self):
+        return self._get_field('finish_time')
+
+    def is_rated(self):
+        return self._get_field('is_rated')
+
     def exists(self):
         [[does_exist]] = self._execute(
             'SELECT EXISTS'
@@ -131,6 +138,10 @@ class FFAGame:
         if self.is_finished():
             raise self.errors.AlreadyFinishedError('the game is already finished')
         self._set_field('winner_id', winner_id)
+        self._execute(
+            'UPDATE ffa_games SET finish_time = UNIX_TIMESTAMP() WHERE game_id = %s;',
+            [self._id]
+        )
 
     def is_finished(self):
         winner = self._get_field('winner_id')

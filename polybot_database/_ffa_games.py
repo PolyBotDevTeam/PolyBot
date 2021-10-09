@@ -16,11 +16,11 @@ class FFAGames:
             raise self.errors.GameNotFoundError('the game with this id does not exist')
         return game
 
-    def create_game(self, owner_id: int, description: str):
+    def create_game(self, owner_id: int, description: str, *, is_rated=False):
         self.FFAGame.verify_description(description)
         self._execute(
-            'INSERT ffa_games(owner_id, description) VALUES (%s, %s);',
-            [owner_id, description]
+            'INSERT ffa_games(owner_id, description, is_rated) VALUES (%s, %s, %s);',
+            [owner_id, description, is_rated]
         )
 
         # TODO: Probably should use LAST_INSERT_ID() to avoid bugs
