@@ -54,17 +54,11 @@ def _process_rating_graph_command(player_id, command_text, *, vk, **kwargs):
 
     username = message_handler.username(target_id)
     image_common = build_graph(times, host_elos, away_elos, now, title='Рейтинг игрока "%s"' % username)
-    # image_host = build_graph(times, host_elos, remove_repeating=True, title='Рейтинг игрока "%s" (хост)' % username)
-    # image_away = build_graph(times, away_elos, remove_repeating=True, title='Рейтинг игрока "%s" (второй)' % username)
 
     upload = vk_api.VkUpload(vk)
-
-    photos = upload.photo_messages([image_common])  # , image_host, image_away])
-    photos = ['photo{owner_id}_{id}'.format(**photo) for photo in photos]
-    result = [
-        Message(attachments=[photos[0]])
-        # Message(attachments=photos[1:])
-    ]
+    [photo] = upload.photo_messages([image_common])
+    photo_address = 'photo{owner_id}_{id}'.format(**photo)
+    result = [Message(attachments=[photo_address])]
     return result
 
 
@@ -92,16 +86,8 @@ def build_graph(datetimes, hosts_elos, aways_elos, now, *, title=None):
 
     ax.set_ylim((700, 1600))
 
-    """ax.plot_date(dates, values, fmt='-', color=(0, 0.5, 0.8))
-    ax.plot_date(dates, values, fmt='o', markersize=2.5, color=(0.8, 0.8, 0.8), alpha=1)"""
-
-    # ax.plot_date(dates, common_elos, fmt='-', color=(0.3, 0.3, 0.3))
-    # ax.plot_date(dates, common_elos, fmt='o', markersize=1.5, color=(0.85, 0.85, 0.85), alpha=1)
-
     rem_dup = functools.partial(_remove_duplicate_neighbors, save_last=True)
     host_point = away_point = (0.75, 0.75, 0.75)
-
-    # alpha = 0.5 (if secondary)
 
     away_color = (0, 0.5, 0)
     away_points = [list(seq) for seq in rem_dup(dates, aways_elos)]

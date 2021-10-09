@@ -45,9 +45,8 @@ def complete(actor_id, command_text):
         if page == 1:
             hint_about_next_page = f'Для просмотра следующей страницы напишите /завершённые {page+1}'
             if pointer is not None:
-                # TODO: maybe should use nicknames instead
+                # TODO: Maybe should suggest nickname instead
                 hint_about_next_page += f' {username(target_player_id)}'
-                # hint_about_next_page += f' {pointer}'
             messages.append(hint_about_next_page)
         return messages
 

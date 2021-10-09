@@ -61,7 +61,6 @@ polybot_welcome = vk_utils.highlight_marked_text_areas(polybot_welcome)
 
 
 def _process_event(event, *, vk, polybot_database):
-    # print('New Event:', event, end='\n\n', flush=True)
     if event.type != VkBotEventType.MESSAGE_NEW or not event.from_chat:
         return
 
