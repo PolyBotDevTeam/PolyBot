@@ -16,7 +16,7 @@ class FFAGames:
             raise self.errors.GameNotFoundError('the game with this id does not exist')
         return game
 
-    def create_game(self, owner_id: int, description: str, *, is_rated=False):
+    def create_game(self, owner_id: int, description: str, *, is_rated):
         self.FFAGame.verify_description(description)
         self._execute(
             'INSERT ffa_games(owner_id, description, is_rated) VALUES (%s, %s, %s);',

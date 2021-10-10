@@ -26,7 +26,8 @@ def help(player_id, command_text):
     ]
 
     commands_to_ignore = [
-        'открыть_ффа', 'войти_в_ффа', 'начать_ффа', 'завершить_ффа',
+        'открыть_ффа', 'открыть_нерейтинговую_ффа',
+        'войти_в_ффа', 'начать_ффа', 'завершить_ффа',
         'игра_ффа', 'показать_список_ффа'
     ]
     commands_to_ignore = [get_user_command(name) for name in commands_to_ignore]
