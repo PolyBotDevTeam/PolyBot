@@ -6,7 +6,16 @@ import utils
 _TAGS_FOR_SHOWING_GAME_INFO = ('game', 'игра', 'info', 'инфо')
 _TAGS_FOR_SHOWING_OPEN_GAMES = ('', 'open_list', 'список_открытых', 'открытые')
 _TAGS_FOR_SHOWING_INCOMPLETE_GAMES = ('текущие', 'incomplete')
-_TAGS_FOR_OPENING_GAME = ('open', 'create', 'открыть', 'создать')
+_TAGS_FOR_OPENING_GAME = (
+    'open', 'open_rated', 'create', 'create_rated',
+    'открыть', 'открыть_рейт', 'открыть_рейтинговую',
+    'создать', 'создать_рейт', 'создать_рейтинговую'
+)
+_TAGS_FOR_OPENING_UNRATED_GAME = (
+    'open_unrated', 'create_unrated',
+    'открыть_анрейт', 'открыть_нерейтинговую',
+    'создать_анрейт', 'создать_нерейтинговую'
+)
 _TAGS_FOR_JOINING_GAME = ('join', 'войти', 'зайти')
 _TAGS_FOR_STARTING_GAME = ('start', 'начать')
 _TAGS_FOR_FINISHING_GAME = ('finish', 'завершить')
@@ -47,6 +56,8 @@ def _process_ffa_command(actor, command_text, **kwargs):
         command_text = f'incomplete {command_text}'
     elif tag in _TAGS_FOR_OPENING_GAME:
         command_name = '/open_ffa'
+    elif tag in _TAGS_FOR_OPENING_UNRATED_GAME:
+        command_name = '/open_unrated_ffa'
     elif tag in _TAGS_FOR_JOINING_GAME:
         command_name = '/join_ffa'
     elif tag in _TAGS_FOR_STARTING_GAME:
@@ -65,6 +76,7 @@ description = '''Общая команда для управления ФФА-и
 * /ффа текущие - показать список текущих ФФА
 * /ффа айди_игры - посмотреть информацию об указанной ФФА
 * /ффа открыть описание - открыть ФФА с заданным описанием
+* /ффа открыть_анрейт описание - открыть нерейтинговую ФФА
 * /ффа войти айди_игры - присоединиться к указанной ФФА
 * /ффа начать айди_игры название_в_политопии - начать ФФА
 * /ффа завершить айди_игры победитель - завершить ФФА'''
