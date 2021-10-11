@@ -1,5 +1,7 @@
 import command_system
 import elo as elo_module
+import itertools
+import settings
 import vk_utils
 
 
@@ -35,9 +37,17 @@ def top(count, *, category, cursor, vk):
         message = 'Неправильный формат ввода. Попробуйте просто /топ.'
         return [message]
 
-    rows = cursor.fetchmany(min(count, cursor.rowcount))
+    members_ids = fetch_chat_members_ids(settings.main_chat_id, vk=vk)
 
-    ids, *elos_rows = zip(*rows)
+    rows = (
+        (player_id, host_elo, away_elo)
+        for player_id, host_elo, away_elo in cursor
+        if player_id in members_ids
+    )
+
+    rows = itertools.islice(rows, count)
+
+    users_ids, *elos_rows = zip(*rows)
 
     elos_str = [
         elo_format.format(host_elo=host_elo, away_elo=away_elo)
@@ -46,7 +56,7 @@ def top(count, *, category, cursor, vk):
 
     message = f'{title}:\n'
 
-    usernames = vk_utils.fetch_usernames(ids, vk=vk)
+    usernames = vk_utils.fetch_usernames(users_ids, vk=vk)
     for place, (username, elo_str) in enumerate(zip(usernames, elos_str), 1):
         message += f'{place}. {username}: {elo_str} ЭЛО\n'
 
