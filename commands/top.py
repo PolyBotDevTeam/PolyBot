@@ -44,7 +44,7 @@ def top(count, *, category, cursor, vk):
         for host_elo, away_elo in zip(*elos_rows)
     ]
 
-    message = f'{title}:\n\n'
+    message = f'{title}:\n'
 
     usernames = vk_utils.fetch_usernames(ids, vk=vk)
     for place, (username, elo_str) in enumerate(zip(usernames, elos_str), 1):
