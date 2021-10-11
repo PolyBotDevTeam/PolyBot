@@ -22,22 +22,27 @@ def top(count, *, category, cursor, vk):
         elos_str = []
     elif category in ('', 'сумма', 'sum'):
         cursor.execute('SELECT player_id, host_elo, elo FROM players WHERE host_elo + elo > 2000 ORDER BY (host_elo + elo) DESC;')
-        rows = cursor.fetchmany(min(count, cursor.rowcount))
-        ids, *elos_rows = zip(*rows)
-        elos_str = [str(host_elo) + ' / ' + str(away_elo) for host_elo, away_elo in zip(*elos_rows)]
+        elo_format = '{host_elo} / {away_elo}'
+    elif category in ('хост', 'host', 'первый', 'first'):
+        title += ' (хост)'
+        cursor.execute('SELECT player_id, host_elo, elo FROM players WHERE host_elo > 1050 ORDER BY host_elo DESC;')
+        elo_format = '{host_elo}'
+    elif category in ('второй', 'away', 'second'):
+        title += ' (второй)'
+        cursor.execute('SELECT player_id, host_elo, elo FROM players WHERE elo > 950 ORDER BY elo DESC;')
+        elo_format = '{away_elo}'
     else:
-        if category in ('хост', 'host', 'первый', 'first'):
-            title += ' (хост)'
-            cursor.execute('SELECT player_id, host_elo FROM players WHERE host_elo > 1050 ORDER BY host_elo DESC;')
-        elif category in ('второй', 'away', 'second'):
-            title += ' (второй)'
-            cursor.execute('SELECT player_id, elo FROM players WHERE elo > 950 ORDER BY elo DESC;')
-        else:
-            message = 'Неправильный формат ввода. Попробуйте просто /топ.'
-            return [message]
-        rows = cursor.fetchmany(min(count, cursor.rowcount))
-        ids, elos = zip(*rows)
-        elos_str = [str(elo) for elo in elos]
+        message = 'Неправильный формат ввода. Попробуйте просто /топ.'
+        return [message]
+
+    rows = cursor.fetchmany(min(count, cursor.rowcount))
+
+    ids, *elos_rows = zip(*rows)
+
+    elos_str = [
+        elo_format.format(host_elo=host_elo, away_elo=away_elo)
+        for host_elo, away_elo in zip(*elos_rows)
+    ]
 
     message = f'{title}:\n\n'
 
