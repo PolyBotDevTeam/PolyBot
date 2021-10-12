@@ -21,15 +21,15 @@ def top(max_count, *, category, cursor, vk):
     elo_module.recalculate(cur=cursor)
 
     if category in ('', 'сумма', 'sum'):
-        cursor.execute('SELECT player_id, host_elo, elo FROM players WHERE host_elo + elo > 2000 ORDER BY (host_elo + elo) DESC;')
+        cursor.execute('SELECT player_id, host_elo, elo FROM players WHERE host_elo + elo >= 2000 ORDER BY (host_elo + elo) DESC;')
         elo_format = '{host_elo} / {away_elo}'
     elif category in ('хост', 'host', 'первый', 'first'):
         title_format += ' (хост)'
-        cursor.execute('SELECT player_id, host_elo, elo FROM players WHERE host_elo > 1050 ORDER BY host_elo DESC;')
+        cursor.execute('SELECT player_id, host_elo, elo FROM players WHERE host_elo >= 1050 ORDER BY host_elo DESC;')
         elo_format = '{host_elo}'
     elif category in ('второй', 'away', 'second'):
         title_format += ' (второй)'
-        cursor.execute('SELECT player_id, host_elo, elo FROM players WHERE elo > 950 ORDER BY elo DESC;')
+        cursor.execute('SELECT player_id, host_elo, elo FROM players WHERE elo >= 950 ORDER BY elo DESC;')
         elo_format = '{away_elo}'
     else:
         message = 'Неправильный формат ввода. Попробуйте просто /топ.'
@@ -79,6 +79,10 @@ def _process_top_command(player_id, command_text, *, cursor, vk, **kwargs):
 
     if count < 0:
         count = 0
+
+    max_count = 20
+    if count > max_count:
+        count = max_count
 
     [category] = args if args else ['sum']
 
