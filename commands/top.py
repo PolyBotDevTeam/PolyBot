@@ -74,9 +74,7 @@ def _process_top_command(player_id, command_text, *, cursor, vk, **kwargs):
             break
     if count is None:
         count = 10
-    # TODO: limit = randint(20, 30)?
-    if count > 25:
-        count = 25
+
     if count < 0:
         count = 0
 
