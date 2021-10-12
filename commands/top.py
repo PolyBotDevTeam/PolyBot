@@ -37,7 +37,7 @@ def top(count, *, category, cursor, vk):
         message = 'Неправильный формат ввода. Попробуйте просто /топ.'
         return [message]
 
-    members_ids = fetch_chat_members_ids(settings.main_chat_id, vk=vk)
+    members_ids = vk_utils.fetch_chat_members_ids(settings.main_chat_id, vk=vk)
 
     rows = (
         (player_id, host_elo, away_elo)
