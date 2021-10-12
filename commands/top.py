@@ -14,23 +14,20 @@ def _is_int(x):
     return result
 
 
-def top(count, *, category, cursor, vk):
-    title = f'ТОП-{count}'
+def top(max_count, *, category, cursor, vk):
+    title_format = 'ТОП-{count}'
 
     elo_module.recalculate(cur=cursor)
 
-    if count == 0:
-        ids = []
-        elos_str = []
-    elif category in ('', 'сумма', 'sum'):
+    if category in ('', 'сумма', 'sum'):
         cursor.execute('SELECT player_id, host_elo, elo FROM players WHERE host_elo + elo > 2000 ORDER BY (host_elo + elo) DESC;')
         elo_format = '{host_elo} / {away_elo}'
     elif category in ('хост', 'host', 'первый', 'first'):
-        title += ' (хост)'
+        title_format += ' (хост)'
         cursor.execute('SELECT player_id, host_elo, elo FROM players WHERE host_elo > 1050 ORDER BY host_elo DESC;')
         elo_format = '{host_elo}'
     elif category in ('второй', 'away', 'second'):
-        title += ' (второй)'
+        title_format += ' (второй)'
         cursor.execute('SELECT player_id, host_elo, elo FROM players WHERE elo > 950 ORDER BY elo DESC;')
         elo_format = '{away_elo}'
     else:
@@ -45,7 +42,7 @@ def top(count, *, category, cursor, vk):
         if player_id in members_ids
     )
 
-    rows = itertools.islice(rows, count)
+    rows = itertools.islice(rows, max_count)
 
     users_ids, *elos_rows = zip(*rows)
 
@@ -53,6 +50,10 @@ def top(count, *, category, cursor, vk):
         elo_format.format(host_elo=host_elo, away_elo=away_elo)
         for host_elo, away_elo in zip(*elos_rows)
     ]
+
+    count = len(users_ids)
+
+    title = title_format.format(count=count)
 
     message = f'{title}:\n'
 
