@@ -2,6 +2,7 @@ import command_system
 import elo as elo_module
 import itertools
 import settings
+import utils
 import vk_utils
 
 
@@ -44,7 +45,7 @@ def top(max_count, *, category, cursor, vk):
 
     rows = itertools.islice(rows, max_count)
 
-    users_ids, *elos_rows = zip(*rows)
+    users_ids, *elos_rows = utils.safe_zip(*rows, result_length=3)
 
     elos_str = [
         elo_format.format(host_elo=host_elo, away_elo=away_elo)
