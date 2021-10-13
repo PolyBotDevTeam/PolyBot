@@ -60,6 +60,9 @@ def top(max_count, *, category, cursor, vk):
 
     usernames = vk_utils.fetch_usernames(users_ids, vk=vk)
     for place, (username, elo_str) in enumerate(zip(usernames, elos_str), 1):
+        digits_n = len(str(count))
+        numeric_space = '\u2007'
+        place = str(place).ljust(digits_n, numeric_space)
         message += f'{place}. {username}: {elo_str} ЭЛО\n'
 
     return [message]
