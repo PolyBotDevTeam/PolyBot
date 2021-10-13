@@ -60,11 +60,31 @@ polybot_welcome = """Приветствую, {username}!
 polybot_welcome = vk_utils.highlight_marked_text_areas(polybot_welcome)
 
 
+elo_help = '''ЭЛО - это система рейтингов.
+
+Основная идея в том, что на основе рейтингов двух игроков мы можем найти ожидаемый шанс победы каждого из них.
+Например, разница в 400 рейтинга подразумевает разницу в шансах в 10 раз.
+
+Когда один игрок побеждает другого, их рейтинги слегка корректируются в зависимости от того, насколько результат соответствует ожиданиям.
+
+Например, если у победителя были шансы 80%, а у проигравшего 20%,
+то победителю добавится (1 - 0.80) * 50 = 10 рейтинга,
+а у проигравшего отнимится 0.20 * 50 = 10 рейтинга.
+
+Если же у победителя были шансы 20%, то ему добавится 40 рейтинга, и столько же отнимится у проигравшего.'''
+
+
 def _process_event(event, *, vk, polybot_database):
-    if event.type != VkBotEventType.MESSAGE_NEW or not event.from_chat:
+    if event.type != VkBotEventType.MESSAGE_NEW:
         return
 
     message = event.obj.message
+    if message['text'].lower() in ('что такое эло?', 'что такое эло'):
+        message_handler.send_message(elo_help, vk=vk, peer_id=message['peer_id'])
+
+    if not event.from_chat:
+        return
+
     chat_id = vk_utils.chat_id_by_peer_id(message['peer_id'])
 
     if chat_id in {settings.main_chat_id, settings.tournament_chat_id}:
