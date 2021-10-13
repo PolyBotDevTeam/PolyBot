@@ -55,7 +55,7 @@ def top(max_count, *, category, cursor, vk):
     for place, (username, host_elo, away_elo) in enumerate(zip(usernames, *elos_rows), 1):
         digits_n = len(str(count))
         numeric_space = '\u2007'
-        place = str(place).ljust(digits_n, numeric_space)
+        place = str(place).rjust(digits_n, numeric_space)
 
         host_emoji, away_emoji = elo_module.emoji_by_elo(host_elo, away_elo)
 
