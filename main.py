@@ -79,7 +79,7 @@ def _process_event(event, *, vk, polybot_database):
         return
 
     message = event.obj.message
-    if message['text'].lower() in ('что такое эло?', 'что такое эло'):
+    if message['text'].lower().replace('"', '').replace('?', '') == 'что такое эло':
         message_handler.send_message(elo_help, vk=vk, peer_id=message['peer_id'])
 
     if not event.from_chat:
