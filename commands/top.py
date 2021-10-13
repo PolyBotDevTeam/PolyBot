@@ -22,15 +22,15 @@ def top(max_count, *, category, cursor, vk):
 
     if category in ('', 'сумма', 'sum'):
         cursor.execute('SELECT player_id, host_elo, elo FROM players WHERE host_elo + elo >= 2000 ORDER BY (host_elo + elo) DESC;')
-        elo_format = '{host_elo} / {away_elo}'
+        top_item_template = '{place}. {host_emoji}{away_emoji} {username}: {host_elo} / {away_elo} ЭЛО\n'
     elif category in ('хост', 'host', 'первый', 'first'):
         title_format += ' (хост)'
         cursor.execute('SELECT player_id, host_elo, elo FROM players WHERE host_elo >= 1050 ORDER BY host_elo DESC;')
-        elo_format = '{host_elo}'
+        top_item_template = '{place}. {host_emoji} {username}: {host_elo} ЭЛО\n'
     elif category in ('второй', 'away', 'second'):
         title_format += ' (второй)'
         cursor.execute('SELECT player_id, host_elo, elo FROM players WHERE elo >= 950 ORDER BY elo DESC;')
-        elo_format = '{away_elo}'
+        top_item_template = '{place}. {away_emoji} {username}: {away_elo} ЭЛО\n'
     else:
         message = 'Неправильный формат ввода. Попробуйте просто /топ.'
         return [message]
@@ -44,26 +44,31 @@ def top(max_count, *, category, cursor, vk):
     )
 
     rows = itertools.islice(rows, max_count)
-
     users_ids, *elos_rows = utils.safe_zip(*rows, result_length=3)
-
-    elos_str = [
-        elo_format.format(host_elo=host_elo, away_elo=away_elo)
-        for host_elo, away_elo in zip(*elos_rows)
-    ]
-
     count = len(users_ids)
+    usernames = vk_utils.fetch_usernames(users_ids, vk=vk)
 
     title = title_format.format(count=count)
 
     message = f'{title}:\n'
 
-    usernames = vk_utils.fetch_usernames(users_ids, vk=vk)
-    for place, (username, elo_str) in enumerate(zip(usernames, elos_str), 1):
+    for place, (username, host_elo, away_elo) in enumerate(zip(usernames, *elos_rows), 1):
         digits_n = len(str(count))
         numeric_space = '\u2007'
         place = str(place).ljust(digits_n, numeric_space)
-        message += f'{place}. {username}: {elo_str} ЭЛО\n'
+
+        host_emoji, away_emoji = elo_module.emoji_by_elo(host_elo, away_elo)
+
+        top_item = top_item_template.format(
+            place=place,
+            username=username,
+            host_elo=host_elo,
+            away_elo=away_elo,
+            host_emoji=host_emoji,
+            away_emoji=away_emoji
+        )
+
+        message += top_item
 
     return [message]
 

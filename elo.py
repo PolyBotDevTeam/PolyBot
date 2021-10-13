@@ -65,6 +65,8 @@ class MutableELO:
 DEFAULT_ELO = ELO(1050, 950)
 
 
+# TODO: Move out, this block is not related to elo core
+
 RATING_ROLES = {
     "Новичок": -inf,
     "Стратег": 1100,
@@ -73,6 +75,40 @@ RATING_ROLES = {
 }
 
 RATING_ROLES_ENABLED = True
+
+
+HOST_EMOJI = {
+    '🟪': 1400,
+    '🟩': 1300,
+    '🟨': 1200,
+    '🟧': 1100,
+    '🟫': -inf
+}
+
+
+AWAY_EMOJI = {
+    '🟣': 1300,
+    '🟢': 1200,
+    '🟡': 1100,
+    '🟠': 1000,
+    '🟤': -inf
+}
+
+
+def _find_best_status_achieved(score, statuses_levels):
+    statuses_levels = list(statuses_levels.items())
+    statuses_levels.sort(key=lambda kv: kv[1])
+    status = None
+    for potential_status, score_need in statuses_levels:
+        if score >= score_need:
+            status = potential_status
+    return status
+
+
+def emoji_by_elo(elo_host, elo_away):
+    host_emoji = _find_best_status_achieved(elo_host, HOST_EMOJI)
+    away_emoji = _find_best_status_achieved(elo_away, AWAY_EMOJI)
+    return host_emoji, away_emoji
 
 
 # TODO: to hide details, for example can make "EloSystem" class with method "process_game"
@@ -241,12 +277,7 @@ def _compute_role(old_role, rating, games_counts, banned):
         return None
 
     rating = sum(rating) / 2
-    roles = list(RATING_ROLES.items())
-    roles.sort(key=lambda kv: kv[1])
-    role = None
-    for potential_role, rating_need in roles:
-        if rating >= rating_need:
-            role = potential_role
+    role = _find_best_status_achieved(score=rating, statuses_levels=RATING_ROLES)
     return role
 
 
