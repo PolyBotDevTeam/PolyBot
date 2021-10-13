@@ -42,7 +42,7 @@ def print_exception(e, file=_sys.stdout):
     _builtins.print(error_msg, file=file, flush=True)
 
 
-def safe_zip(*args, result_length=None):
+def safe_zip(*args, result_length):
     args = [tuple(arg) for arg in args]
 
     length_variants = set(map(len, args))
