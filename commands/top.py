@@ -22,15 +22,18 @@ def top(max_count, *, category, cursor, vk):
 
     if category in ('', 'сумма', 'sum'):
         cursor.execute('SELECT player_id, host_elo, elo FROM players WHERE host_elo + elo >= 2000 ORDER BY (host_elo + elo) DESC;')
-        top_item_template = '{place}. {host_emoji}{away_emoji} {username}: {host_elo} / {away_elo} ЭЛО\n'
+        top_item_template = '{place}. {host_emoji}{away_emoji} {username}\n' \
+                            '{indent}{host_elo} / {away_elo} ЭЛО\n'
     elif category in ('хост', 'host', 'первый', 'first'):
         title_format += ' (хост)'
         cursor.execute('SELECT player_id, host_elo, elo FROM players WHERE host_elo >= 1050 ORDER BY host_elo DESC;')
-        top_item_template = '{place}. {host_emoji} {username}: {host_elo} ЭЛО\n'
+        top_item_template = '{place}. {host_emoji} {username}\n' \
+                            '{indent}{host_elo} ЭЛО\n'
     elif category in ('второй', 'away', 'second'):
         title_format += ' (второй)'
         cursor.execute('SELECT player_id, host_elo, elo FROM players WHERE elo >= 950 ORDER BY elo DESC;')
-        top_item_template = '{place}. {away_emoji} {username}: {away_elo} ЭЛО\n'
+        top_item_template = '{place}. {away_emoji} {username}\n' \
+                            '{indent}{away_elo} ЭЛО\n'
     else:
         message = 'Неправильный формат ввода. Попробуйте просто /топ.'
         return [message]
@@ -57,6 +60,11 @@ def top(max_count, *, category, cursor, vk):
         numeric_space = '\u2007'
         place = str(place).rjust(digits_n, numeric_space)
 
+        if digits_n < 2:
+            indent = numeric_space * digits_n + numeric_space
+        else:
+            indent = numeric_space * (digits_n - 2) + (numeric_space + ' ') * 2
+
         host_emoji, away_emoji = elo_module.emoji_by_elo(host_elo, away_elo)
 
         top_item = top_item_template.format(
@@ -65,7 +73,8 @@ def top(max_count, *, category, cursor, vk):
             host_elo=host_elo,
             away_elo=away_elo,
             host_emoji=host_emoji,
-            away_emoji=away_emoji
+            away_emoji=away_emoji,
+            indent=indent
         )
 
         message += top_item
