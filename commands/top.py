@@ -1,9 +1,13 @@
-import command_system
-import elo as elo_module
 import itertools
-import settings
+
 import utils
 import vk_utils
+import vk_actions
+
+import command_system
+import elo as elo_module
+
+import settings
 
 
 def _is_int(x):
@@ -22,17 +26,17 @@ def top(max_places_count, *, category, cursor, vk):
 
     if category in ('', 'сумма', 'sum'):
         cursor.execute('SELECT player_id, host_elo, elo FROM players WHERE host_elo + elo >= 2000 ORDER BY (host_elo + elo) DESC;')
-        top_item_template = '{place}. {host_emoji}{away_emoji} {username}\n' \
+        top_item_template = '{place}. {host_emoji}{away_emoji} {player_name}\n' \
                             '{indent}{host_elo} / {away_elo} ЭЛО\n'
     elif category in ('хост', 'host', 'первый', 'first'):
         title_format += ' (хост)'
         cursor.execute('SELECT player_id, host_elo, elo FROM players WHERE host_elo >= 1050 ORDER BY host_elo DESC;')
-        top_item_template = '{place}. {host_emoji} {username}\n' \
+        top_item_template = '{place}. {host_emoji} {player_name}\n' \
                             '{indent}{host_elo} ЭЛО\n'
     elif category in ('второй', 'away', 'second'):
         title_format += ' (второй)'
         cursor.execute('SELECT player_id, host_elo, elo FROM players WHERE elo >= 950 ORDER BY elo DESC;')
-        top_item_template = '{place}. {away_emoji} {username}\n' \
+        top_item_template = '{place}. {away_emoji} {player_name}\n' \
                             '{indent}{away_elo} ЭЛО\n'
     else:
         message_text = 'Неправильный формат ввода. Попробуйте просто /топ.'
@@ -47,16 +51,14 @@ def top(max_places_count, *, category, cursor, vk):
     )
 
     top_players_data = itertools.islice(top_players_data, max_places_count)
-    users_ids, *elos_rows = utils.safe_zip(*top_players_data, result_length=3)
-    places_count = len(users_ids)
-
-    usernames = vk_utils.fetch_usernames(users_ids, vk=vk)
+    top_players_data = tuple(top_players_data)
+    places_count = len(top_players_data)
 
     title = title_template.format(places_count=places_count)
 
     message_text = f'{title}:\n'
 
-    for place, (username, host_elo, away_elo) in enumerate(zip(usernames, *elos_rows), 1):
+    for place, (player_id, host_elo, away_elo) in enumerate(top_players_data, 1):
         digits_n = len(str(places_count))
         numeric_space = '\u2007'
         place = str(place).rjust(digits_n, numeric_space)
@@ -68,9 +70,15 @@ def top(max_places_count, *, category, cursor, vk):
 
         host_emoji, away_emoji = elo_module.emoji_by_elo(host_elo, away_elo)
 
+        cursor.execute('SELECT nickname FROM players WHERE player_id = %s;', player_id)
+        [nickname] = cursor
+        nickname = utils.truncate_string(nickname, max_length=15, truncated_end='..')
+
+        player_name = vk_utils.create_mention(player_id, mention_text=nickname)
+
         top_item = top_item_template.format(
             place=place,
-            username=username,
+            player_name=player_name,
             host_elo=host_elo,
             away_elo=away_elo,
             host_emoji=host_emoji,
@@ -80,7 +88,9 @@ def top(max_places_count, *, category, cursor, vk):
 
         message_text += top_item
 
-    return [message_text]
+    message = vk_actions.Message(text=message_text, disable_mentions=True)
+
+    return [message]
 
 
 def _process_top_command(player_id, command_text, *, cursor, vk, **kwargs):
