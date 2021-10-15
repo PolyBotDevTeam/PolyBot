@@ -71,7 +71,7 @@ def top(max_places_count, *, category, cursor, vk):
         host_emoji, away_emoji = elo_module.emoji_by_elo(host_elo, away_elo)
 
         cursor.execute('SELECT nickname FROM players WHERE player_id = %s;', player_id)
-        [nickname] = cursor
+        [[nickname]] = cursor
         nickname = utils.truncate_string(nickname, max_length=15, truncated_end='..')
 
         player_name = vk_utils.create_mention(player_id, mention_text=nickname)
