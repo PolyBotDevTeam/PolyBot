@@ -77,10 +77,11 @@ def id_by_mention(mention):
     return +value if prefix == 'id' else -value
 
 
-def create_mention(user_id, vk):
+def create_mention(user_id, mention_text=None, *, vk=None):
     prefix = 'id' if user_id >= 0 else 'club'
-    name = fetch_username(user_id, vk=vk)
-    return f'[{prefix}{user_id}|{name}]'
+    if mention_text is None:
+        mention_text = fetch_username(user_id, vk=vk)
+    return f'[{prefix}{user_id}|{mention_text}]'
 
 
 def fetch_usernames(users_ids, vk):
