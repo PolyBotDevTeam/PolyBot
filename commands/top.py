@@ -15,8 +15,8 @@ def _is_int(x):
     return result
 
 
-def top(max_count, *, category, cursor, vk):
-    title_format = 'ТОП-{count}'
+def top(max_places_count, *, category, cursor, vk):
+    title_template = 'ТОП-{places_count}'
 
     elo_module.recalculate(cur=cursor)
 
@@ -35,28 +35,29 @@ def top(max_count, *, category, cursor, vk):
         top_item_template = '{place}. {away_emoji} {username}\n' \
                             '{indent}{away_elo} ЭЛО\n'
     else:
-        message = 'Неправильный формат ввода. Попробуйте просто /топ.'
-        return [message]
+        message_text = 'Неправильный формат ввода. Попробуйте просто /топ.'
+        return [message_text]
 
     members_ids = vk_utils.fetch_chat_members_ids(settings.main_chat_id, vk=vk)
 
-    rows = (
+    top_players_data = (
         (player_id, host_elo, away_elo)
         for player_id, host_elo, away_elo in cursor
         if player_id in members_ids
     )
 
-    rows = itertools.islice(rows, max_count)
-    users_ids, *elos_rows = utils.safe_zip(*rows, result_length=3)
-    count = len(users_ids)
+    top_players_data = itertools.islice(top_players_data, max_places_count)
+    users_ids, *elos_rows = utils.safe_zip(*top_players_data, result_length=3)
+    places_count = len(users_ids)
+
     usernames = vk_utils.fetch_usernames(users_ids, vk=vk)
 
-    title = title_format.format(count=count)
+    title = title_template.format(places_count=places_count)
 
-    message = f'{title}:\n'
+    message_text = f'{title}:\n'
 
     for place, (username, host_elo, away_elo) in enumerate(zip(usernames, *elos_rows), 1):
-        digits_n = len(str(count))
+        digits_n = len(str(places_count))
         numeric_space = '\u2007'
         place = str(place).rjust(digits_n, numeric_space)
 
@@ -77,33 +78,33 @@ def top(max_count, *, category, cursor, vk):
             indent=indent
         )
 
-        message += top_item
+        message_text += top_item
 
-    return [message]
+    return [message_text]
 
 
 def _process_top_command(player_id, command_text, *, cursor, vk, **kwargs):
     args = command_text.split()
 
-    count = None
+    places_count_need = None
     for arg in tuple(args):
         if _is_int(arg):
-            count = int(arg)
+            places_count_need = int(arg)
             args.remove(arg)
             break
-    if count is None:
-        count = 10
+    if places_count_need is None:
+        places_count_need = 10
 
-    if count < 0:
-        count = 0
+    if places_count_need < 0:
+        places_count_need = 0
 
-    max_count = 20
-    if count > max_count:
-        count = max_count
+    max_places_count = 20
+    if places_count_need > max_places_count:
+        places_count_need = max_places_count
 
     [category] = args if args else ['sum']
 
-    result = top(count, category=category, cursor=cursor, vk=vk)
+    result = top(places_count_need, category=category, cursor=cursor, vk=vk)
 
     return result
 
