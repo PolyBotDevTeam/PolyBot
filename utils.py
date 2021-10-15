@@ -31,6 +31,14 @@ def split_one(string, sep=None, do_clear_sep=True):
     return fst, snd
 
 
+def truncate_string(string, max_length, *, truncated_end='...'):
+    if len(truncated_end) > max_length:
+        raise ValueError('specified truncated end exceeds length limit')
+    if len(string) > max_length:
+        string = string[:max_length - len(truncated_end)] + truncated_end
+    return string
+
+
 def represent_exception(e):
     error_msg_io = _io.StringIO()
     _traceback.print_exception(type(e), e, e.__traceback__, file=error_msg_io)
