@@ -3,7 +3,7 @@ import message_handler
 import db_utils
 
 
-def incomplete(player_id, command_text):
+def _process_incomplete_command(player_id, command_text, **kwargs):
     command_text = command_text.lstrip()
     pointer = command_text if command_text else None
     self = pointer is None
@@ -66,8 +66,10 @@ def incomplete(player_id, command_text):
         return [message]
 
 
-incomplete_command = command_system.UserCommand()
-
-incomplete_command.keys = ['текущие', 'incomplete']
-incomplete_command.description = ' [упоминание игрока] - Незавершённые игры.'
-incomplete_command.process = incomplete
+incomplete_command = command_system.Command(
+    process=_process_incomplete_command,
+    keys=['текущие', 'incomplete'],
+    description='Незавершённые игры',
+    signature='[упоминание_игрока]',
+    allow_users=True
+)
