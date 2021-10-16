@@ -69,7 +69,7 @@ def _process_incomplete_command(player_id, command_text, **kwargs):
 incomplete_command = command_system.Command(
     process=_process_incomplete_command,
     keys=['текущие', 'incomplete'],
-    description='Незавершённые игры',
+    description='Активные игры с вашим участием',
     signature='[упоминание_игрока]',
     allow_users=True
 )
