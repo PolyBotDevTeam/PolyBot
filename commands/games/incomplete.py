@@ -1,9 +1,10 @@
 import command_system
 import message_handler
 import db_utils
+import vk_utils
 
 
-def _process_incomplete_command(player_id, command_text, **kwargs):
+def _process_incomplete_command(player_id, command_text, *, vk, **kwargs):
     command_text = command_text.lstrip()
     pointer = command_text if command_text else None
     self = pointer is None
@@ -31,35 +32,42 @@ def _process_incomplete_command(player_id, command_text, **kwargs):
         rows = cur.fetchall()
         if rows:
             message += ('Вам' if self else 'Игроку') + ' необходимо начать следующие игры:\n\n'
-            for row in rows:
-                message += str(row[0]) + ' - ' + message_handler.username(row[1]) + ' vs ' + message_handler.username(row[2]) + '\n' + row[3] + '\n\n'
+            for game_id, host_id, away_id, description in rows:
+                host_username = vk_utils.fetch_username(host_id, vk=vk)
+                away_username = vk_utils.fetch_username(away_id, vk=vk)
+                message += f'{game_id} - {host_username} vs {away_username}\n{description}\n\n'
             message += ' \n'
 
         cur.execute('SELECT game_id, host_id, away_id, description FROM games WHERE type = \'r\' AND away_id = %s ORDER BY time_updated ASC;', player_id)
         rows = cur.fetchall()
         if rows:
             message += 'Ждём начала игры противником:\n\n'
-            for row in rows:
-                message += str(row[0]) + ' - ' + message_handler.username(row[1]) + ' vs ' + message_handler.username(row[2]) + '\n' + row[3] + '\n\n'
+            for game_id, host_id, away_id, description in rows:
+                host_username = vk_utils.fetch_username(host_id, vk=vk)
+                away_username = vk_utils.fetch_username(away_id, vk=vk)
+                message += f'{game_id} - {host_username} vs {away_username}\n{description}\n\n'
             message += ' \n'
 
         cur.execute('SELECT game_id, description FROM games WHERE type = \'o\' AND host_id = %s ORDER BY time_updated ASC;', player_id)
         rows = cur.fetchall()
         if rows:
             message += 'Открытые вами игры:\n\n' if self else 'Открытые игроком игры:\n\n'
-            for row in rows:
-                message += str(row[0]) + ' - ' + message_handler.username(player_id) + ' vs ___\n' + row[1] + '\n\n'
+            command_target_username = vk_utils.fetch_username(player_id, vk=vk)
+            for game_id, description in rows:
+                message += f'{game_id} - {command_target_username} vs ___\n{description}\n\n'
             message += ' \n'
 
         cur.execute('SELECT game_id, host_id, away_id, description, name FROM games WHERE type = \'i\' AND (host_id = %s OR away_id = %s) ORDER BY time_updated DESC;', (player_id, player_id))
         rows = cur.fetchall()
         if rows:
             message += 'Текущие игры с вашим участием:\n\n' if self else 'Текущие игры с участием игрока:\n\n'
-            for row in rows:
-                opponent = row[1] if player_id == row[2] else row[2]
-                cur.execute('SELECT nickname FROM players WHERE player_id = %s', (opponent, ))
+            for game_id, host_id, away_id, description, game_name in rows:
+                host_username = vk_utils.fetch_username(host_id, vk=vk)
+                away_username = vk_utils.fetch_username(away_id, vk=vk)
+                opponent = host_id if player_id == away_id else away_id
+                cur.execute('SELECT nickname FROM players WHERE player_id = %s', opponent)
                 (opp_nickname,) = cur.fetchone()
-                message += str(row[0]) + ' - ' + str(row[4]) + '\n' + message_handler.username(row[1]) + ' vs ' + message_handler.username(row[2]) + '\n' + row[3] + '\nПротивник: ' + opp_nickname + '\n\n'
+                message += f'{game_id} - {game_name}\n{host_username} vs {away_username}\n{description}\nПротивник: {opp_nickname}\n\n'
 
         assert message
 
