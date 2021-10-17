@@ -11,6 +11,7 @@ FFA_GAME_OPENED = '''Игра {game_id} создана!
 
 GAME_NOT_FOUND_ERROR = 'Не удалось найти игру с таким айди.'
 
+UNABLE_TO_JOIN_STARTED_ERROR = 'Нельзя присоединиться к уже начатой игре.'
 ALREADY_JOINED_ERROR = 'Вы уже вступили в эту игру.'
 JOINED_FFA_GAME = 'Вы присоединились к игре {game_id}.'
 

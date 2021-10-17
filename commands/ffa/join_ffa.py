@@ -9,10 +9,18 @@ def join_ffa(actor, game_id, *, database):
     except ffa_games.errors.GameNotFoundError:
         return [responses.GAME_NOT_FOUND_ERROR]
 
+    # If the game is already started and the actor has already joined,
+    # then the second fact is more important to tell about.
+    # So should check it before exceptions processing.
+    if game.has_member(actor):
+        return [responses.ALREADY_JOINED_ERROR]
+
     try:
         game.add_member(actor)
+    except game.errors.AlreadyStartedError:
+        return [responses.UNABLE_TO_JOIN_STARTED_ERROR]
     except game.errors.AlreadyMemberError:
-        return [responses.ALREADY_JOINED_ERROR]
+        raise
 
     return [responses.JOINED_FFA_GAME.format(game_id=game.id)]
 
