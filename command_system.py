@@ -180,11 +180,13 @@ def process_command(user_id, command, user_message, *, process_exception, databa
             result = ['Что-то пошло не так.']
             process_exception(e)
 
-    result = list(result)
-    for i, x in enumerate(result):
-        if not isinstance(x, vk_actions.Action) and isinstance(x, str):
-            result[i] = vk_actions.Message(text=str(x))
-    assert all(isinstance(x, vk_actions.Action) for x in result)
+    def _postprocess_command_response(response):
+        if not isinstance(response, vk_actions.Action):
+            assert isinstance(response, str)
+            response = vk_actions.Message(text=str(response))
+        return response
+
+    result = map(_postprocess_command_response, result)
 
     return result
 
