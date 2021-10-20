@@ -4,31 +4,28 @@ import db_utils
 import vk_utils
 
 
-def _process_incomplete_command(player_id, command_text, *, vk, cursor, **kwargs):
+def _process_incomplete_command(actor_id, command_text, *, vk, cursor, **kwargs):
     cur = cursor
 
-    pointer = command_text if command_text else None
-    self = pointer is None
+    specified_player = command_text if command_text else None
 
-    if pointer is not None:
+    if specified_player is None:
+        player_id = actor_id
+    else:
         try:
-            player_id = message_handler.try_to_identify_id(pointer, cur)
+            player_id = message_handler.try_to_identify_id(specified_player, cur)
         except ValueError:
             message = 'Некорректная ссылка или никнейм. Нажмите @ или * чтобы выбрать среди участников беседы.'
             return [message]
-    else:
-        player_id = player_id
 
-    anything = db_utils.exists(cur, 'games', "(host_id = %s OR away_id = %s) AND (type = 'o' OR type = 'r' OR type = 'i')", (player_id, player_id))
-    if not anything:
-        return ['Не найдено текущих игр.']
+    is_self = player_id == actor_id
 
     message = ''
 
     cur.execute('SELECT game_id, host_id, away_id, description FROM games WHERE type = \'r\' AND host_id = %s ORDER BY time_updated ASC;', player_id)
     rows = cur.fetchall()
     if rows:
-        message += ('Вам' if self else 'Игроку') + ' необходимо начать следующие игры:\n\n'
+        message += ('Вам' if is_self else 'Игроку') + ' необходимо начать следующие игры:\n\n'
         for game_id, host_id, away_id, description in rows:
             host_username = vk_utils.fetch_username(host_id, vk=vk)
             away_username = vk_utils.fetch_username(away_id, vk=vk)
@@ -48,7 +45,7 @@ def _process_incomplete_command(player_id, command_text, *, vk, cursor, **kwargs
     cur.execute('SELECT game_id, description FROM games WHERE type = \'o\' AND host_id = %s ORDER BY time_updated ASC;', player_id)
     rows = cur.fetchall()
     if rows:
-        message += 'Открытые вами игры:\n\n' if self else 'Открытые игроком игры:\n\n'
+        message += 'Открытые вами игры:\n\n' if is_self else 'Открытые игроком игры:\n\n'
         command_target_username = vk_utils.fetch_username(player_id, vk=vk)
         for game_id, description in rows:
             message += f'{game_id} - {command_target_username} vs ___\n{description}\n\n'
@@ -57,16 +54,17 @@ def _process_incomplete_command(player_id, command_text, *, vk, cursor, **kwargs
     cur.execute('SELECT game_id, host_id, away_id, description, name FROM games WHERE type = \'i\' AND (host_id = %s OR away_id = %s) ORDER BY time_updated DESC;', (player_id, player_id))
     rows = cur.fetchall()
     if rows:
-        message += 'Текущие игры с вашим участием:\n\n' if self else 'Текущие игры с участием игрока:\n\n'
+        message += 'Текущие игры с вашим участием:\n\n' if is_self else 'Текущие игры с участием игрока:\n\n'
         for game_id, host_id, away_id, description, game_name in rows:
             host_username = vk_utils.fetch_username(host_id, vk=vk)
             away_username = vk_utils.fetch_username(away_id, vk=vk)
             opponent = host_id if player_id == away_id else away_id
             cur.execute('SELECT nickname FROM players WHERE player_id = %s', opponent)
-            (opp_nickname,) = cur.fetchone()
-            message += f'{game_id} - {game_name}\n{host_username} vs {away_username}\n{description}\nПротивник: {opp_nickname}\n\n'
+            [opponent_nickname] = cur.fetchone()
+            message += f'{game_id} - {game_name}\n{host_username} vs {away_username}\n{description}\nПротивник: {opponent_nickname}\n\n'
 
-    assert message
+    if not message:
+        message = 'Не найдено текущих игр.'
 
     return [message]
 
