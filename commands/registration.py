@@ -38,13 +38,20 @@ def set_nickname(player_id, command_text):
     with connection:
         cur = connection.cursor()
 
-        cur.execute('SELECT EXISTS(SELECT nickname FROM players WHERE nickname = %s)', (nickname, ))
-        if cur.fetchone()[0]:
-            message = 'Этот никнейм уже занят.'
-            hint = 'Если это ваш никнейм, обратитесь к администратору.'
-            return [message, hint]
+        cur.execute('SELECT EXISTS(SELECT * FROM players WHERE nickname = %s);', nickname)
+        [[is_already_taken]] = cur
+        if is_already_taken:
+            cur.execute('SELECT player_id FROM players WHERE nickname = %s;', nickname)
+            [[nickname_owner]] = cur
+            if player_id == nickname_owner:
+                response = ['Вы уже зарегистрировались с данным никнеймом.']
+            else:
+                message = 'Этот никнейм уже занят.'
+                hint = 'Если это ваш никнейм, обратитесь к администратору.'
+                response = [message, hint]
+            return response
 
-        cur.execute('SELECT EXISTS(SELECT player_id FROM players WHERE player_id = %s)', (player_id, ))
+        cur.execute('SELECT EXISTS(SELECT player_id FROM players WHERE player_id = %s);', player_id)
         if cur.fetchone()[0]:
             cur.execute('UPDATE players SET nickname = %s WHERE player_id = %s;', (nickname, player_id))
             message = 'Никнейм успешно обновлён.\nВаш новый никнейм: {}'.format(nickname)
