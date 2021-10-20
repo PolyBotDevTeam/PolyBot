@@ -57,14 +57,19 @@ INCOMPLETE_FFA_GAMES_ITEM = '''ID: {game_id} - {game_name}
 Описание: {description}'''
 
 
+GAME_IS_RATED = 'Рейтинговая'
+GAME_IS_UNRATED = 'Нерейтинговая'
+
 OPEN_FFA_GAME_INFO = '''ФФА №{game_id} - Открыта.
 Создатель: {owner_username}
+Тип: {is_rated_info}
 Описание: {description}
 Участники:
 {members_usernames}'''
 
 STARTED_FFA_GAME_INFO = '''ФФА №{game_id} - Идёт.
 Создатель: {owner_username}
+Тип: {is_rated_info}
 Описание: {description}
 Название: {name}
 Участники:
@@ -72,6 +77,7 @@ STARTED_FFA_GAME_INFO = '''ФФА №{game_id} - Идёт.
 
 FINISHED_FFA_GAME_INFO = '''ФФА №{game_id} - Завершена.
 Создатель: {owner_username}
+Тип: {is_rated_info}
 Описание: {description}
 Название: {name}
 Победитель: {winner_username}

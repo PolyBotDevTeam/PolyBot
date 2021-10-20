@@ -17,7 +17,8 @@ def view_ffa_game(game_id, *, database, vk):
         'game_id': game.id,
         'description': game.description,
         'owner_username': owner_username,
-        'members_usernames': members_usernames_lines
+        'members_usernames': members_usernames_lines,
+        'is_rated_info': responses.GAME_IS_RATED if game.is_rated else responses.GAME_IS_UNRATED
     }
 
     if game.is_started():
