@@ -56,6 +56,15 @@ INCOMPLETE_FFA_GAMES_ITEM = '''ID: {game_id} - {game_name}
 Создатель: {owner_username}
 Описание: {description}'''
 
+COMPLETE_FFA_GAMES_ITEM = '''ID: {game_id} - {game_name}
+Создатель: {owner_username}
+Описание: {description}
+Победитель: {winner_username}'''
+
+COMPLETE_FFA_GAMES = '''Завершённые ФФА:
+
+{games_list}'''
+
 
 GAME_IS_RATED = 'Рейтинговая'
 GAME_IS_UNRATED = 'Нерейтинговая'

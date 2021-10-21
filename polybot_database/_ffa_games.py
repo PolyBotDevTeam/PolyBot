@@ -30,6 +30,7 @@ class FFAGames:
         return game
 
     # TODO: Add get_all_games() method
+    # TODO: Maybe should add _select_games_where(sql_condition)?
 
     def get_open_games(self):
         response = self._execute(
@@ -41,6 +42,13 @@ class FFAGames:
     def get_incomplete_games(self):
         response = self._execute(
             'SELECT game_id FROM ffa_games WHERE name IS NOT NULL AND winner_id IS NULL;',
+        )
+        games = (self.get_game_by_id(game_id) for [game_id] in response)
+        return games
+
+    def get_complete_games(self):
+        response = self._execute(
+            'SELECT game_id FROM ffa_games WHERE winner_id IS NOT NULL;',
         )
         games = (self.get_game_by_id(game_id) for [game_id] in response)
         return games
