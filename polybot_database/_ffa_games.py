@@ -29,7 +29,7 @@ class FFAGames:
         game.add_member(owner_id)
         return game
 
-    def _select_games(additional_query_part='', args=None):
+    def _select_games(self, additional_query_part='', args=None):
         response = self._execute(
             f'SELECT game_id FROM ffa_games {additional_query_part};',
             args
