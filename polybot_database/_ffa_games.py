@@ -29,8 +29,6 @@ class FFAGames:
         game.add_member(owner_id)
         return game
 
-    # TODO: Add get_all_games() method
-
     def _select_games(additional_query_part='', args=None):
         response = self._execute(
             f'SELECT game_id FROM ffa_games {additional_query_part};',
@@ -38,6 +36,9 @@ class FFAGames:
         )
         games = (self.get_game_by_id(game_id) for [game_id] in response)
         return games
+
+    def get_all_games(self):
+        return self._select_games()
 
     def get_open_games(self):
         return self._select_games('WHERE name IS NULL')
