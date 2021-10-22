@@ -29,8 +29,6 @@ class FFAGame:
     def description(self):
         return self._get_field('description')
 
-    # TODO: If NULL then probably should raise exception instead of returning
-
     @property
     def name(self):
         return self._get_field('name')
@@ -127,7 +125,7 @@ class FFAGame:
             raise self.errors.InvalidGameNameError('this name can\'t be the name of game')
 
     def is_started(self):
-        game_name = self._get_field('name')
+        game_name = self._get_optional_field('name')
         return game_name is not None
 
     def finish(self, winner_id: int):
@@ -144,16 +142,22 @@ class FFAGame:
         )
 
     def is_finished(self):
-        winner = self._get_field('winner_id')
+        winner = self._get_optional_field('winner_id')
         return winner is not None
 
     def finish_with_draw(self):
         return self.finish(winner_id=self._WINNER_ID_FOR_DRAW)
 
-    def _get_field(self, field_name):
+    def _get_optional_field(self, field_name):
         query = f'SELECT {field_name} FROM ffa_games WHERE game_id = %s;'
         [[field_value]] = self._execute(query, [self._id])
         return field_value
+
+    def _get_field(self, field_name):
+        result = self._get_optional_field(field_name)
+        if result is None:
+            raise ValueError(f'"{field_name}" field is empty (None/NULL), unable to get it\'s value')
+        return result
 
     def _set_field(self, field_name, new_value):
         query = f'UPDATE ffa_games SET {field_name} = %s WHERE game_id = %s;'
