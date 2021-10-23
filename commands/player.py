@@ -5,37 +5,34 @@ import vk_utils
 import db_utils
 
 
-def player(player_id, command_text):
-    player_called_id = player_id
-    del player_id
+def _process_player_command(actor_id, command_text, *, cursor, **kwargs):
+    player_called_id = actor_id
+    del actor_id
 
-    command_text = command_text.lstrip()
     pointer = command_text if command_text else None
     del command_text
 
-    connection = message_handler.create_connection()
-    with connection:
-        cur = connection.cursor()
+    cur = cursor
 
-        try:
-            player_to_desc_id = message_handler.try_to_identify_id(pointer, cur) if pointer is not None else player_called_id
-        except vk_utils.InvalidMentionError:
-            message = 'Некорректная ссылка. Нажмите @ или *, чтобы выбрать среди участников беседы.'
-            return [message]
-        except ValueError:
-            message = 'Не удалось обнаружить пользователя по введённым данным.'
-            return [message]
-
-        if not db_utils.exists(cur, 'players', 'player_id = %s', player_to_desc_id):
-            if pointer is None:
-                message = 'Вы ещё не зарегистрированы в системе.'
-            else:
-                message = 'Этот пользователь ещё не зарегистрирован в системе.'
-            return [message]
-
-        elo.recalculate(cur=cur)
-        message = _compose_description(player_to_desc_id, cur)
+    try:
+        player_to_desc_id = message_handler.try_to_identify_id(pointer, cur) if pointer is not None else player_called_id
+    except vk_utils.InvalidMentionError:
+        message = 'Некорректная ссылка. Нажмите @ или *, чтобы выбрать среди участников беседы.'
         return [message]
+    except ValueError:
+        message = 'Не удалось обнаружить пользователя по введённым данным.'
+        return [message]
+
+    if not db_utils.exists(cur, 'players', 'player_id = %s', player_to_desc_id):
+        if pointer is None:
+            message = 'Вы ещё не зарегистрированы в системе.'
+        else:
+            message = 'Этот пользователь ещё не зарегистрирован в системе.'
+        return [message]
+
+    elo.recalculate(cur=cur)
+    message = _compose_description(player_to_desc_id, cur)
+    return [message]
 
 
 def _compose_description(player_id, cur):
@@ -47,8 +44,10 @@ def _compose_description(player_id, cur):
     return desc
 
 
-player_command = command_system.UserCommand()
-
-player_command.keys = ['игрок', 'player']
-player_command.description = ' никнейм_игрока (или имя и фамилия, или ссылка на его профиль в формате @ссылка) - Подробная информация об игроке.'
-player_command.process = player
+player_command = command_system.Command(
+    process=_process_player_command,
+    keys=['игрок', 'player'],
+    description='Подробная информация об игроке',
+    signature='никнейм_игрока (или имя и фамилия, или ссылка на его профиль в формате @ссылка)',
+    allow_users=True
+)
