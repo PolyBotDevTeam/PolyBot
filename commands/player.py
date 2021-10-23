@@ -9,17 +9,18 @@ def _process_player_command(actor_id, command_text, *, cursor, **kwargs):
     player_to_describe_info = command_text if command_text else None
     del command_text
 
-    try:
-        player_to_describe_id = message_handler.try_to_identify_id(player_to_describe_info, cursor) if player_to_describe_info is not None else actor_id
-    except vk_utils.InvalidMentionError:
-        message = 'Некорректная ссылка. Нажмите @ или *, чтобы выбрать среди участников беседы.'
-        return [message]
-    except ValueError:
-        message = 'Не удалось обнаружить пользователя по введённым данным.'
-        return [message]
+    if player_to_describe_info is not None:
+        try:
+            player_to_describe_id = message_handler.try_to_identify_id(player_to_describe_info, cursor)
+        except vk_utils.InvalidMentionError:
+            return ['Некорректная ссылка. Нажмите @ или *, чтобы выбрать среди участников беседы.']
+        except ValueError:
+            return ['Не удалось обнаружить пользователя по введённым данным.']
+    else:
+        player_to_describe_id = actor_id
 
     if not db_utils.exists(cursor, 'players', 'player_id = %s', player_to_describe_id):
-        if player_to_describe_info is None:
+        if player_to_describe_id == actor_id:
             message = 'Вы ещё не зарегистрированы в системе.'
         else:
             message = 'Этот пользователь ещё не зарегистрирован в системе.'
