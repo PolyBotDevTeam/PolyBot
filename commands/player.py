@@ -5,7 +5,7 @@ import vk_utils
 import db_utils
 
 
-def _process_player_command(actor_id, command_text, *, cursor, **kwargs):
+def _process_player_command(actor_id, command_text, *, cursor, actor_message, **kwargs):
     player_to_describe_info = command_text if command_text else None
     del command_text
 
@@ -16,6 +16,8 @@ def _process_player_command(actor_id, command_text, *, cursor, **kwargs):
             return ['Некорректная ссылка. Нажмите @ или *, чтобы выбрать среди участников беседы.']
         except ValueError:
             return ['Не удалось обнаружить пользователя по введённым данным.']
+    elif actor_message is not None and 'reply_message' in actor_message.keys():
+        player_to_describe_id = actor_message['reply_message']['from_id']
     else:
         player_to_describe_id = actor_id
 
