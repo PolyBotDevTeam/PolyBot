@@ -12,7 +12,7 @@ def ffa_games(command_mode_key, *, database, vk):
     ffa_games = database.ffa_games
 
     class GameTemplates:
-        OPEN = responses.OPEN_FFA_GAMES_ITEM,
+        OPEN = responses.OPEN_FFA_GAMES_ITEM
         INCOMPLETE = responses.INCOMPLETE_FFA_GAMES_ITEM
         COMPLETE = responses.COMPLETE_FFA_GAMES_ITEM
 
