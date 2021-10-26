@@ -108,10 +108,11 @@ def exec_python(player_id, command_text, **kwargs):
 
 def _exec_command_return_output(command):
     output_filename = _generate_output_filename()
-    os.system(f'{command} > {output_filename}')
-    with open(output_filename) as fp:
+    output_path = os.path.abspath(output_filename)
+    os.system(f'{command} > {output_path}')
+    with open(output_path) as fp:
         output = fp.read()
-    os.remove(output_filename)
+    os.remove(output_path)
     return output
 
 
