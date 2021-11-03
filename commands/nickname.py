@@ -1,15 +1,14 @@
 import command_system
-import db_utils
 import message_handler
 
 
-def show_nickname(actor_id, command_text, *, cursor, actor_message, **kwargs):
+def show_nickname(actor_id, command_text, *, cursor, database, actor_message, **kwargs):
     if command_text:
         try:
             target_player_id = message_handler.try_to_identify_id(command_text, cursor)
         except ValueError:
             target_player_id = None
-        if target_player_id is None or not db_utils.exists(cursor, 'players', 'player_id = %s', target_player_id):
+        if target_player_id is None or not database.players.is_registered(target_player_id):
             # TODO: Can find at least 3 such messages in this project.
             #       Probably should move it out.
             return ['Не удалось обнаружить пользователя по введённым данным.']
