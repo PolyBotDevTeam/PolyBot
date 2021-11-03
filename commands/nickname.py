@@ -7,8 +7,6 @@ def show_nickname(actor_id, command_text, *, cursor, database, actor_message, **
         try:
             target_player_id = message_handler.try_to_identify_id(command_text, cursor)
         except ValueError:
-            target_player_id = None
-        if target_player_id is None or not database.players.is_registered(target_player_id):
             # TODO: Can find at least 3 such messages in this project.
             #       Probably should move it out.
             return ['Не удалось обнаружить пользователя по введённым данным.']
@@ -18,6 +16,13 @@ def show_nickname(actor_id, command_text, *, cursor, database, actor_message, **
 
     else:
         target_player_id = actor_id
+
+    if not database.players.is_registered(target_player_id):
+        if target_player_id == actor_id:
+            message = 'Вы ещё не зарегистрированы в системе. Воспользуйтесь командой /гайд или /помощь регистрация'
+        else:
+            message = 'Этот пользователь ещё не зарегистрирован в системе.'
+        return [message]
 
     cursor.execute('SELECT nickname FROM players WHERE player_id = %s;', target_player_id)
     [[nickname]] = cursor
