@@ -11,11 +11,13 @@ def instawin(player_id, command_text):
     except:
         message = 'Необходимо указать победителя и ID игры в системе.'
         return [message]
+
     try:
         player_id = vk_utils.id_by_mention(winner)
     except ValueError:
         message = 'Некорректная ссылка. Нажмите @ или * чтобы выбрать среди участников беседы.'
         return [message]
+
     connection = message_handler.create_connection()
     with connection:
         cur = connection.cursor()
@@ -24,26 +26,35 @@ def instawin(player_id, command_text):
         if not fetch:
             message = 'Не найдено игр с указанным ID.'
             return [message]
-        if player_id == fetch[0]:
-            cur.execute('UPDATE games SET host_winner = 1, type = \'c\', time_updated = NOW() WHERE game_id = %s;', (game_id, ))
-            cur.execute('SELECT game_id FROM results WHERE game_id = %s;', (game_id, ))
-            exists = cur.fetchone()
-            if exists:
-                cur.execute('UPDATE results SET host_winner = 1 WHERE game_id = %s;', (game_id, ))
-            else:
-                cur.execute('INSERT results(host_id, away_id, host_winner, game_id) VALUES (%s, %s, %s, %s);', (fetch[0], fetch[1], 1, game_id))
-            message = 'Игра {0} завершена, победитель - {1}!'.format(game_id, message_handler.username(fetch[0]))
-            return [message]
-        elif player_id == fetch[1]:
-            cur.execute('UPDATE games SET host_winner = 0, type = \'c\', time_updated = NOW() WHERE game_id = %s;', (game_id, ))
-            cur.execute('SELECT game_id FROM results WHERE game_id = %s;', (game_id, ))
-            exists = cur.fetchone()
-            if exists:
-                cur.execute('UPDATE results SET host_winner = 0 WHERE game_id = %s;', (game_id, ))
-            else:
-                cur.execute('INSERT results(host_id, away_id, host_winner, game_id) VALUES (%s, %s, %s, %s);', (fetch[0], fetch[1], 0, game_id))
-            message = 'Игра {0} завершена, победитель - {1}!'.format(game_id, message_handler.username(fetch[1]))
-            return [message]
+        [host_id, away_id] = fetch
+
+        host_winner = player_id == host_id
+        away_winner = player_id == away_id
+        assert host_winner or away_winner
+
+        cur.execute(
+            'UPDATE games SET host_winner = %s, type = \'c\', time_updated = NOW() WHERE game_id = %s;',
+            (host_winner, game_id)
+        )
+        cur.execute('SELECT game_id FROM results WHERE game_id = %s;', game_id)
+        is_result_inserted = cur.fetchone()
+        if is_result_inserted:
+            cur.execute(
+                'UPDATE results SET host_winner = %s WHERE game_id = %s;',
+                (host_winner, game_id)
+            )
+        else:
+            cur.execute(
+                'INSERT results(host_id, away_id, host_winner, game_id) VALUES (%s, %s, %s, %s);',
+                (host_id, away_id, host_winner, game_id)
+            )
+
+        winner_id = host_id if host_winner else away_id
+
+    winner_username = message_handler.username(winner_id)
+    message = f'Игра {game_id} завершена, победитель - {winner_username}!'
+    return [message]
+
 
 instawin_command = command_system.AdminCommand()
 
