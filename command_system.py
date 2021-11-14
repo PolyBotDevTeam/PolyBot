@@ -125,6 +125,11 @@ def parse_command(command_str):
     return prefix, command_name, command_text
 
 
+def split_command_and_arguments(command_str):
+    prefix, command_name, command_text = parse_command(command_str)
+    return prefix + command_name, command_text
+
+
 def _process_user_command(actor_id, command_as_string, connection, **kwargs):
     prefix, command_name, command_text = parse_command(command_as_string)
     assert prefix == '/'
