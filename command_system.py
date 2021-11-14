@@ -150,19 +150,23 @@ def _process_admin_command(actor_id, command_as_string, connection, **kwargs):
 
 
 def process_command(user_id, command, user_message, *, process_exception, database, vk):
-    prefix = command[0] if command else ''
+    prefix = command[:1]
+    if prefix == '/':
+        process = _process_user_command
+    else:
+        process = _process_admin_command
+
+    available_objects = {
+        'actor_message': user_message,
+        'database': database,
+        'vk': vk
+    }
+
     try:
-        if prefix == '/':
-            process = _process_user_command
-        else:
-            process = _process_admin_command
         with database.create_connection() as connection:
             result = process(
                 user_id, command, connection,
-                actor_message=user_message,
-                database=database,
-                cursor=connection.cursor(),
-                vk=vk
+                cursor=connection.cursor(), **available_objects
             )
     except Exception as e:
         if isinstance(e, user_errors.UserError):
