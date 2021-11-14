@@ -109,48 +109,36 @@ def preprocess_command(command, prefix):
     return command_name, command_text
 
 
-def process_user_command(user_id, command, user_message, database, connection, vk):
-    command_name, command_text = preprocess_command(command, '/')
+def _process_user_command(actor_id, command_as_string, connection, **kwargs):
+    command_name, command_text = preprocess_command(command_as_string, '/')
 
-    if is_banned(user_id, connection):
+    if _is_banned(actor_id, connection):
         return ['С лёгким паром!']
-    assert not is_banned(user_id, connection)
+    assert not _is_banned(actor_id, connection)
 
     if not user_commands.has_command(command_name):
         return ["Команда не распознана. Напишите '/помощь', чтобы получить список команд."]
     cmd = user_commands.get_command(command_name)
 
-    return cmd(
-        user_id, command_text,
-        actor_message=user_message,
-        database=database,
-        cursor=connection.cursor(),
-        vk=vk
-    )
+    return cmd(actor_id, command_text, **kwargs)
 
 
-def is_banned(user_id, connection):
+def _is_banned(user_id, connection):
     cursor = connection.cursor()
     cursor.execute('SELECT EXISTS(SELECT player_id FROM players WHERE player_id = %s AND banned = 1)', user_id)
     return bool(cursor.fetchone()[0])
 
 
-def process_admin_command(user_id, command, user_message, database, connection, vk):
-    command_name, command_text = preprocess_command(command, '!')
+def _process_admin_command(actor_id, command_as_string, connection, **kwargs):
+    command_name, command_text = preprocess_command(command_as_string, '!')
 
     if not admin_commands.has_command(command_name):
         return []
     cmd = admin_commands.get_command(command_name)
 
-    if user_id in admins_ids:
-        assert user_id in admins_ids
-        result = cmd(
-            user_id, command_text,
-            actor_message=user_message,
-            database=database,
-            cursor=connection.cursor(),
-            vk=vk
-        )
+    if actor_id in admins_ids:
+        assert actor_id in admins_ids
+        result = cmd(actor_id, command_text, **kwargs)
     else:
         text = 'Отказано в доступе.'
         if 'py' in cmd.keys:
@@ -169,7 +157,13 @@ def process_command(user_id, command, user_message, *, process_exception, databa
         else:
             process = process_admin_command
         with database.create_connection() as connection:
-            result = process(user_id, command, user_message, database, connection, vk)
+            result = process(
+                user_id, command, connection,
+                actor_message=user_message,
+                database=database,
+                cursor=connection.cursor(),
+                vk=vk
+            )
     except Exception as e:
         if isinstance(e, user_errors.UserError):
             result = [str(text) for text in e.args]
