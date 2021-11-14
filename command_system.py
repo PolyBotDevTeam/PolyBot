@@ -72,7 +72,11 @@ class CommandsList:
             self._commands_by_keys[key] = command
 
     def remove(self, command):
-        self._commands_list.remove(command)
+        try:
+            self._commands_list.remove(command)
+        except ValueError:
+            raise CommandNotFoundError
+
         for k, v in list(self._commands_by_keys.items()):
             if v == command:
                 del self._commands_by_keys[k]
@@ -85,13 +89,22 @@ class CommandsList:
         self.add(command)
 
     def get_command(self, key):
-        return self._commands_by_keys[key]
+        try:
+            result = self._commands_by_keys[key]
+        except KeyError:
+            raise CommandNotFoundError
+        else:
+            return result
 
     def has_command(self, key):
         return key in self._commands_by_keys.keys()
 
     def __iter__(self):
         return iter(self._commands_list)
+
+
+class CommandNotFoundError(KeyError):
+    pass
 
 
 user_commands = CommandsList()
