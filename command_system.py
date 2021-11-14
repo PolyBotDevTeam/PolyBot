@@ -156,37 +156,50 @@ def process_command(user_id, command, user_message, *, process_exception, databa
     else:
         process = _process_admin_command
 
+    accumulated_responses = []
+    def send_action(action):
+        accumulated_responses.append(action)
+
     available_objects = {
+        'send_action': send_action,
         'actor_message': user_message,
         'database': database,
         'vk': vk
     }
 
+    def _command_responses_to_actions(responses):
+        for response in responses:
+            if isinstance(response, vk_actions.Action):
+                action = response
+            else:
+                assert isinstance(response, str)
+                action = vk_actions.Message(text=str(response))
+            yield action
+
     try:
         with database.create_connection() as connection:
-            result = process(
+            responses = process(
                 user_id, command, connection,
                 cursor=connection.cursor(), **available_objects
             )
+            for response in responses:
+                accumulated_responses.append(response)
+                yield from _command_responses_to_actions(accumulated_responses)
+                accumulated_responses.clear()
+
     except Exception as e:
         if isinstance(e, user_errors.UserError):
-            result = [str(text) for text in e.args]
-            if not result:
-                result = ['Неправильный формат ввода.']
+            messages = [str(text) for text in e.args]
+            if not messages:
+                messages.append('Неправильный формат ввода.')
             print_exception(e, file=errors_log_file)
         else:
-            result = ['Что-то пошло не так.']
+            messages = ['Что-то пошло не так.']
             process_exception(e)
+        accumulated_responses.extend(messages)
 
-    def _postprocess_command_response(response):
-        if not isinstance(response, vk_actions.Action):
-            assert isinstance(response, str)
-            response = vk_actions.Message(text=str(response))
-        return response
-
-    result = map(_postprocess_command_response, result)
-
-    return result
+    yield from _command_responses_to_actions(accumulated_responses)
+    accumulated_responses.clear()
 
 
 def get_command(command):
