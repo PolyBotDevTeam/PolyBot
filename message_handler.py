@@ -9,7 +9,6 @@ import vk_api
 import pymysql
 
 import command_system
-from command_system import process_command, preprocess_command
 import utils
 import db_utils
 import vk_utils
@@ -75,18 +74,20 @@ def process_message_from_chat(message, *, vk, database):
     if user_command == '!restart' and actor in settings.admins_ids and chat_id in settings.admin_chats:
         sys.exit()
 
+    def _are_commands_equal(command_str_1, command_str_2):
+        prefix_1, name_1, command_text_1 = command_system.parse_command(command_str_1)
+        prefix_2, name_2, command_text_2 = command_system.parse_command(command_str_2)
+        names_1 = command_system.get_command(prefix_1+name_1).keys
+        return prefix_1 == prefix_2 and name_2 in names_1
+
     # TODO: command attr "admin_chat_required"
     if chat_id not in settings.admin_chats:
         whitelisted_commands = ['/спать', '/выбор_племени', '!py']
-        whitelisted_data = [(x[0], command_system.get_command(x).keys) for x in whitelisted_commands]
-        allowed = False
-        for prefix, whitelisted_keys in whitelisted_data:
-            if user_command.startswith(prefix) and preprocess_command(user_command, prefix)[0] in whitelisted_keys:
-                allowed = True
-        if not allowed:
+        is_command_whitelisted = any(_are_commands_equal(user_command, x) for x in whitelisted_commands)
+        if not is_command_whitelisted:
             return
 
-    actions = process_command(
+    actions = command_system.process_command(
         actor,
         user_command,
         message,

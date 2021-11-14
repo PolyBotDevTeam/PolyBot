@@ -17,7 +17,9 @@ def _process_exec_as_command(player_id, command_text, **kwargs):
         message = 'Некорректная ссылка. Нажмите @ или * чтобы выбрать среди участников беседы.'
         return [message]
 
-    command_name, command_text = command_system.preprocess_command(command_to_exec, '/')
+    prefix, command_name, command_text = command_system.parse_command(command_to_exec)
+    assert prefix == '/'
+
     user_commands = command_system.user_commands
     if not user_commands.has_command(command_name):
         return ['Команда с таким именем не найдена.']

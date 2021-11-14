@@ -101,16 +101,17 @@ def get_user_command_list():
     return list(user_commands)
 
 
-def preprocess_command(command, prefix):
-    assert command.startswith(prefix)
-    command_name, command_text = split_one(command)
-    assert command_name.startswith(prefix)
-    command_name = command_name[len(prefix):].lower()
-    return command_name, command_text
+def parse_command(command_str):
+    prefix = command_str[:1]
+    command_body = command_str[len(prefix):]
+    command_name, command_text = split_one(command_body)
+    command_name = command_name.lower()
+    return prefix, command_name, command_text
 
 
 def _process_user_command(actor_id, command_as_string, connection, **kwargs):
-    command_name, command_text = preprocess_command(command_as_string, '/')
+    prefix, command_name, command_text = parse_command(command_as_string)
+    assert prefix == '/'
 
     if _is_banned(actor_id, connection):
         return ['С лёгким паром!']
@@ -130,7 +131,8 @@ def _is_banned(user_id, connection):
 
 
 def _process_admin_command(actor_id, command_as_string, connection, **kwargs):
-    command_name, command_text = preprocess_command(command_as_string, '!')
+    prefix, command_name, command_text = parse_command(command_as_string)
+    assert prefix == '!'
 
     if not admin_commands.has_command(command_name):
         return []
@@ -149,8 +151,8 @@ def _process_admin_command(actor_id, command_as_string, connection, **kwargs):
     return result
 
 
-def process_command(user_id, command, user_message, *, process_exception, database, vk):
-    prefix = command[:1]
+def process_command(user_id, command_str, user_message, *, process_exception, database, vk):
+    prefix, command_name, command_text = parse_command(command_str)
     if prefix == '/':
         process = _process_user_command
     else:
@@ -202,22 +204,20 @@ def process_command(user_id, command, user_message, *, process_exception, databa
     accumulated_responses.clear()
 
 
-def get_command(command):
-    if not command:
-        raise ValueError('empty string')
-    prefix = command[0]
+def get_command(command_str):
+    if not command_str:
+        raise ValueError('empty string given as command')
+
+    prefix, command_name, command_text = parse_command(command_str)
+
     if prefix not in ('/', '!'):
         raise ValueError('unknown prefix')
 
-    command_name, command_text = preprocess_command(command, prefix)
-    del command
     if command_text:
         raise ValueError('should not specify command text')
 
-    result = user_commands.get_command(command_name) if prefix == '/' else admin_commands.get_command(command_name)
-    return result
-
-
+    commands = user_commands if prefix == '/' else admin_commands
+    return commands.get_command(command_name)
 
 
 # Deprecated
