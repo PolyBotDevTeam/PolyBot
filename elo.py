@@ -215,19 +215,21 @@ def fetch_rating_deltas(game_id, cur):
     del game_id
 
     recalculate(cur=cur)
-    games_results = select(cur, 'SELECT host_id, away_id, host_winner, game_id FROM results;')
+    games_results = select(cur, 'SELECT host_id, away_id, host_winner, is_rated, game_id FROM results;')
 
     elos = defaultdict(lambda: MutableELO(*DEFAULT_ELO))
     games_counts = defaultdict(lambda: {'host': 0, 'away': 0})
 
-    for host_id, away_id, host_winner, game_id in games_results:
+    for host_id, away_id, host_winner, is_rated, game_id in games_results:
         if game_id == game_id_need:
             old_elos = _compute_final_elo(elos[host_id], games_counts[host_id]).host, _compute_final_elo(elos[away_id], games_counts[away_id]).away
+
+        if is_rated:
             elo_process_game(host_id, away_id, host_winner, elos=elos, games_counts=games_counts)
+
+        if game_id == game_id_need:
             new_elos = _compute_final_elo(elos[host_id], games_counts[host_id]).host, _compute_final_elo(elos[away_id], games_counts[away_id]).away
             return tuple(zip(old_elos, new_elos))
-
-        elo_process_game(host_id, away_id, host_winner, elos=elos, games_counts=games_counts)
 
     raise ValueError("game with such id not found")
 
