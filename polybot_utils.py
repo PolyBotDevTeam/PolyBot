@@ -67,20 +67,19 @@ def process_game_finish(game_id, *, cursor):
 
     cursor.execute('UPDATE games SET type = \'c\', time_updated = NOW() WHERE game_id = %s;', game_id)
 
-    if is_rated:
-        cursor.execute(
-            'SELECT EXISTS(SELECT * FROM results WHERE game_id = %s);',
-            game_id
-        )
-        [[is_result_inserted]] = cursor
+    cursor.execute(
+        'SELECT EXISTS(SELECT * FROM results WHERE game_id = %s);',
+        game_id
+    )
+    [[is_result_inserted]] = cursor
 
-        if is_result_inserted:
-            cursor.execute(
-                'UPDATE results SET host_winner = %s WHERE game_id = %s;',
-                (host_winner, game_id)
-            )
-        else:
-            cursor.execute(
-                'INSERT results(host_id, away_id, host_winner, game_id) VALUES (%s, %s, %s, %s);',
-                (host_id, away_id, host_winner, game_id)
-            )
+    if is_result_inserted:
+        cursor.execute(
+            'UPDATE results SET host_winner = %s, is_rated = %s WHERE game_id = %s;',
+            (host_winner, is_rated, game_id)
+        )
+    else:
+        cursor.execute(
+            'INSERT results(host_id, away_id, host_winner, is_rated, game_id) VALUES (%s, %s, %s, %s, %s);',
+            (host_id, away_id, host_winner, is_rated, game_id)
+        )

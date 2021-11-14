@@ -121,14 +121,15 @@ def recalculate(*, cur=None):
             cur = connection.cursor()
             return recalculate(cur=cur)
 
-    cur.execute('SELECT host_id, away_id, host_winner FROM results;')
+    cur.execute('SELECT host_id, away_id, host_winner, is_rated FROM results;')
     games_results = tuple(cur.fetchall())
 
     elos = defaultdict(lambda: MutableELO(*DEFAULT_ELO))
     games_counts = defaultdict(lambda: {'host': 0, 'away': 0})
 
-    for host_id, away_id, host_winner in games_results:
-        elo_process_game(host_id, away_id, host_winner, elos=elos, games_counts=games_counts)
+    for host_id, away_id, host_winner, is_rated in games_results:
+        if is_rated:
+            elo_process_game(host_id, away_id, host_winner, elos=elos, games_counts=games_counts)
 
     roles = dict()
     cur.execute('SELECT player_id, role, banned FROM players;')
@@ -164,7 +165,7 @@ def elo_process_game(host_id, away_id, host_winner, *, elos, games_counts):
 
 def fetch_elos_changes_history(*, raw=False, cur):
     recalculate(cur=cur)
-    games_results = select(cur, 'SELECT host_id, away_id, host_winner, game_id FROM results;')
+    games_results = select(cur, 'SELECT host_id, away_id, host_winner, is_rated, game_id FROM results;')
     games_times = select(cur, 'SELECT game_id, time_updated FROM games;')
     games_times = dict(games_times)
 
@@ -172,8 +173,9 @@ def fetch_elos_changes_history(*, raw=False, cur):
     games_counts = defaultdict(lambda: {'host': 0, 'away': 0})
 
     prev_time = None
-    for host_id, away_id, host_winner, game_id in games_results:
-        elo_process_game(host_id, away_id, host_winner, elos=elos, games_counts=games_counts)
+    for host_id, away_id, host_winner, is_rated, game_id in games_results:
+        if is_rated:
+            elo_process_game(host_id, away_id, host_winner, elos=elos, games_counts=games_counts)
         ids = (host_id, away_id)
         if raw:
             result_elos = tuple(elos[id] for id in ids)
@@ -193,13 +195,14 @@ def compute_old_ratings(game_id, *, cur):
     del game_id
 
     recalculate(cur=cur)
-    games_results = select(cur, 'SELECT host_id, away_id, host_winner, game_id FROM results;')
+    games_results = select(cur, 'SELECT host_id, away_id, host_winner, is_rated, game_id FROM results;')
 
     elos = defaultdict(lambda: MutableELO(*DEFAULT_ELO))
     games_counts = defaultdict(lambda: {'host': 0, 'away': 0})
 
-    for host_id, away_id, host_winner, game_id in games_results:
-        elo_process_game(host_id, away_id, host_winner, elos=elos, games_counts=games_counts)
+    for host_id, away_id, host_winner, is_rated, game_id in games_results:
+        if is_rated:
+            elo_process_game(host_id, away_id, host_winner, elos=elos, games_counts=games_counts)
         if game_id == game_id_need:
             break
 
@@ -300,15 +303,16 @@ def new_rating(a, b, result):
 
 def __old_fetch_elos_changes_history(*, raw=False, cur):
     recalculate(cur=cur)
-    games_results = select(cur, 'SELECT host_id, away_id, host_winner, game_id FROM results;')
+    games_results = select(cur, 'SELECT host_id, away_id, host_winner, is_rated, game_id FROM results;')
     games_times = select(cur, 'SELECT game_id, time_updated FROM games;')
     games_times = dict(games_times)
 
     elos = defaultdict(lambda: MutableELO(*DEFAULT_ELO))
     games_counts = defaultdict(lambda: {'host': 0, 'away': 0})
 
-    for host_id, away_id, host_winner, game_id in games_results:
-        elo_process_game(host_id, away_id, host_winner, elos=elos, games_counts=games_counts)
+    for host_id, away_id, host_winner, is_rated, game_id in games_results:
+        if is_rated:
+            elo_process_game(host_id, away_id, host_winner, elos=elos, games_counts=games_counts)
         ids = (host_id, away_id)
         if raw:
             result_elos = tuple(elos[id] for id in ids)
