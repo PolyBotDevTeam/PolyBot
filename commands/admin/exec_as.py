@@ -6,7 +6,7 @@ import vk_utils
 def _process_exec_as_command(player_id, command_text, **kwargs):
     command_text = command_text.lstrip()
     try:
-        player_link, command_to_exec = utils.split_one(command_text)
+        player_link, command_to_exec_str = utils.split_one(command_text)
     except ValueError:
         message = 'Необходимо указать пользователя и команду.'
         return [message]
@@ -17,15 +17,13 @@ def _process_exec_as_command(player_id, command_text, **kwargs):
         message = 'Некорректная ссылка. Нажмите @ или * чтобы выбрать среди участников беседы.'
         return [message]
 
-    prefix, command_name, command_text = command_system.parse_command(command_to_exec)
-    assert prefix == '/'
+    command_info, command_text = command_system.split_command_and_arguments(command_to_exec_str)
+    try:
+        command_to_exec = command_system.get_command(command_info)
+    except command_system.CommandNotFoundError:
+        return [f'Команда с именем "{command_info}" не найдена.']
 
-    user_commands = command_system.user_commands
-    if not user_commands.has_command(command_name):
-        return ['Команда с таким именем не найдена.']
-    c = user_commands.get_command(command_name)
-
-    return c(target_player_id, command_text, **kwargs)
+    return command_to_exec(target_player_id, command_text, **kwargs)
 
 
 exec_as_command = command_system.Command(
