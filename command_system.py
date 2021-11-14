@@ -117,7 +117,7 @@ def _process_user_command(actor_id, command_as_string, connection, **kwargs):
     assert not _is_banned(actor_id, connection)
 
     if not user_commands.has_command(command_name):
-        return ["Команда не распознана. Напишите '/помощь', чтобы получить список команд."]
+        return ['Команда не распознана. Напишите "/помощь", чтобы получить список команд.']
     cmd = user_commands.get_command(command_name)
 
     return cmd(actor_id, command_text, **kwargs)
