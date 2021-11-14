@@ -75,12 +75,12 @@ def process_game_finish(game_id, *, cursor):
         [[is_result_inserted]] = cursor
 
         if is_result_inserted:
-            cur.execute(
+            cursor.execute(
                 'UPDATE results SET host_winner = %s WHERE game_id = %s;',
                 (host_winner, game_id)
             )
         else:
-            cur.execute(
+            cursor.execute(
                 'INSERT results(host_id, away_id, host_winner, game_id) VALUES (%s, %s, %s, %s);',
                 (host_id, away_id, host_winner, game_id)
             )
