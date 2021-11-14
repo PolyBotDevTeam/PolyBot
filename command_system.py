@@ -153,9 +153,9 @@ def process_command(user_id, command, user_message, *, process_exception, databa
     prefix = command[0] if command else ''
     try:
         if prefix == '/':
-            process = process_user_command
+            process = _process_user_command
         else:
-            process = process_admin_command
+            process = _process_admin_command
         with database.create_connection() as connection:
             result = process(
                 user_id, command, connection,
