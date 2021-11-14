@@ -86,6 +86,7 @@ class CommandsList:
     def __contains__(self, command):
         return command in self._commands_list
 
+    # Deprecated
     def update_keys(self, command):
         self.remove(command)
         self.add(command)
