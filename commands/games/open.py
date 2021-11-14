@@ -2,7 +2,7 @@ import command_system
 import vk_utils
 
 
-def open_game(actor, descriprion, *, is_rated, database, cursor):
+def open_game(actor, description, *, is_rated, database, cursor):
     cur = cursor
 
     if not description:
