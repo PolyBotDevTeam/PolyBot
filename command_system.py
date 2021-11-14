@@ -64,8 +64,10 @@ class CommandsList:
 
     def add(self, command):
         keys = tuple(command.keys)
-        for key in keys:
-            assert key not in self._commands_by_keys.keys(), "keys conflict: %s" % key
+
+        conflict_keys = set(keys) & self._commands_by_keys.keys()
+        if conflict_keys:
+            raise ValueError('keys conflict: %s' % sorted(conflict_keys))
 
         self._commands_list.append(command)
         for key in keys:
