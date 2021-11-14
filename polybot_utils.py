@@ -51,3 +51,35 @@ def is_game_name_correct(game_name):
     chars_used = set(game_name)
     chars_allowed = set(string.ascii_letters + ' &-')
     return chars_used.issubset(chars_allowed) and 0 < len(game_name) <= 30
+
+
+def process_game_finish(game_id, *, cursor):
+    cursor.execute('SELECT EXISTS(SELECT * FROM games WHERE game_id = %s);', game_id)
+    [[game_exists]] = cursor
+    if not game_exists:
+        raise ValueError('the game with this id does not exist')
+
+    cursor.execute('SELECT type, host_id, away_id, host_winner FROM games WHERE game_id = %s;', game_id)
+    [[game_type, host_id, away_id, host_winner]] = cursor
+
+    if game_type not in ('w', 'c'):
+        raise ValueError('the game is unfinished')
+
+    cursor.execute('UPDATE games SET type = \'c\', time_updated = NOW() WHERE game_id = %s;', game_id)
+
+    cursor.execute(
+        'SELECT EXISTS(SELECT * FROM results WHERE game_id = %s);',
+        game_id
+    )
+    [[is_result_inserted]] = cursor
+
+    if is_result_inserted:
+        cur.execute(
+            'UPDATE results SET host_winner = %s WHERE game_id = %s;',
+            (host_winner, game_id)
+        )
+    else:
+        cur.execute(
+            'INSERT results(host_id, away_id, host_winner, game_id) VALUES (%s, %s, %s, %s);',
+            (host_id, away_id, host_winner, game_id)
+        )

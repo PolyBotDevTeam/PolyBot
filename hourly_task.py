@@ -1,6 +1,7 @@
 import elo
 from settings import main_chat_id, token
 import message_handler
+import polybot_utils
 
 from vk_actions import Message
 
@@ -12,9 +13,7 @@ with connection:
     rows = cur.fetchall()
     message = ''
     for game_id, host_id, away_id, host_winner in rows:
-        # TODO: fix repeating code from win
-        cur.execute('UPDATE games SET type = \'c\', time_updated = NOW() WHERE game_id = %s;', game_id)
-        cur.execute('INSERT results(host_id, away_id, host_winner, game_id) VALUES (%s, %s, %s, %s);', (host_id, away_id, host_winner, game_id))
+        polybot_utils.process_game_finish(game_id, cur=cur)
         elo.recalculate(cur=cur)
         rating_changes_desc = elo.describe_rating_changes(game_id, cur=cur)
         winner_id = host_id if host_winner else away_id

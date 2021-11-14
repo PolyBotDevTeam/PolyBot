@@ -1,5 +1,6 @@
 import command_system
 import message_handler
+import polybot_utils
 import vk_utils
 
 
@@ -36,21 +37,9 @@ def instawin(player_id, command_text):
             'UPDATE games SET host_winner = %s, type = \'c\', time_updated = NOW() WHERE game_id = %s;',
             (host_winner, game_id)
         )
-        cur.execute('SELECT game_id FROM results WHERE game_id = %s;', game_id)
-        is_result_inserted = cur.fetchone()
-        if is_result_inserted:
-            cur.execute(
-                'UPDATE results SET host_winner = %s WHERE game_id = %s;',
-                (host_winner, game_id)
-            )
-        else:
-            cur.execute(
-                'INSERT results(host_id, away_id, host_winner, game_id) VALUES (%s, %s, %s, %s);',
-                (host_id, away_id, host_winner, game_id)
-            )
+        polybot_utils.process_game_finish(game_id, cursor=cur)
 
-        winner_id = host_id if host_winner else away_id
-
+    winner_id = host_id if host_winner else away_id
     winner_username = message_handler.username(winner_id)
     message = f'Игра {game_id} завершена, победитель - {winner_username}!'
     return [message]

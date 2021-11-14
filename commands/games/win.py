@@ -3,6 +3,7 @@ import elo
 import message_handler
 from message_handler import username, create_mention
 from db_utils import select
+import polybot_utils
 
 
 me = ('я', 'me')
@@ -65,24 +66,16 @@ def win(player_id, command_text):
             notification = f'{create_mention(loser_id)}, подтвердите победу вашего противника командой /победил противник {game_id}. Если вы не согласны с его заявлением, обратитесь к модератору.'
             result.append(notification)
         else:
-            changes_desc = insert_result(host_id, away_id, host_winner, game_id, cur)
+            polybot_utils.process_game_finish(game_id, cursor=cur)
+            elo.recalculate(cur=cur)
+            deltas = elo.fetch_rating_deltas(game_id, cur)
+            changes_desc = "%s: %s\n%s: %s" % (
+                username(host_id), _get_change_desc(*deltas[0]),
+                username(away_id), _get_change_desc(*deltas[1])
+            )
             result.append(changes_desc)
 
         return result
-
-
-def insert_result(host_id, away_id, host_winner, game_id, cur):  # TODO: move to game info intead  (or to elo?)
-    assert isinstance(game_id, int)
-
-    cur.execute('INSERT results(host_id, away_id, host_winner, game_id) VALUES (%s, %s, %s, %s);', (host_id, away_id, host_winner, game_id))
-    elo.recalculate(cur=cur)
-
-    deltas = elo.fetch_rating_deltas(game_id, cur)
-    changes_desc = "%s: %s\n%s: %s" % (
-        username(host_id), _get_change_desc(*deltas[0]),
-        username(away_id), _get_change_desc(*deltas[1])
-    )
-    return changes_desc
 
 
 def _select_engaged_elo(host_id, away_id, cur):
