@@ -2,18 +2,15 @@ import command_system
 import vk_utils
 
 
-def _process_open_command(actor_id, command_text, *, database, cursor, **kwargs):
-    description = command_text
-    if not description:
-        message = 'Необходимо ввести описание игры. Это может быть имя игрока с которым вы хотите сыграть, минимальный/максимальный рейтинг для вступления, какие-либо дополнительные правила на ваше усмотрение. По умолчанию игра создаётся на карте размера Normal в режиме Might.'
-        return [message]
-
-    players = database.players
+def open_game(actor, descriprion, *, is_rated, database, cursor):
     cur = cursor
 
+    if not description:
+        return ['Необходимо ввести описание игры. Это может быть имя игрока с которым вы хотите сыграть, минимальный/максимальный рейтинг для вступления, какие-либо дополнительные правила на ваше усмотрение. По умолчанию игра создаётся на карте размера Normal в режиме Might.']
+
+    players = database.players
     if not players.is_registered(actor_id):
-        message = 'Вы не зарегистрированы в системе. Воспользуйтесь командой /гайд, чтобы узнать о работе бота.'
-        return [message]
+        return ['Вы не зарегистрированы в системе. Воспользуйтесь командой /гайд, чтобы узнать о работе бота.']
 
     cur.execute('SELECT game_id FROM games WHERE host_id = %s AND type = \'r\'', actor_id)
     fetch = cur.fetchone()
@@ -29,7 +26,10 @@ def _process_open_command(actor_id, command_text, *, database, cursor, **kwargs)
         message = 'Вы уже открыли 3 игры. Подождите их заполнения, перед тем как открывать новые.'
         return [message]
 
-    cur.execute('INSERT games(type, host_id, description, time_updated) VALUES (\'o\', %s, %s, NOW());', (actor_id, description))
+    cur.execute(
+        'INSERT games(type, is_rated, host_id, description, time_updated) VALUES (\'o\', %s, %s, %s, NOW());',
+        (is_rated, actor_id, description)
+    )
     cur.execute('SELECT MAX(game_id) FROM games')
     new_id = cur.fetchone()[0]
 
@@ -38,10 +38,39 @@ def _process_open_command(actor_id, command_text, *, database, cursor, **kwargs)
     return [message]
 
 
+def _process_open_command(actor_id, command_text, *, database, cursor, **kwargs):
+    description = command_text
+    return open_game(actor_id, description, is_rated=True, database=database, cursor=cursor)
+
+
 open_command = command_system.Command(
     process=_process_open_command,
-    keys=['открыть', 'создать', 'open'],
-    description='Создать игру с вами в роли хоста. Другие игроки смогут вступить в неё',
+    keys=[
+        'открыть', 'открыть_рейт', 'открыть_рейтинговую',
+        'создать', 'создать_рейт', 'создать_рейтинговую'
+        'open', 'open_rated',
+        'create', 'create_rated'
+    ],
+    description='Создать рейтинговую игру с вами в роли хоста. Другие игроки смогут вступить в неё',
+    signature='описание',
+    allow_users=True
+)
+
+
+def _process_open_unrated_command(actor_id, command_text, *, database, cursor, **kwargs):
+    description = command_text
+    return open_game(actor_id, description, is_rated=False, database=database, cursor=cursor)
+
+
+open_unrated_command = command_system.Command(
+    process=_process_open_unrated_command,
+    keys=[
+        'открыть_анрейт', 'открыть_нерейтинговую',
+        'создать_анрейт', 'создать_нерейтинговую',
+        'open_unrated',
+        'create_unrated'
+    ],
+    description='Создать нерейтинговую игру с вами в роли хоста. Другие игроки смогут вступить в неё',
     signature='описание',
     allow_users=True
 )
