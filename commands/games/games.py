@@ -12,20 +12,21 @@ def _process_games_command(player_id, command_text, *, vk, **kwargs):
     connection = message_handler.create_connection()
     with connection:
         cur = connection.cursor()
-        cur.execute('SELECT game_id, host_id, description FROM games WHERE type = \'o\' ORDER BY time_updated ASC;')
+        cur.execute('SELECT game_id, is_rated, host_id, description FROM games WHERE type = \'o\' ORDER BY time_updated ASC;')
         rows = cur.fetchall()
 
         texts_about_games = []
 
         chat_members_ids = vk_utils.fetch_chat_members_ids(chat_id=settings.main_chat_id, vk=vk)
 
-        for game_id, host_id, description in rows:
+        for game_id, is_rated, host_id, description in rows:
             if host_id not in chat_members_ids:
                 continue
             cur.execute('SELECT host_elo FROM players WHERE player_id = %s;', host_id)
             rating = cur.fetchone()[0]
             host_username = message_handler.username(host_id)
-            text_about_game = f'ID: {game_id} - {host_username} - {rating} ELO\n{description}'
+            rating_block = f'{rating} ELO' if is_rated else 'UNRATED'
+            text_about_game = f'ID: {game_id} - {host_username} - {rating_block}\n{description}'
             texts_about_games.append(text_about_game)
 
         limit_per_page = 10
