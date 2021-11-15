@@ -4,11 +4,16 @@ import message_handler
 
 def join(player_id, command_text):
     args = command_text.split()
-    if len(args) != 1:
-        message = 'Необходимо ввести ID игры в которую вы хотите войти.'
-        return [message]
-    (game_id,) = args
-    game_id = int(game_id)
+    if len(args) > 1:
+        return ['Вы передали слишком много аргументов. Необходимо указать только имя команды и айди игры.']
+    elif len(args) == 0:
+        return ['Необходимо указать айди игры, в которую вы хотите войти.']
+    [game_id] = args
+
+    try:
+        game_id = int(game_id)
+    except ValueError:
+        return ['Вы указали некорректный айди игры, не удалось распознать его как число.']
 
     connection = message_handler.create_connection()
     with connection:
