@@ -18,12 +18,12 @@ def game(player_id, command_text):
     connection = message_handler.create_connection()
     with connection:
         cur = connection.cursor()
-        cur.execute('SELECT type, host_id, away_id, description, time_updated, host_winner, name FROM games WHERE game_id = %s;', (game_id, ))
+        cur.execute('SELECT type, is_rated, host_id, away_id, description, time_updated, host_winner, name FROM games WHERE game_id = %s;', (game_id, ))
         fetch = cur.fetchone()
         if not fetch:
             message = 'Не найдено игр с указанным ID.'
             return [message]
-        game_type, host_id, away_id, description, time_updated, host_winner, name = fetch
+        game_type, is_rated, host_id, away_id, description, time_updated, host_winner, name = fetch
         del fetch
 
         if description is not None:
@@ -39,12 +39,15 @@ def game(player_id, command_text):
             winner_id = None
         winner_username = username(winner_id) if winner_id is not None else None
 
+        is_rated_info = '' if is_rated else ' (нерейтинговая)'
+
         if game_type == 'o':
-            message = 'Игра №{0}.\nХост: {1}\nОписание: {2}\nИгра открыта, к ней можно присоединиться командой /войти {0}'.format(str(game_id), host_username, description)
+            message = f'Игра №{game_id}{is_rated_info}.\nХост: {host_username}\nОписание: {description}\nИгра открыта, к ней можно присоединиться командой /войти {game_id}'
         elif game_type == 'r':
-            message = 'Игра №{0}.\n{1} vs {3}\nОписание: {4}\nИгра ждёт своего начала. [id{2}|{1}], начните игру.'.format(str(game_id), host_username, host_id, away_username, description)
+            host_mention = vk_utils.create_mention(host_id, host_username)
+            message = f'Игра №{game_id}{is_rated_info}.\n{host_username} vs {away_username}\nОписание: {description}\nИгра ждёт своего начала. {host_mention}, начните игру.'
         else:
-            message = 'Игра №{0} - {1}.\n{2} vs {3}\nОписание: {4}\n'.format(str(game_id), name, host_username, away_username, description)
+            message = f'Игра №{game_id} - {name}{is_rated_info}.\n{host_username} vs {away_username}\nОписание: {description}\n'
 
         if game_type == 'c':
             message += 'Победитель: %s\n' % winner_username
