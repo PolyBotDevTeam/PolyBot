@@ -46,7 +46,7 @@ def rename(player_id, command_text):
 
     old_game_name = vk_utils.break_mentions(old_game_name)
     new_game_name = vk_utils.break_mentions(new_game_name)
-    message = f'Игра {game_id} успешно переименована.\n\n[id{away_id}|{message_handler.username(away_id)}], в ближайшее время вы будете приглашены в игру {new_game_name}, из старой игры ({old_game_name}) можно выйти.'
+    message = f'Игра {game_id} успешно переименована.\n\n{message_handler.create_mention(away_id)}, в ближайшее время вы будете приглашены в игру {new_game_name}, из старой игры ({old_game_name}) можно выйти.'
     return [message]
 
 

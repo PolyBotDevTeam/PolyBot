@@ -60,10 +60,9 @@ def game(player_id, command_text):
         elif game_type == 'i':
             message += 'Игра в процессе.'
         elif game_type == 'w':
-            if host_winner:
-                message += '{1} объявлен победителем. [id{3}|{2}], подтвердите победу противника командой /победил противник {0}'.format(game_id, host_username, away_username, away_id)
-            else:
-                message += '{2} объявлен победителем. [id{3}|{1}], подтвердите победу противника командой /победил противник {0}'.format(game_id, host_username, away_username, host_id)
+            [loser_id] = {host_id, away_id} - {winner_id}
+            loser_mention = message_handler.create_mention(loser_id)
+            message += f'{winner_username} объявлен победителем. {loser_mention}, подтвердите победу противника командой /победил противник {game_id}'
 
         return [message]
 

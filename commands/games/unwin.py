@@ -1,5 +1,5 @@
 import command_system
-from message_handler import create_connection, username
+import message_handler
 from db_utils import exists
 
 
@@ -11,7 +11,7 @@ def unwin(player_id, command_text):
         message = 'Необходимо указать ID игры в системе.'
         return [message]
 
-    connection = create_connection()
+    connection = message_handler.create_connection()
     with connection:
         cur = connection.cursor()
 
@@ -39,9 +39,10 @@ def unwin(player_id, command_text):
         assert not exists(cur, 'results', 'game_id = %s', game_id)
 
         enemy_id = away_id if player_id == host_id else host_id
+        enemy_mention = message_handler.create_mention(enemy_id)
 
         cur.execute('UPDATE games SET host_winner = NULL, type = \'i\', time_updated = NOW() WHERE game_id = %s;', game_id)
-        message = f'Победа в игре {game_id} отменена.\n\n[id{enemy_id}|{username(enemy_id)}], если вы не согласны, обратитесь к модератору.'
+        message = f'Победа в игре {game_id} отменена.\n\n{enemy_mention}, если вы не согласны, обратитесь к модератору.'
         return [message]
 
 

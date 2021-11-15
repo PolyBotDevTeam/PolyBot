@@ -39,7 +39,7 @@ def change_description(player_id, command_text):
     message = f'Описание игры {game_id} успешно изменено.\n\nСтарое описание: {old_description}\n\nНовое описание: {new_description}'
     message = vk_utils.break_mentions(message)
     if away_id is not None:
-        message += f'\n\n[id{away_id}|{message_handler.username(away_id)}], не пропустите изменения.'
+        message += f'\n\n{message_handler.create_mention(away_id)}, не пропустите изменения.'
 
     return [message]
 

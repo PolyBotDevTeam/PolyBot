@@ -33,7 +33,7 @@ def start(player_id, command_text):
         cur.execute('UPDATE games SET name = %s, type = \'i\', time_updated = NOW() WHERE game_id = %s;', (name, game_id))
 
     name = vk_utils.break_mentions(name)
-    message = f'Игра {game_id} успешно создана.\n\n[id{away_id}|{message_handler.username(away_id)}], в ближайшее время вы будете приглашены в игру {name}.'
+    message = f'Игра {game_id} успешно создана.\n\n{message_handler.create_mention(away_id)}, в ближайшее время вы будете приглашены в игру {name}.'
     return [message]
 
 
