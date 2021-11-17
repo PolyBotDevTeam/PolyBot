@@ -47,7 +47,7 @@ open_command = command_system.Command(
     process=_process_open_command,
     keys=[
         'открыть', 'открыть_рейт', 'открыть_рейтинговую',
-        'создать', 'создать_рейт', 'создать_рейтинговую'
+        'создать', 'создать_рейт', 'создать_рейтинговую',
         'open', 'open_rated',
         'create', 'create_rated'
     ],
