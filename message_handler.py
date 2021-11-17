@@ -77,7 +77,10 @@ def process_message_from_chat(message, *, vk, database):
     def _are_commands_equal(command_str_1, command_str_2):
         prefix_1, name_1, command_text_1 = command_system.parse_command(command_str_1)
         prefix_2, name_2, command_text_2 = command_system.parse_command(command_str_2)
-        names_1 = command_system.get_command(prefix_1+name_1).keys
+        try:
+            names_1 = command_system.get_command(prefix_1+name_1).keys
+        except command_system.CommandNotFoundError:
+            names_1 = []
         return prefix_1 == prefix_2 and name_2 in names_1
 
     # TODO: command attr "admin_chat_required"
