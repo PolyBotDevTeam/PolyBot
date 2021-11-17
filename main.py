@@ -36,9 +36,9 @@ def main():
         while True:
             try:
                 new_events = longpoll.check()
-            except requests.exceptions.ReadTimeout as e:
+            except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError) as e:
                 new_events = []
-                _process_read_timeout_exception(e, vk=vk)
+                _process_exception_from_longpoll_check(e, vk=vk)
 
             for event in new_events:
                 _process_event(event, vk=vk, polybot_database=polybot_database)
@@ -48,8 +48,9 @@ def main():
         sys.exit()
 
 
-def _process_read_timeout_exception(exception, *, vk):
-    message_handler.send_message('Yet Another ReadTimeout', vk=vk, chat_id=settings.polydev_chat_id)
+def _process_exception_from_longpoll_check(exception, *, vk):
+    notification_text = f'longpoll.check() failed: {repr(exception)}'
+    message_handler.send_message(notification_text, vk=vk, chat_id=settings.polydev_chat_id)
     message_handler.process_exception(exception, vk=vk, is_important=False)
 
 
