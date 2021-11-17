@@ -49,7 +49,7 @@ def main():
 
 
 def _process_exception_from_longpoll_check(exception, *, vk):
-    notification_text = f'longpoll.check() failed: {repr(exception)}'
+    notification_text = f'"longpoll.check()" failed: {repr(exception)}'
     message_handler.send_message(notification_text, vk=vk, chat_id=settings.polydev_chat_id)
     message_handler.process_exception(exception, vk=vk, is_important=False)
 
