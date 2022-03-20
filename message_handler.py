@@ -48,7 +48,7 @@ def create_connection():
         host=settings.host,
         user=settings.user,
         password=settings.password,
-        database=settings.user+'$main',
+        database=settings.database,
         autocommit=True
     )
     return connection

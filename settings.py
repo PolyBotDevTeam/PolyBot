@@ -16,6 +16,8 @@ group_id = settings['group_id']
 user = settings['user']
 password = settings['password']
 host = settings['host']
+database = settings['database']
+
 
 admins_ids = tuple(settings['admins_ids'])
 admin_chats = tuple(settings['admin_chats_ids'])
