@@ -4,7 +4,6 @@ import os
 import sys
 import time
 
-import vk
 import vk_api
 import pymysql
 
@@ -18,8 +17,8 @@ import settings
 
 # Deprecated
 # TODO: Remove
-session = vk.Session()
-api = vk.API(session, access_token=settings.token, v=5.107)
+_session = vk_api.VkApi(token=settings.token)
+api = _session.get_api()
 
 
 def load_commands():
