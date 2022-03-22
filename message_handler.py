@@ -68,8 +68,8 @@ def process_message_from_chat(message, *, vk, database):
 
     actor = message['from_id']
 
-    print(text, end='\n\n', file=settings.commands_log_file, flush=True)
-    print(text, end='\n\n', file=settings.errors_log_file, flush=True)
+    print(actor, repr(text), sep='\n', end='\n\n', file=settings.commands_log_file, flush=True)
+    print(actor, repr(text), sep='\n', end='\n\n', file=settings.errors_log_file, flush=True)
     if user_command == '!restart' and actor in settings.admins_ids and chat_id in settings.admin_chats:
         sys.exit()
 
