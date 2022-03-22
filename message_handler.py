@@ -66,10 +66,12 @@ def process_message_from_chat(message, *, vk, database):
     prefix = text[0]
     user_command = text
 
+    message_time = message['date']
     actor = message['from_id']
 
-    print(actor, repr(text), sep='\n', end='\n\n', file=settings.commands_log_file, flush=True)
-    print(actor, repr(text), sep='\n', end='\n\n', file=settings.errors_log_file, flush=True)
+    for file in [settings.commands_log_file, settings.errors_log_file]:
+        print(message_time, actor, repr(text), sep='\n', end='\n\n', file=file, flush=True)
+
     if user_command == '!restart' and actor in settings.admins_ids and chat_id in settings.admin_chats:
         sys.exit()
 
