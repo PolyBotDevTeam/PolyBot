@@ -1,3 +1,4 @@
+import functools
 import io
 import sys
 
@@ -42,6 +43,8 @@ def main():
 
             for event in new_events:
                 _process_event(event, vk=vk, polybot_database=polybot_database)
+
+            _autoconfirm_outdated_wins(vk=vk, polybot_database=polybot_database)
 
     except Exception as e:
         message_handler.process_exception(e, vk=vk)
@@ -111,6 +114,17 @@ def _process_event(event, *, vk, polybot_database):
         vk=vk,
         message=message,
         database=polybot_database
+    )
+
+
+def _autoconfirm_outdated_wins(*, vk, polybot_database):
+    command_system.process_command(
+        -settings.group_id,
+        '!autoconfirm_outdated_wins',
+        None,
+        process_exception=functools.partial(message_handler.process_exception, vk=vk),
+        database=polybot_database,
+        vk=vk
     )
 
 
