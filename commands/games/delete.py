@@ -4,14 +4,18 @@ import message_handler
 
 def delete(player_id, command_text):
     args = command_text.split()
-    if len(args) != 1:
-        if len(args) == 0:
+    try:
+        [game_id] = args
+    except ValueError:
+        if len(args) < 1:
             message = 'Необходимо ввести ID игры, которую нужно удалить.'
-        elif len(args) >= 2:
+        else:
             message = 'Слишком много параметров. Необходимо ввести только ID игры, которую нужно удалить.'
         return [message]
-    (game_id,) = args
-    game_id = int(game_id)
+    try:
+        game_id = int(game_id)
+    except ValueError:
+        return ['Вы указали некорректный ID игры. В ID ожидаются только цифры.']
 
     connection = message_handler.create_connection()
     with connection:
