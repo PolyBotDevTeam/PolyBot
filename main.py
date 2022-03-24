@@ -1,5 +1,6 @@
 import functools
 import io
+import os
 import time
 import sys
 
@@ -26,7 +27,8 @@ def main():
     longpoll = VkBotLongPoll(vk_session, settings.group_id)
 
     try:
-        message_handler.load_commands()
+        commands_path = os.path.join(settings.project_folder, 'commands')
+        command_system.load_commands_from_directory(commands_path)
     except ImportError as e:
         [exceptions] = e.args
         errors_log = io.StringIO()

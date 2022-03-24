@@ -21,26 +21,6 @@ _session = vk_api.VkApi(token=settings.token)
 api = _session.get_api()
 
 
-def load_commands():
-    exceptions = []
-
-    project_folder = settings.project_folder
-    commands_folder = os.path.join(project_folder, 'commands/')
-    for package_path, subdirs, files in os.walk(commands_folder):
-        modules_names = filter(lambda x: x.endswith('.py'), files)
-        for module_name in modules_names:
-            module_path = os.path.join(package_path, module_name)
-            spec = importlib.util.spec_from_file_location(module_name, module_path)
-            module = importlib.util.module_from_spec(spec)
-            try:
-                spec.loader.exec_module(module)
-            except Exception as e:
-                exceptions.append(e)
-
-    if exceptions:
-        raise ImportError(exceptions)
-
-
 # TODO: deprecated
 def create_connection():
     connection = pymysql.connect(

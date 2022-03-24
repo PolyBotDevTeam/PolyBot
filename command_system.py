@@ -1,4 +1,6 @@
 from abc import ABCMeta, abstractmethod
+import importlib
+import os
 import random
 
 from settings import admins_ids, errors_log_file
@@ -241,6 +243,24 @@ def get_command(command_str):
 
     commands = user_commands if prefix == '/' else admin_commands
     return commands.get_command(command_name)
+
+
+def load_commands_from_directory(commands_path):
+    exceptions = []
+
+    for package_path, subdirs, files in os.walk(commands_path):
+        modules_names = filter(lambda x: x.endswith('.py'), files)
+        for module_name in modules_names:
+            module_path = os.path.join(package_path, module_name)
+            spec = importlib.util.spec_from_file_location(module_name, module_path)
+            module = importlib.util.module_from_spec(spec)
+            try:
+                spec.loader.exec_module(module)
+            except Exception as e:
+                exceptions.append(e)
+
+    if exceptions:
+        raise ImportError(exceptions)
 
 
 # Deprecated
