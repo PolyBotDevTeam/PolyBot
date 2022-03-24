@@ -21,6 +21,8 @@ def main():
     vk_session = vk_api.VkApi(token=settings.token)
     vk = vk_session.get_api()
 
+    message_handler.send_message('PolyBot Started!', vk=vk, chat_id=settings.polydev_chat_id)
+
     longpoll = VkBotLongPoll(vk_session, settings.group_id)
 
     try:
