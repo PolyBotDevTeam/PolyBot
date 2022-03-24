@@ -5,7 +5,10 @@ import utils
 
 _TAGS_FOR_SHOWING_GAME_INFO = ('game', 'игра', 'info', 'инфо')
 
-_TAGS_FOR_SHOWING_OPEN_GAMES = ('', 'open_list', 'список_открытых', 'открытые')
+_TAGS_FOR_SHOWING_OPEN_GAMES = (
+    '', 'games', 'open_list', 'open_games',
+    'игры', 'список_открытых', 'открытые_игры', 'открытые'
+ )
 _TAGS_FOR_SHOWING_INCOMPLETE_GAMES = ('текущие', 'incomplete')
 _TAGS_FOR_SHOWING_COMPLETE_GAMES = ('завершённые', 'complete')
 
