@@ -1,5 +1,6 @@
 import functools
 import io
+import time
 import sys
 
 import requests.exceptions
@@ -33,6 +34,8 @@ def main():
 
     polybot_database = PolyBotDatabase(create_connection=message_handler.create_connection)
 
+    autoconfirmer_data = dict()
+
     try:
         while True:
             try:
@@ -44,7 +47,7 @@ def main():
             for event in new_events:
                 _process_event(event, vk=vk, polybot_database=polybot_database)
 
-            _autoconfirm_outdated_wins(vk=vk, polybot_database=polybot_database)
+            _autoconfirm_outdated_wins(autoconfirmer_data, vk=vk, polybot_database=polybot_database)
 
     except Exception as e:
         message_handler.process_exception(e, vk=vk)
@@ -117,7 +120,14 @@ def _process_event(event, *, vk, polybot_database):
     )
 
 
-def _autoconfirm_outdated_wins(*, vk, polybot_database):
+def _autoconfirm_outdated_wins(autoconfirmer_data, *, vk, polybot_database):
+    if not autoconfirmer_data.keys():
+        autoconfirmer_data = {'latest_autoconfirm_time': 0}
+
+    if time.time() - autoconfirmer_data['latest_autoconfirm_time'] < 60*60:
+        return
+    autoconfirmer_data['latest_autoconfirm_time'] = time.time()
+
     command_system.process_command(
         -settings.group_id,
         '!autoconfirm_outdated_wins',
