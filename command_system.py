@@ -203,7 +203,8 @@ def process_command(user_id, command_str, user_message, *, process_exception, da
         with database.create_connection() as connection:
             responses = process(
                 user_id, command_str, connection,
-                cursor=connection.cursor(), **available_objects
+                connection=connection, cursor=connection.cursor(),  # Deprecated
+                **available_objects
             )
             for response in responses:
                 accumulated_responses.append(response)
