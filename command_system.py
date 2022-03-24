@@ -130,10 +130,11 @@ def split_command_and_arguments(command_str):
     return prefix + command_name, command_text
 
 
-def _process_user_command(actor_id, command_as_string, connection, **kwargs):
+def _process_user_command(actor_id, command_as_string, **kwargs):
     prefix, command_name, command_text = parse_command(command_as_string)
     assert prefix == '/'
 
+    connection = kwargs['connection']
     if _is_banned(actor_id, connection):
         return ['С лёгким паром!']
     assert not _is_banned(actor_id, connection)
@@ -151,7 +152,7 @@ def _is_banned(user_id, connection):
     return bool(cursor.fetchone()[0])
 
 
-def _process_admin_command(actor_id, command_as_string, connection, **kwargs):
+def _process_admin_command(actor_id, command_as_string, **kwargs):
     prefix, command_name, command_text = parse_command(command_as_string)
     assert prefix == '!'
 
@@ -202,7 +203,7 @@ def process_command(user_id, command_str, user_message, *, process_exception, da
     try:
         with database.create_connection() as connection:
             responses = process(
-                user_id, command_str, connection,
+                user_id, command_str,
                 connection=connection, cursor=connection.cursor(),  # Deprecated
                 **available_objects
             )
