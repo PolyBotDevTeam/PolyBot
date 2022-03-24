@@ -100,6 +100,10 @@ def process_message_from_chat(message, *, vk, database):
         vk=vk
     )
 
+    execute_actions(actions, vk=vk, chat_id=chat_id)
+
+
+def execute_actions(actions, *, vk, chat_id):
     for action in actions:
         if isinstance(action, vk_actions.Message):
             send_message(message=action, vk=vk, chat_id=chat_id)
