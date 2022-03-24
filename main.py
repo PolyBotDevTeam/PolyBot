@@ -128,7 +128,7 @@ def _autoconfirm_outdated_wins(autoconfirmer_data, *, vk, polybot_database):
         return
     autoconfirmer_data['latest_autoconfirm_time'] = time.time()
 
-    command_system.process_command(
+    actions = command_system.process_command(
         -settings.group_id,
         '!autoconfirm_outdated_wins',
         None,
@@ -136,6 +136,7 @@ def _autoconfirm_outdated_wins(autoconfirmer_data, *, vk, polybot_database):
         database=polybot_database,
         vk=vk
     )
+    message_handler.execute_actions(actions, vk=vk, chat_id=settings.main_chat_id)
 
 
 if __name__ == '__main__':
