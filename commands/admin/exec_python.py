@@ -3,8 +3,7 @@ import collections
 import functools
 import itertools
 import io
-import os
-import random
+import subprocess
 
 import vk_api
 
@@ -107,19 +106,11 @@ def exec_python(player_id, command_text, **kwargs):
 
 
 def _exec_command_return_output(command):
-    output_filename = _generate_output_filename()
-    output_path = os.path.abspath(output_filename)
-    os.system(f'{command} > {output_path}')
-    with open(output_path) as fp:
-        output = fp.read()
-    os.remove(output_path)
-    return output
-
-
-def _generate_output_filename():
-    digits_n = 12
-    output_tag = hex(random.randrange(16**digits_n))[2:].zfill(digits_n)
-    return 'command_output_%s.txt' % output_tag
+    completed_process = subprocess.run(
+        command, shell=True, cwd=settings.project_folder,
+        input='', capture_output=True, text=True
+    )
+    return completed_process.stdout
 
 
 exec_python_command = command_system.Command(
