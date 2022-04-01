@@ -30,8 +30,8 @@ def _process_send_elo_command(actor_id, command_text, *, database, cursor, **kwa
     target_mention = vk_utils.create_mention(target_player_id, mention_text=target_nickname)
 
     response_message = (
-        'Транзакция прошла успешно!\n' \
-        'Новый рейтинг {target_mention}: {host_elo} / {away_elo}'
+        f'Транзакция прошла успешно!\n' \
+        f'Новый рейтинг {target_mention}: {host_elo} / {away_elo}'
     )
 
     return [response_message]
