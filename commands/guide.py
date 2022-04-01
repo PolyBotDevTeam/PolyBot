@@ -33,7 +33,7 @@ guide_text_template = '''Гайд по пользованию ботом.
 Приятной игры!'''
 
 
-def guide(player_id, command_text):
+def _process_guide_command(player_id, command_text, **kwargs):
     guide_text = vk_utils.highlight_marked_text_areas(guide_text_template)
     default_elo = elo.DEFAULT_ELO
     guide_text = guide_text.format(
@@ -42,8 +42,10 @@ def guide(player_id, command_text):
     return [guide_text]
 
 
-guide_command = command_system.UserCommand()
-
-guide_command.keys = ['гайд', 'guide']
-guide_command.description = ' - Гайд по пользованию ботом.'
-guide_command.process = guide
+guide_command = command_system.Command(
+    process=_process_guide_command,
+    keys=['гайд', 'guide'],
+    description='Гайд по пользованию ботом',
+    signature='',
+    allow_users=True
+)
