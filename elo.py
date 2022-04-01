@@ -48,6 +48,9 @@ class ELO:
             other = ELO(other, other)
         return ELO(self.host - other.host, self.away - other.away)
 
+    def __str__(self):
+        return f'{self.host} : {self.away}'
+
 
 class MutableELO:
 

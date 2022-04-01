@@ -9,7 +9,7 @@ guide_text_template = '''Гайд по пользованию ботом.
 Для этого отправьте сообщение вида </регистрация Nickname>, указав свой никнейм. \
 Его можно найти в Throne Room прямо в игре.
 
-Каждый игрок начинает с рейтингом {starting_rating_representation}. На первое число влияют игры, где вы ходите первым, на второе - вторым.
+Каждый игрок начинает с рейтингом {starting_rating}. На первое число влияют игры, где вы ходите первым, на второе - вторым.
 
 Давайте посмотрим, есть ли желаюшие поиграть? \
 Напишите </игры>. \
@@ -35,10 +35,7 @@ guide_text_template = '''Гайд по пользованию ботом.
 
 def _process_guide_command(player_id, command_text, **kwargs):
     guide_text = vk_utils.highlight_marked_text_areas(guide_text_template)
-    default_elo = elo.DEFAULT_ELO
-    guide_text = guide_text.format(
-        starting_rating_representation=f'{default_elo.host} : {default_elo.away}'
-    )
+    guide_text = guide_text.format(starting_rating=elo.DEFAULT_ELO)
     return [guide_text]
 
 
