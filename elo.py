@@ -65,7 +65,10 @@ class MutableELO:
         return iter(self.to_immutable())
 
 
-DEFAULT_ELO = ELO(1050, 950)
+elo_base = 10**(1/400)
+
+
+DEFAULT_ELO = ELO(elo_base**1050, elo_base**950)
 
 
 # TODO: Move out, this block is not related to elo core
@@ -96,6 +99,11 @@ AWAY_EMOJI = {
     '🟠': 1000,
     '🟤': -inf
 }
+
+
+for _rating_levels_system in [RATING_ROLES, HOST_EMOJI, AWAY_EMOJI]:
+    for _rank in _rating_levels_system.keys():
+        _rating_levels_system[_rank] = elo_base**_rating_levels_system[_rank]
 
 
 def _find_best_status_achieved(score, statuses_levels):
@@ -284,9 +292,13 @@ def _compute_role(old_role, rating, games_counts, banned):
     if not RATING_ROLES_ENABLED:
         return None
 
-    rating = sum(rating) / 2
+    rating = calculate_common_rating(rating)
     role = _find_best_status_achieved(score=rating, statuses_levels=RATING_ROLES)
     return role
+
+
+def calculate_common_rating(rating):
+    return (rating.host * rating.away) ** (1/2)
 
 
 def new_rating(a, b, result):

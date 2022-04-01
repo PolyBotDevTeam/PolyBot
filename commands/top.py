@@ -25,17 +25,17 @@ def top(max_places_count, *, category, cursor, vk):
     elo_module.recalculate(cur=cursor)
 
     if category in ('', 'сумма', 'sum'):
-        cursor.execute('SELECT player_id, host_elo, elo FROM players WHERE host_elo + elo >= 2000 ORDER BY (host_elo + elo) DESC;')
+        cursor.execute('SELECT player_id, host_elo, elo FROM players ORDER BY (host_elo * elo) DESC;')
         top_item_template = '{place}. {host_emoji}{away_emoji} {player_name}\n' \
                             '{indent}{host_elo} / {away_elo} ЭЛО\n'
     elif category in ('хост', 'host', 'первый', 'first'):
         title_template += ' (хост)'
-        cursor.execute('SELECT player_id, host_elo, elo FROM players WHERE host_elo >= 1050 ORDER BY host_elo DESC;')
+        cursor.execute('SELECT player_id, host_elo, elo FROM players ORDER BY host_elo DESC;')
         top_item_template = '{place}. {host_emoji} {player_name}\n' \
                             '{indent}{host_elo} ЭЛО\n'
     elif category in ('второй', 'away', 'second'):
         title_template += ' (второй)'
-        cursor.execute('SELECT player_id, host_elo, elo FROM players WHERE elo >= 950 ORDER BY elo DESC;')
+        cursor.execute('SELECT player_id, host_elo, elo FROM players ORDER BY elo DESC;')
         top_item_template = '{place}. {away_emoji} {player_name}\n' \
                             '{indent}{away_elo} ЭЛО\n'
     else:
