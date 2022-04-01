@@ -311,10 +311,10 @@ def new_rating(a, b, result):
     else:
         ra = 0
         rb = 1
-    ea = 1 / (1 + 10**((b - a) / 400))
-    eb = 1 / (1 + 10**((a - b) / 400))
-    new_a = a + 50 * (ra - ea)
-    new_b = b + 50 * (rb - eb)
+    ea = a / (a + b)
+    eb = b / (a + b)
+    new_a = a * elo_base ** (50 * (ra - ea))
+    new_b = b * elo_base ** (50 * (rb - eb))
     return new_a, new_b
 
 
