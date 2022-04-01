@@ -17,7 +17,7 @@ def _process_send_elo_command(actor_id, command_text, *, database, cursor, **kwa
     except ValueError:
         return ['Не удалось определить получателя по указанным данным.']
 
-    if not database.players.is_registered(player_id):
+    if not database.players.is_registered(target_player_id):
         return ['Этот пользователь ещё не зарегистрирован в системе.']
 
     if abs(elo_quantity) > 0:
