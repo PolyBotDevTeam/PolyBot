@@ -293,7 +293,7 @@ def _compute_role(old_role, rating, games_counts, banned):
 
 
 def calculate_common_rating(rating):
-    return (rating.host * rating.away) ** (1/2)
+    return (rating.host + rating.away) / 2
 
 
 def new_rating(a, b, result):
