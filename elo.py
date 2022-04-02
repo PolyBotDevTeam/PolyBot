@@ -65,9 +65,6 @@ class MutableELO:
         return iter(self.to_immutable())
 
 
-elo_base = 10**(1/400)
-
-
 DEFAULT_ELO = ELO(1050, 950)
 
 
@@ -313,12 +310,16 @@ def new_rating(a, b, result):
 
 
 def calculate_expected_scores(a_rating, b_rating):
-    a_power = elo_base ** a_rating
-    b_power = elo_base ** b_rating
+    a_power = rating_to_power(a_rating)
+    b_power = rating_to_power(b_rating)
     common_power = a_power + b_power
     ea = a_power / common_power
     eb = b_power / common_power
     return ea, eb
+
+
+def rating_to_power(rating):
+    return 10 ** (rating / 400)
 
 
 def __old_fetch_elos_changes_history(*, raw=False, cur):
