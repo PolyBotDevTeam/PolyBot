@@ -5,7 +5,7 @@ import vk_utils
 from db_utils import select
 
 
-def chance(player_id, command_text):
+def _process_chance_command(player_id, command_text, *, connection, **kwargs):
     try:
         host, away = command_text.split()
     except ValueError:
@@ -13,7 +13,6 @@ def chance(player_id, command_text):
 
     elo.recalculate()
 
-    connection = message_handler.create_connection()
     with connection:
         cur = connection.cursor()
 
@@ -40,8 +39,10 @@ def chance(player_id, command_text):
         return [message]
 
 
-command = command_system.UserCommand()
-
-command.keys = ['шанс', 'chance']
-command.description = ' хост второй (нужны никнеймы игроков или ссылки на их профили в формате @ссылка) - Ожидаемые шансы победы на основе рейтинга.'
-command.process = chance
+chance_command = command_system.Command(
+    process=_process_chance_command,
+    keys=['шанс', 'chance'],
+    description='Ожидаемые шансы победы на основе рейтинга',
+    signature='хост второй (нужны никнеймы игроков или ссылки на их профили в формате @ссылка)',
+    allow_users=True
+)
