@@ -68,7 +68,7 @@ class MutableELO:
 elo_base = 10**(1/400)
 
 
-DEFAULT_ELO = ELO(elo_base**1050, elo_base**950)
+DEFAULT_ELO = ELO(1050, 950)
 
 
 # TODO: Move out, this block is not related to elo core
@@ -99,11 +99,6 @@ AWAY_EMOJI = {
     '🟠': 1000,
     '🟤': -inf
 }
-
-
-for _rating_levels_system in [RATING_ROLES, HOST_EMOJI, AWAY_EMOJI]:
-    for _rank in _rating_levels_system.keys():
-        _rating_levels_system[_rank] = elo_base**_rating_levels_system[_rank]
 
 
 def _find_best_status_achieved(score, statuses_levels):
@@ -312,14 +307,17 @@ def new_rating(a, b, result):
         ra = 0
         rb = 1
     ea, eb = calculate_expected_scores(a, b)
-    new_a = a * elo_base ** (50 * (ra - ea))
-    new_b = b * elo_base ** (50 * (rb - eb))
+    new_a = a + 50 * (ra - ea)
+    new_b = b + 50 * (rb - eb)
     return new_a, new_b
 
 
-def calculate_expected_scores(a, b):
-    ea = a / (a + b)
-    eb = b / (a + b)
+def calculate_expected_scores(a_rating, b_rating):
+    a_power = elo_base ** a_rating
+    b_power = elo_base ** b_rating
+    common_power = a_power + b_power
+    ea = a_power / common_power
+    eb = b_power / common_power
     return ea, eb
 
 

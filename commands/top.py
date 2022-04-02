@@ -25,7 +25,7 @@ def top(max_places_count, *, category, cursor, vk):
     elo_module.recalculate(cur=cursor)
 
     if category in ('', 'сумма', 'sum'):
-        cursor.execute('SELECT player_id, host_elo, elo FROM players ORDER BY (host_elo * elo) DESC;')
+        cursor.execute('SELECT player_id, host_elo, elo FROM players ORDER BY (host_elo + elo) DESC;')
         top_item_template = '{place}. {host_emoji}{away_emoji} {player_name}\n' \
                             '{indent}{host_elo} / {away_elo} ЭЛО\n'
     elif category in ('хост', 'host', 'первый', 'first'):
