@@ -33,11 +33,10 @@ def chance(player_id, command_text):
         except ValueError:
             return ['Кто-то из указанных пользователей ещё не зарегистрирован в системе.']
 
-        delta = host_elo - away_elo
-        host_chance = 1 / (1 + 10 ** (-delta/400))
-        host_chance = round(host_chance*100)
-        away_chance = 100 - host_chance
-        message = f"Ожидаемый шанс победы хоста: {host_chance}%\nОжидаемый шанс победы второго: {away_chance}%"
+        host_chance, away_chance = elo.calculate_expected_scores(host_elo, away_elo)
+        host_percentage = round(host_chance * 100)
+        away_percentage = 100 - host_percentage
+        message = f'Ожидаемый шанс победы хоста: {host_percentage}%\nОжидаемый шанс победы второго: {away_percentage}%'
         return [message]
 
 

@@ -311,11 +311,16 @@ def new_rating(a, b, result):
     else:
         ra = 0
         rb = 1
-    ea = a / (a + b)
-    eb = b / (a + b)
+    ea, eb = calculate_expected_scores(a, b)
     new_a = a * elo_base ** (50 * (ra - ea))
     new_b = b * elo_base ** (50 * (rb - eb))
     return new_a, new_b
+
+
+def calculate_expected_scores(a, b):
+    ea = a / (a + b)
+    eb = b / (a + b)
+    return ea, eb
 
 
 def __old_fetch_elos_changes_history(*, raw=False, cur):
