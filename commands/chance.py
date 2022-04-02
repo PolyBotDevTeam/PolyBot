@@ -13,12 +13,10 @@ def _process_chance_command(player_id, command_text, *, connection, **kwargs):
 
     elo.recalculate()
 
-    with connection:
-        cur = connection.cursor()
-
+    with connection.cursor() as cursor:
         try:
-            host = message_handler.try_to_identify_id(host, cur)
-            away = message_handler.try_to_identify_id(away, cur)
+            host = message_handler.try_to_identify_id(host, cursor)
+            away = message_handler.try_to_identify_id(away, cursor)
         except vk_utils.InvalidMentionError:
             message = 'Некорректная ссылка. Нажмите @ или * чтобы выбрать среди участников беседы.'
             return [message]
@@ -27,16 +25,16 @@ def _process_chance_command(player_id, command_text, *, connection, **kwargs):
             return [message]
 
         try:
-            ((host_elo,),) = select(cur, 'SELECT host_elo FROM players WHERE player_id = %s;', host)
-            ((away_elo,),) = select(cur, 'SELECT elo FROM players WHERE player_id = %s;', away)
+            [[host_elo]] = select(cursor, 'SELECT host_elo FROM players WHERE player_id = %s;', host)
+            [[away_elo]] = select(cursor, 'SELECT elo FROM players WHERE player_id = %s;', away)
         except ValueError:
             return ['Кто-то из указанных пользователей ещё не зарегистрирован в системе.']
 
-        host_chance, away_chance = elo.calculate_expected_scores(host_elo, away_elo)
-        host_percentage = round(host_chance * 100)
-        away_percentage = 100 - host_percentage
-        message = f'Ожидаемый шанс победы хоста: {host_percentage}%\nОжидаемый шанс победы второго: {away_percentage}%'
-        return [message]
+    host_chance, away_chance = elo.calculate_expected_scores(host_elo, away_elo)
+    host_percentage = round(host_chance * 100)
+    away_percentage = 100 - host_percentage
+    message = f'Ожидаемый шанс победы хоста: {host_percentage}%\nОжидаемый шанс победы второго: {away_percentage}%'
+    return [message]
 
 
 chance_command = command_system.Command(
