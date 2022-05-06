@@ -8,11 +8,12 @@ import vk_utils
 
 class PolyBot:
 
-    def __init__(self, *, vk, database, settings, message_handler, command_system):
+    def __init__(self, *, vk, database, settings, send_message, process_exception, command_system):
         self._vk = vk
         self._database = database
         self._settings = settings
-        self._message_handler = message_handler
+        self._send_message = send_message
+        self._process_exception = process_exception
         self._command_system = command_system
         self._autoconfirmer_data = {'latest_autoconfirm_time': 0}
 
@@ -48,7 +49,7 @@ class PolyBot:
             if action is not None and action['type'] == 'chat_invite_user_by_link':
                 username = vk_utils.fetch_username(message['from_id'], vk=vk).split()[0]
                 text = template.format(username=username)
-                self._message_handler.send_message(text, vk=vk, chat_id=chat_id)
+                self._send_message(text, vk=vk, chat_id=chat_id)
 
         triggering_prefixes = {'/', '!'}
         text = message['text']
@@ -110,7 +111,7 @@ class PolyBot:
             actor,
             command,
             command_source_message,
-            process_exception=functools.partial(self._message_handler.process_exception, vk=vk),
+            process_exception=functools.partial(self._process_exception, vk=vk),
             database=self._database,
             vk=vk
         )
@@ -120,7 +121,7 @@ class PolyBot:
     def _execute_actions(self, actions, **message_sending_kwargs):
         for action in actions:
             if isinstance(action, vk_actions.Message):
-                self._message_handler.send_message(message=action, vk=self._vk, **message_sending_kwargs)
+                self._send_message(message=action, vk=self._vk, **message_sending_kwargs)
             else:
                 raise TypeError('unknown action type:', type(action))
 

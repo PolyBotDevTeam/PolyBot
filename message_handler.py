@@ -1,60 +1,13 @@
 # Deprecated module
 
 import functools
-import time
 
 import vk_api
 import pymysql
 
-import utils
 import db_utils
 import vk_utils
-import vk_actions
 import settings
-
-
-# Deprecated
-# TODO: Remove
-_session = vk_api.VkApi(token=settings.token)
-api = _session.get_api()
-
-
-# TODO: deprecated
-def create_connection():
-    connection = pymysql.connect(
-        host=settings.host,
-        user=settings.user,
-        password=settings.password,
-        database=settings.database,
-        autocommit=True
-    )
-    return connection
-
-
-def process_exception(exception, *, vk, is_important=True):
-    utils.print_exception(exception, file=settings.errors_log_file)
-    error_message = utils.represent_exception(exception)
-    # TODO: Make it guaranteed (now it can just raise ApiError and forget to notify latter)
-    if is_important:
-        send_message(error_message, vk=vk, chat_id=settings.polydev_chat_id)
-
-
-def send_message(message, vk, **kwargs):
-    if not isinstance(message, vk_actions.Action) and isinstance(message, str):
-        message = vk_actions.Message(text=str(message))
-    while True:
-        try:
-            vk.messages.send(
-                random_id=vk_api.utils.get_random_id(),
-                message=message.text, attachment=message.attachments, disable_mentions=message.disable_mentions,
-                **kwargs
-            )
-            break
-        except vk_api.exceptions.ApiError as e:
-            if e.code == 9:
-                time.sleep(20)
-            else:
-                raise
 
 
 def try_to_identify_id(text, cur):
@@ -108,6 +61,19 @@ def player_id_by_username(username, cur):
     return players_ids[usernames.index(uname_need)]
 
 
-fetch_usernames = functools.partial(vk_utils.fetch_usernames, vk=api)
-username = functools.partial(vk_utils.fetch_username, vk=api)
-create_mention = functools.partial(vk_utils.create_mention, vk=api)
+_session = vk_api.VkApi(token=settings.token)
+_api = _session.get_api()
+fetch_usernames = functools.partial(vk_utils.fetch_usernames, vk=_api)
+username = functools.partial(vk_utils.fetch_username, vk=_api)
+create_mention = functools.partial(vk_utils.create_mention, vk=_api)
+
+def create_connection():
+    connection = pymysql.connect(
+        host=settings.host,
+        user=settings.user,
+        password=settings.password,
+        database=settings.database,
+        autocommit=True
+    )
+    return connection
+

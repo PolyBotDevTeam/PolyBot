@@ -3,15 +3,17 @@ import os
 import time
 import sys
 
+import pymysql as _pymysql
 import requests.exceptions
 import vk_api
 from vk_api.bot_longpoll import VkBotLongPoll
 
 from polybot import PolyBot
 from polybot_database import PolyBotDatabase
+import vk_actions
+
 import settings
 import command_system
-import message_handler
 import utils
 
 
@@ -21,7 +23,7 @@ def main():
     vk_session = vk_api.VkApi(token=settings.token)
     vk = vk_session.get_api()
 
-    message_handler.send_message('PolyBot Started!', vk=vk, chat_id=settings.polydev_chat_id)
+    _send_message('PolyBot Started!', vk=vk, chat_id=settings.polydev_chat_id)
 
     longpoll = VkBotLongPoll(vk_session, settings.group_id)
 
@@ -33,15 +35,18 @@ def main():
         errors_log = io.StringIO()
         for error in exceptions:
             utils.print_exception(error, file=errors_log)
-        message_handler.send_message(errors_log.getvalue(), vk=vk, chat_id=settings.polydev_chat_id)
+        _send_message(errors_log.getvalue(), vk=vk, chat_id=settings.polydev_chat_id)
 
-    polybot_database = PolyBotDatabase(create_connection=message_handler.create_connection)
+    polybot_database = PolyBotDatabase(
+        create_connection=lambda: _create_connection(settings)
+    )
 
     polybot = PolyBot(
         vk=vk,
         database=polybot_database,
         settings=settings,
-        message_handler=message_handler,
+        send_message=_send_message,
+        process_exception=_process_exception,
         command_system=command_system
     )
 
@@ -59,14 +64,51 @@ def main():
             polybot.process_new_time(time.time())
 
     except Exception as e:
-        message_handler.process_exception(e, vk=vk)
+        _process_exception(e, vk=vk)
         sys.exit()
 
 
 def _process_exception_from_longpoll_check(exception, *, vk):
     notification_text = f'"longpoll.check()" failed: {repr(exception)}'
-    message_handler.send_message(notification_text, vk=vk, chat_id=settings.polydev_chat_id)
-    message_handler.process_exception(exception, vk=vk, is_important=False)
+    _send_message(notification_text, vk=vk, chat_id=settings.polydev_chat_id)
+    _process_exception(exception, vk=vk, is_important=False)
+
+
+def _process_exception(exception, *, vk, is_important=True):
+    utils.print_exception(exception, file=settings.errors_log_file)
+    error_message = utils.represent_exception(exception)
+    # TODO: Make it guaranteed (now it can just raise ApiError and forget to notify latter)
+    if is_important:
+        _send_message(error_message, vk=vk, chat_id=settings.polydev_chat_id)
+
+
+def _send_message(message, vk, **kwargs):
+    if not isinstance(message, vk_actions.Action) and isinstance(message, str):
+        message = vk_actions.Message(text=str(message))
+    while True:
+        try:
+            vk.messages.send(
+                random_id=vk_api.utils.get_random_id(),
+                message=message.text, attachment=message.attachments, disable_mentions=message.disable_mentions,
+                **kwargs
+            )
+            break
+        except vk_api.exceptions.ApiError as e:
+            if e.code == 9:
+                time.sleep(20)
+            else:
+                raise
+
+
+def _create_connection(settings):
+    connection = _pymysql.connect(
+        host=settings.host,
+        user=settings.user,
+        password=settings.password,
+        database=settings.database,
+        autocommit=True
+    )
+    return connection
 
 
 if __name__ == '__main__':
