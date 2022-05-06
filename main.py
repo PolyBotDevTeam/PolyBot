@@ -1,4 +1,3 @@
-import functools
 import io
 import os
 import time
@@ -6,14 +5,14 @@ import sys
 
 import requests.exceptions
 import vk_api
-from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
+from vk_api.bot_longpoll import VkBotLongPoll
 
+from polybot import PolyBot
 from polybot_database import PolyBotDatabase
 import settings
 import command_system
 import message_handler
 import utils
-import vk_utils
 
 
 def main():
@@ -38,7 +37,13 @@ def main():
 
     polybot_database = PolyBotDatabase(create_connection=message_handler.create_connection)
 
-    autoconfirmer_data = dict()
+    polybot = PolyBot(
+        vk=vk,
+        database=polybot_database,
+        settings=settings,
+        message_handler=message_handler,
+        command_system=command_system
+    )
 
     try:
         while True:
@@ -49,9 +54,9 @@ def main():
                 _process_exception_from_longpoll_check(e, vk=vk)
 
             for event in new_events:
-                _process_event(event, vk=vk, polybot_database=polybot_database)
+                polybot.process_vk_event(event)
 
-            _autoconfirm_outdated_wins(autoconfirmer_data, vk=vk, polybot_database=polybot_database)
+            polybot.process_new_time(time.time())
 
     except Exception as e:
         message_handler.process_exception(e, vk=vk)
@@ -62,85 +67,6 @@ def _process_exception_from_longpoll_check(exception, *, vk):
     notification_text = f'"longpoll.check()" failed: {repr(exception)}'
     message_handler.send_message(notification_text, vk=vk, chat_id=settings.polydev_chat_id)
     message_handler.process_exception(exception, vk=vk, is_important=False)
-
-
-polybot_welcome = """Приветствую, {username}!
-
-Чтобы зарегистрироваться в боте, отправьте сообщение </регистрация Nickname>, указав вместо Nickname свой ник в Политопии."""
-
-polybot_welcome = vk_utils.highlight_marked_text_areas(polybot_welcome)
-
-
-elo_help = '''ЭЛО - это система рейтингов.
-
-Основная идея в том, что на основе рейтингов двух игроков мы можем найти ожидаемый шанс победы каждого из них.
-Например, разница в 400 рейтинга подразумевает разницу в шансах в 10 раз.
-
-Когда один игрок побеждает другого, их рейтинги слегка корректируются в зависимости от того, насколько результат соответствует ожиданиям.
-
-Несколько примеров того, как меняется рейтинг победителя:
-* Шанс победы 100% --> рейтинг победителя не меняется
-* Шанс победы 80% --> +10 рейтинга
-* Шанс победы 60% --> +20 рейтинга
-* Шанс победы 40% --> +30 рейтинга
-* Шанс победы 20% --> +40 рейтинга
-* Шанс победы 0% --> +50 рейтинга
-
-Проигравший теряет столько же рейтинга, сколько получает победивший.
-
-Таким образом, рейтинг будет постепенно корректироваться в зависимости от того, какие результаты демонстрирует игрок.'''
-
-
-def _process_event(event, *, vk, polybot_database):
-    if event.type != VkBotEventType.MESSAGE_NEW:
-        return
-
-    message = event.obj.message
-    if message['text'].lower().replace('"', '').replace('?', '') == 'что такое эло':
-        message_handler.send_message(elo_help, vk=vk, peer_id=message['peer_id'])
-
-    if not event.from_chat:
-        return
-
-    chat_id = vk_utils.chat_id_by_peer_id(message['peer_id'])
-
-    if chat_id in {settings.main_chat_id, settings.tournament_chat_id}:
-        if chat_id == settings.main_chat_id:
-            template = polybot_welcome
-        else:
-            assert chat_id == settings.tournament_chat_id
-            template = 'Привет, {username}!\nПрочитай правила в закреплённом сообщении.'
-
-        action = message.get('action')
-        if action is not None and action['type'] == 'chat_invite_user_by_link':
-            username = vk_utils.fetch_username(message['from_id'], vk=vk).split()[0]
-            text = template.format(username=username)
-            message_handler.send_message(text, vk=vk, chat_id=chat_id)
-
-    message_handler.process_message_from_chat(
-        vk=vk,
-        message=message,
-        database=polybot_database
-    )
-
-
-def _autoconfirm_outdated_wins(autoconfirmer_data, *, vk, polybot_database):
-    if not autoconfirmer_data.keys():
-        autoconfirmer_data = {'latest_autoconfirm_time': 0}
-
-    if time.time() - autoconfirmer_data['latest_autoconfirm_time'] < 60*60:
-        return
-    autoconfirmer_data['latest_autoconfirm_time'] = time.time()
-
-    actions = command_system.process_command(
-        -settings.group_id,
-        '!autoconfirm_outdated_wins',
-        None,
-        process_exception=functools.partial(message_handler.process_exception, vk=vk),
-        database=polybot_database,
-        vk=vk
-    )
-    message_handler.execute_actions(actions, vk=vk, chat_id=settings.main_chat_id)
 
 
 if __name__ == '__main__':

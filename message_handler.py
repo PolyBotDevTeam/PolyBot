@@ -33,56 +33,6 @@ def create_connection():
     return connection
 
 
-def process_message_from_chat(message, *, vk, database):
-    chat_id = vk_utils.chat_id_by_peer_id(message['peer_id'])
-
-    triggering_prefixes = {'/', '!'}
-    text = message['text']
-
-    if not any(text.startswith(prefix) for prefix in triggering_prefixes):
-        return
-
-    assert text
-    prefix = text[0]
-    user_command = text
-
-    message_time = message['date']
-    actor = message['from_id']
-
-    for file in [settings.commands_log_file, settings.errors_log_file]:
-        print(message_time, actor, repr(text), sep='\n', end='\n\n', file=file, flush=True)
-
-    if user_command == '!restart' and actor in settings.admins_ids and chat_id in settings.admin_chats:
-        sys.exit()
-
-    def _are_commands_equal(command_str_1, command_str_2):
-        prefix_1, name_1, command_text_1 = command_system.parse_command(command_str_1)
-        prefix_2, name_2, command_text_2 = command_system.parse_command(command_str_2)
-        try:
-            names_1 = command_system.get_command(prefix_1+name_1).keys
-        except command_system.CommandNotFoundError:
-            names_1 = []
-        return prefix_1 == prefix_2 and name_2 in names_1
-
-    # TODO: command attr "admin_chat_required"
-    if chat_id not in settings.admin_chats:
-        whitelisted_commands = ['/спать', '/выбор_племени', '!py']
-        is_command_whitelisted = any(_are_commands_equal(user_command, x) for x in whitelisted_commands)
-        if not is_command_whitelisted:
-            return
-
-    actions = command_system.process_command(
-        actor,
-        user_command,
-        message,
-        process_exception=functools.partial(process_exception, vk=vk),
-        database=database,
-        vk=vk
-    )
-
-    execute_actions(actions, vk=vk, chat_id=chat_id)
-
-
 def execute_actions(actions, *, vk, chat_id):
     for action in actions:
         if isinstance(action, vk_actions.Message):
