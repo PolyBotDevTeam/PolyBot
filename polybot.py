@@ -8,13 +8,18 @@ import vk_utils
 
 class PolyBot:
 
-    def __init__(self, *, vk, database, settings, send_message, process_exception, command_system):
+    def __init__(
+        self, *,
+        vk, database, settings, command_system,
+        send_message, process_exception, restart
+    ):
         self._vk = vk
         self._database = database
         self._settings = settings
+        self._command_system = command_system
         self._send_message = send_message
         self._process_exception = process_exception
-        self._command_system = command_system
+        self._restart = restart
         self._autoconfirmer_data = {'latest_autoconfirm_time': 0}
 
     def process_vk_event(self, vk_event):
@@ -68,7 +73,8 @@ class PolyBot:
             print(message_time, actor, repr(text), sep='\n', end='\n\n', file=file, flush=True)
 
         if user_command == '!restart' and actor in settings.admins_ids and chat_id in settings.admin_chats:
-            sys.exit()
+            # TODO: Maybe should return RestartAction to be processed outside
+            self._restart()
 
         def _are_commands_equal(command_str_1, command_str_2):
             prefix_1, name_1, command_text_1 = self._command_system.parse_command(command_str_1)

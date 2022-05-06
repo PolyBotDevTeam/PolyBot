@@ -1,7 +1,7 @@
 import io
 import os
 import time
-import sys
+import sys as _sys
 
 import pymysql as _pymysql
 import requests.exceptions
@@ -47,6 +47,7 @@ def main():
         settings=settings,
         send_message=_send_message,
         process_exception=_process_exception,
+        restart=_restart,
         command_system=command_system
     )
 
@@ -65,7 +66,7 @@ def main():
 
     except Exception as e:
         _process_exception(e, vk=vk)
-        sys.exit()
+        _restart()
 
 
 def _process_exception_from_longpoll_check(exception, *, vk):
@@ -109,6 +110,10 @@ def _create_connection(settings):
         autocommit=True
     )
     return connection
+
+
+def _restart():
+    _sys.exit()
 
 
 if __name__ == '__main__':

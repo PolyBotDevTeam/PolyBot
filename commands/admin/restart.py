@@ -3,6 +3,7 @@ import sys
 
 
 def restart(player_id, command_text):
+    # TODO: yield RestartAction()
     sys.exit()
 
 
