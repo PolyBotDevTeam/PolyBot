@@ -2,7 +2,7 @@ import command_system
 import vk_utils
 
 
-def help(player_id, command_text):
+def _process_help_command(player_id, command_text, **kwargs):
     command_text = command_text.lstrip()
     if command_text:
         if command_text[0] not in ('/', '!'):
@@ -56,8 +56,10 @@ def help(player_id, command_text):
     return [message]
 
 
-help_command = command_system.UserCommand()
-
-help_command.keys = ['помощь', 'команды', 'help', 'commands']
-help_command.description = ' [название_команды] - описание указанной команды, или всех команд.'
-help_command.process = help
+help_command = command_system.Command(
+    process=_process_help_command,
+    keys=['помощь', 'команды', 'help', 'commands'],
+    description='Описание указанной команды, или всех команд',
+    signature='[название_команды]',
+    allow_users=True
+)
