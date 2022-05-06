@@ -1,13 +1,11 @@
+# Deprecated module
+
 import functools
-import importlib
-import os
-import sys
 import time
 
 import vk_api
 import pymysql
 
-import command_system
 import utils
 import db_utils
 import vk_utils
@@ -31,14 +29,6 @@ def create_connection():
         autocommit=True
     )
     return connection
-
-
-def execute_actions(actions, *, vk, chat_id):
-    for action in actions:
-        if isinstance(action, vk_actions.Message):
-            send_message(message=action, vk=vk, chat_id=chat_id)
-        else:
-            raise TypeError('unknown action type:', type(action))
 
 
 def process_exception(exception, *, vk, is_important=True):

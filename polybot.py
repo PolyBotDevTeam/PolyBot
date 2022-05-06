@@ -2,6 +2,7 @@ import functools
 
 from vk_api.bot_longpoll import VkBotEventType
 
+import vk_actions
 import vk_utils
 
 
@@ -22,8 +23,10 @@ class PolyBot:
             return
 
         message = vk_event.obj.message
+
+        # TODO: Move to command system?
         if message['text'].lower().replace('"', '').replace('?', '') == 'что такое эло':
-            self._message_handler.send_message(elo_help, vk=vk, peer_id=message['peer_id'])
+            return self._process_command('!what_is_elo', peer_id=message['peer_id'])
 
         if vk_event.from_chat:
             self._process_message_from_chat(message)
@@ -98,7 +101,7 @@ class PolyBot:
     def _autoconfirm_outdated_wins(self):
         return self._process_command('!autoconfirm_outdated_wins', chat_id=self._settings.main_chat_id)
 
-    def _process_command(self, command, *, actor=None, command_source_message=None, chat_id):
+    def _process_command(self, command, *, actor=None, command_source_message=None, **message_sending_kwargs):
         if actor is None:
             actor = -self._settings.group_id
         vk = self._vk
@@ -111,7 +114,15 @@ class PolyBot:
             database=self._database,
             vk=vk
         )
-        self._message_handler.execute_actions(actions, vk=vk, chat_id=chat_id)
+        self._execute_actions(actions, vk=vk, **message_sending_kwargs)
+
+    # TODO: Probably should move out
+    def _execute_actions(self, actions, **message_sending_kwargs):
+        for action in actions:
+            if isinstance(action, vk_actions.Message):
+                self._message_handler.send_message(message=action, vk=self._vk, **message_sending_kwargs)
+            else:
+                raise TypeError('unknown action type:', type(action))
 
 
 polybot_welcome = """Приветствую, {username}!
@@ -119,24 +130,4 @@ polybot_welcome = """Приветствую, {username}!
 Чтобы зарегистрироваться в боте, отправьте сообщение </регистрация Nickname>, указав вместо Nickname свой ник в Политопии."""
 
 polybot_welcome = vk_utils.highlight_marked_text_areas(polybot_welcome)
-
-
-elo_help = '''ЭЛО - это система рейтингов.
-
-Основная идея в том, что на основе рейтингов двух игроков мы можем найти ожидаемый шанс победы каждого из них.
-Например, разница в 400 рейтинга подразумевает разницу в шансах в 10 раз.
-
-Когда один игрок побеждает другого, их рейтинги слегка корректируются в зависимости от того, насколько результат соответствует ожиданиям.
-
-Несколько примеров того, как меняется рейтинг победителя:
-* Шанс победы 100% --> рейтинг победителя не меняется
-* Шанс победы 80% --> +10 рейтинга
-* Шанс победы 60% --> +20 рейтинга
-* Шанс победы 40% --> +30 рейтинга
-* Шанс победы 20% --> +40 рейтинга
-* Шанс победы 0% --> +50 рейтинга
-
-Проигравший теряет столько же рейтинга, сколько получает победивший.
-
-Таким образом, рейтинг будет постепенно корректироваться в зависимости от того, какие результаты демонстрирует игрок.'''
 
