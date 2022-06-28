@@ -42,5 +42,5 @@ send_elo_command = command_system.Command(
     keys=['передать_эло', 'send_elo'],
     description='Передать часть ЭЛО-рейтинга другому игроку',
     signature='количество_эло игрок',
-    allow_users=True
+    allow_users=False
 )
