@@ -6,7 +6,7 @@ import utils
 _TAGS_FOR_SHOWING_GAME_INFO = ('game', 'игра', 'info', 'инфо')
 
 _TAGS_FOR_SHOWING_OPEN_GAMES = (
-    '', 'games', 'open_list', 'open_games',
+    'games', 'open_list', 'open_games',
     'игры', 'список_открытых', 'открытые_игры', 'открытые'
  )
 _TAGS_FOR_SHOWING_INCOMPLETE_GAMES = ('текущие', 'incomplete')
@@ -41,7 +41,7 @@ def _process_ffa_command(actor, command_text, **kwargs):
     try:
         prefix, command_text = utils.split_one(command_text)
     except ValueError:
-        prefix = ''
+        return [_usage_help]
 
     if _can_convert_to_int(prefix):
         first_arg = prefix
@@ -83,22 +83,23 @@ def _process_ffa_command(actor, command_text, **kwargs):
     return command(actor, command_text, **kwargs)
 
 
-description = '''Общая команда для управления ФФА-играми:
-* /ффа - показать список ФФА, к которым можно присоединиться
-* /ффа текущие - показать список текущих ФФА
-* /ффа завершённые - показать список завершённых ФФА
-* /ффа айди_игры - посмотреть информацию об указанной ФФА
-* /ффа открыть описание - открыть ФФА с заданным описанием
-* /ффа открыть_анрейт описание - открыть нерейтинговую ФФА
-* /ффа войти айди_игры - присоединиться к указанной ФФА
-* /ффа начать айди_игры название_в_политопии - начать ФФА
-* /ффа завершить айди_игры победитель - завершить ФФА'''
+_usage_help = '''Варианты использования:
+* /ффа айди_игры (информация об указанной ФФА)
+* /ффа игры (ФФА, к которым можно присоединиться)
+* /ффа текущие
+* /ффа завершённые
+* /ффа открыть описание
+* /ффа открыть_анрейт описание
+* /ффа войти айди_игры
+* /ффа выйти айди_игры
+* /ффа начать айди_игры название_в_политопии
+* /ффа завершить айди_игры победитель'''
 
 
 ffa_command = command_system.Command(
     process=_process_ffa_command,
     keys=['ффа', 'игры_ффа', 'ffa', 'games_ffa', 'ffa_games'],
-    description=description,
+    description='Общая команда для управления ФФА-играми',
     signature='[айди_игры] [ключевое_слово] [аргументы]',
     allow_users=True
 )
