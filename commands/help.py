@@ -3,7 +3,6 @@ import vk_utils
 
 
 def _process_help_command(player_id, command_text, **kwargs):
-    command_text = command_text.lstrip()
     if command_text:
         if command_text[0] not in ('/', '!'):
             command_text = '/' + command_text
@@ -14,46 +13,91 @@ def _process_help_command(player_id, command_text, **kwargs):
         message = command_text + command.description
         return [message]
 
-    get_user_command = command_system.user_commands.get_command
+    sections_by_names = {
+        'Информация': [
+            'гайд',
+            'помощь',
+            'правила'
+        ],
+        'Игроки': [
+            'игрок',
+            'топ',
+            'рейтинг',
+            'шанс',
+            'ник',
+            'сменить_ник'
+        ],
+        'Просмотр игр': [
+            'игра',
+            'игры',
+            'все',
+            'текущие',
+            'завершённые'
+        ],
+        'Управление играми': [
+            'открыть',
+            'открыть_анрейт',
+            'войти',
+            'начать',
+            'победа',
+            'отмена_победы',
+            'изменить_описание',
+            'переименовать',
+            'выйти',
+            'кикнуть',
+            'удалить'
+        ],
+        'Мудрость': [
+            'спать',
+            'выбор_племени',
+            'ау',
+            'зaвёpшeнныe'
+        ],
+        'ФФА-игры': [
+            'ффа'
+        ]
+    }
 
-    groups = [
-        ['гайд', 'помощь', 'правила'],
-        ['игрок', 'ник', 'сменить_ник', 'топ', 'рейтинг', 'шанс'],
-        ['игра', 'открыть', 'открыть_анрейт', 'войти', 'начать', 'победа', 'отмена_победы', 'изменить_описание', 'переименовать', 'выйти', 'кикнуть', 'удалить'],
-        ['игры', 'все', 'текущие', 'завершённые'],
-        ['спать', 'выбор_племени', 'ау'],
-        ['ффа']
-    ]
+    sections_order = ['Общая информация', 'Игроки', 'Просмотр игр', 'Управление играми', 'Мудрость', 'ФФА-игры']
 
-    commands_to_ignore = [
+    message = 'Список команд:\n\n'
+
+    for section_name in sections_order:
+        section_description = f'* * * {section_name} * * *\n\n'
+        for cmd_name in sections_by_names[section_name]:
+            section_description += '/' + cmd_name + '\n'
+        message += section_description + '\n'
+
+    commands_names_shown = []
+    for names_from_section in sections_by_names.values():
+        commands_names_shown.extend(names_from_section)
+
+    commands_names_to_ignore = [
         'открыть_ффа', 'открыть_нерейтинговую_ффа',
         'войти_в_ффа', 'начать_ффа', 'завершить_ффа',
         'игра_ффа', 'показать_список_ффа'
     ]
-    commands_to_ignore = [get_user_command(name) for name in commands_to_ignore]
 
-    commands_shown = []
+    commands_names_processed = commands_names_shown + commands_names_to_ignore
 
-    message = 'Список команд:\n\n'
-    for group in groups:
-        message += '* * *\n\n'
-        for cmd_name in group:
-            c = get_user_command(cmd_name)
-            message += '/' + c.keys[0] + c.description + '\n\n'
-            commands_shown.append(c)
+    user_command_by_name = command_system.user_commands.get_command
+    commands_processed = [user_command_by_name(name) for name in commands_names_processed]
 
     commands_missed = [
         c for c in command_system.get_user_command_list()
-        if c not in commands_shown + commands_to_ignore
+        if c not in commands_processed
     ]
 
     if commands_missed:
         message += '* * *\n\n'
         for c in commands_missed:
-            message += '/' + c.keys[0] + c.description + '\n\n'
+            message += '/' + c.keys[0] + c.description + '\n'
 
     message = vk_utils.protect_empty_lines(message)
-    return [message]
+
+    full_description_hint = 'Подробная информация по команде: /помощь имя_команды'
+
+    return [message, full_description_hint]
 
 
 help_command = command_system.Command(
