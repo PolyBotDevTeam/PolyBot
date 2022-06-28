@@ -60,7 +60,7 @@ def _process_help_command(player_id, command_text, **kwargs):
 
     sections_order = ['Информация', 'Игроки', 'Просмотр игр', 'Управление играми', 'Мудрость', 'ФФА-игры']
 
-    message = 'Список команд:\n\n'
+    message = 'Список команд\n\n'
 
     for section_name in sections_order:
         section_description = f'* * * {section_name} * * *\n\n'
