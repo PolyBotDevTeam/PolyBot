@@ -63,9 +63,10 @@ def _process_help_command(player_id, command_text, **kwargs):
     message = 'Список команд\n\n'
 
     for section_name in sections_order:
-        section_description = f'* * * {section_name} * * *\n\n'
-        for cmd_name in sections_by_names[section_name]:
-            section_description += '/' + cmd_name + '\n'
+        section_description = _compose_description_of_commands_section(
+            title=f'* * * {section_name} * * *',
+            commands_names=sections_by_names[section_name]
+        )
         message += section_description + '\n'
 
     commands_names_shown = []
@@ -89,15 +90,23 @@ def _process_help_command(player_id, command_text, **kwargs):
     ]
 
     if commands_missed:
-        message += '* * *\n\n'
-        for c in commands_missed:
-            message += '/' + c.keys[0] + c.description + '\n'
+        message += _compose_description_of_commands_section(
+            title='* * *',
+            commands_names=[c.keys[0] for c in commands_missed]
+        )
 
     message = vk_utils.protect_empty_lines(message)
 
     full_description_hint = 'Подробная информация по команде: /помощь имя_команды'
 
     return [message, full_description_hint]
+
+
+def _compose_description_of_commands_section(title, commands_names):
+    description = f'{title}\n\n'
+    for cmd_name in commands_names:
+        description += '/' + cmd_name + '\n'
+    return description
 
 
 help_command = command_system.Command(
