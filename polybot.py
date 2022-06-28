@@ -69,10 +69,10 @@ class PolyBot:
         message_time = message['date']
         actor = message['from_id']
 
-        for file in [settings.commands_log_file, settings.errors_log_file]:
+        for file in [self._settings.commands_log_file, self._settings.errors_log_file]:
             print(message_time, actor, repr(text), sep='\n', end='\n\n', file=file, flush=True)
 
-        if user_command == '!restart' and actor in settings.admins_ids and chat_id in settings.admin_chats:
+        if user_command == '!restart' and actor in self._settings.admins_ids and chat_id in self._settings.admin_chats:
             # TODO: Maybe should return RestartAction to be processed outside
             self._restart()
 
@@ -86,7 +86,7 @@ class PolyBot:
             return prefix_1 == prefix_2 and name_2 in names_1
 
         # TODO: command attr "admin_chat_required"
-        if chat_id not in settings.admin_chats:
+        if chat_id not in self._settings.admin_chats:
             whitelisted_commands = ['/спать', '/выбор_племени', '!py']
             is_command_whitelisted = any(_are_commands_equal(user_command, x) for x in whitelisted_commands)
             if not is_command_whitelisted:
@@ -137,4 +137,3 @@ polybot_welcome = """Приветствую, {username}!
 Чтобы зарегистрироваться в боте, отправьте сообщение </регистрация Nickname>, указав вместо Nickname свой ник в Политопии."""
 
 polybot_welcome = vk_utils.highlight_marked_text_areas(polybot_welcome)
-
