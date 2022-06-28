@@ -64,7 +64,7 @@ def _process_help_command(player_id, command_text, **kwargs):
 
     for section_name in sections_order:
         section_description = _compose_description_of_commands_section(
-            title=f'{section_name}',
+            title=f'> {section_name}',
             commands_names=sections_by_names[section_name]
         )
         message += section_description + '\n'
