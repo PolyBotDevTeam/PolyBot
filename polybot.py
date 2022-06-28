@@ -121,7 +121,7 @@ class PolyBot:
             database=self._database,
             vk=vk
         )
-        self._execute_actions(actions, vk=vk, **message_sending_kwargs)
+        self._execute_actions(actions, **message_sending_kwargs)
 
     # TODO: Probably should move out
     def _execute_actions(self, actions, **message_sending_kwargs):
