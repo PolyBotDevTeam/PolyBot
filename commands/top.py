@@ -1,3 +1,4 @@
+import enum
 import itertools
 
 import utils
@@ -19,27 +20,33 @@ def _is_int(x):
     return result
 
 
-def top(max_places_count, *, category, cursor, vk):
+class _SortingMode(enum.Enum):
+    SUM = 1
+    HOST = 2
+    AWAY = 3
+
+
+def top(max_places_count, *, sorting_mode, cursor, vk):
     title_template = 'ТОП-{places_count}'
 
     elo_module.recalculate(cur=cursor)
 
-    if category in ('', 'сумма', 'sum'):
+    if sorting_mode == _SortingMode.SUM:
         cursor.execute('SELECT player_id, host_elo, elo FROM players ORDER BY (host_elo + elo) DESC;')
         top_item_template = '{place}. {host_emoji}{away_emoji} {player_name}\n' \
                             '{indent}{host_elo} / {away_elo} ЭЛО\n'
-    elif category in ('хост', 'host', 'первый', 'first'):
+    elif sorting_mode == _SortingMode.HOST:
         title_template += ' (хост)'
         cursor.execute('SELECT player_id, host_elo, elo FROM players ORDER BY host_elo DESC;')
         top_item_template = '{place}. {host_emoji} {player_name}\n' \
                             '{indent}{host_elo} ЭЛО\n'
-    elif category in ('второй', 'away', 'second'):
+    elif sorting_mode == _SortingMode.AWAY:
         title_template += ' (второй)'
         cursor.execute('SELECT player_id, host_elo, elo FROM players ORDER BY elo DESC;')
         top_item_template = '{place}. {away_emoji} {player_name}\n' \
                             '{indent}{away_elo} ЭЛО\n'
     else:
-        message_text = 'Неправильный формат ввода. Попробуйте просто /топ.'
+        message_text = 'Данный критерий сортировки пока не поддерживается.'
         return [message_text]
 
     members_ids = vk_utils.fetch_chat_members_ids(settings.main_chat_id, vk=vk)
@@ -112,9 +119,23 @@ def _process_top_command(player_id, command_text, *, cursor, vk, **kwargs):
     if places_count_need > max_places_count:
         places_count_need = max_places_count
 
-    [category] = args if args else ['sum']
+    if not args:
+        sorting_mode = _SortingMode.SUM
+    elif len(args) == 1:
+        [mode_name] = args
+        mode_name = mode_name.lower()
+        if mode_name in {'сумма', 'sum'}:
+            sorting_mode = _SortingMode.SUM
+        elif mode_name in {'хост', 'host', 'первый', 'first'}:
+            sorting_mode = _SortingMode.HOST
+        elif mode_name in {'второй', 'away', 'second'}:
+            sorting_mode = _SortingMode.AWAY
+        else:
+            return [f'Неизвестный тэг: "{mode_name}". Узнать о допустимых значениях можно через /помощь топ']
+    else:
+        return ['Слишком много аргументов. Узнать о параметрах команды можно через /помощь топ']
 
-    result = top(places_count_need, category=category, cursor=cursor, vk=vk)
+    result = top(places_count_need, sorting_mode=sorting_mode, cursor=cursor, vk=vk)
 
     return result
 
