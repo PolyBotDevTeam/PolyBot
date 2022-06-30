@@ -94,12 +94,14 @@ def _process_help_command(player_id, command_text, **kwargs):
             title='* * *',
             commands_names=[c.keys[0] for c in commands_missed]
         )
+        message += '\n'
+
+    full_description_hint = 'Подробная информация о команде: /помощь имя_команды'
+    message += full_description_hint
 
     message = vk_utils.protect_empty_lines(message)
 
-    full_description_hint = 'Подробная информация по команде: /помощь имя_команды'
-
-    return [message, full_description_hint]
+    return [message]
 
 
 def _compose_description_of_commands_section(title, commands_names):
