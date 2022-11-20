@@ -51,7 +51,8 @@ def _process_help_command(player_id, command_text, **kwargs):
             'спать',
             'выбор_племени',
             'ау',
-            'зaвёpшeнныe'
+            'зaвёpшeнныe',
+            'орех'
         ],
         'ФФА-игры': [
             'ффа'
