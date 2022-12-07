@@ -2,7 +2,7 @@ import command_system
 import elo
 import message_handler
 from message_handler import username, create_mention
-from db_utils import select
+from db_utils import execute as db_execute
 import polybot_utils
 
 
@@ -79,8 +79,8 @@ def win(player_id, command_text):
 
 
 def _select_engaged_elo(host_id, away_id, cur):
-    ((host_elo,),) = select(cur, 'SELECT host_elo FROM players WHERE player_id = %s;', host_id)
-    ((away_elo,),) = select(cur, 'SELECT elo FROM players WHERE player_id = %s;', away_id)
+    ((host_elo,),) = db_execute(cur, 'SELECT host_elo FROM players WHERE player_id = %s;', host_id)
+    ((away_elo,),) = db_execute(cur, 'SELECT elo FROM players WHERE player_id = %s;', away_id)
     return elo.ELO(host_elo, away_elo)
 
 

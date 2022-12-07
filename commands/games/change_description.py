@@ -23,7 +23,7 @@ def change_description(player_id, command_text):
         cur = connection.cursor()
 
         try:
-            ((host_id, away_id, game_type, old_description),) = db_utils.select(cur, 'SELECT host_id, away_id, type, description FROM games WHERE game_id = %s;', game_id)
+            ((host_id, away_id, game_type, old_description),) = db_utils.execute(cur, 'SELECT host_id, away_id, type, description FROM games WHERE game_id = %s;', game_id)
         except ValueError:
             return ['Не найдено игр с указанным ID.']
 

@@ -46,7 +46,7 @@ def player_id_by_username(username, cur):
     del username
     uname_need = uname_need.lower()
 
-    players_ids = db_utils.select(cur, 'SELECT player_id FROM players;')
+    players_ids = db_utils.execute(cur, 'SELECT player_id FROM players;')
     players_ids = [uid for (uid,) in players_ids]
 
     usernames = fetch_usernames(players_ids)

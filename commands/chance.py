@@ -1,8 +1,8 @@
 import command_system
+from db_utils import execute as db_execute
 import message_handler
 import elo
 import vk_utils
-from db_utils import select
 
 
 def _process_chance_command(player_id, command_text, *, connection, **kwargs):
@@ -25,8 +25,8 @@ def _process_chance_command(player_id, command_text, *, connection, **kwargs):
             return [message]
 
         try:
-            [[host_elo]] = select(cursor, 'SELECT host_elo FROM players WHERE player_id = %s;', host)
-            [[away_elo]] = select(cursor, 'SELECT elo FROM players WHERE player_id = %s;', away)
+            [[host_elo]] = db_execute(cursor, 'SELECT host_elo FROM players WHERE player_id = %s;', host)
+            [[away_elo]] = db_execute(cursor, 'SELECT elo FROM players WHERE player_id = %s;', away)
         except ValueError:
             return ['Кто-то из указанных пользователей ещё не зарегистрирован в системе.']
 

@@ -10,9 +10,9 @@ import matplotlib
 import command_system
 from vk_actions import Message
 
+from db_utils import execute as db_execute, exists as db_item_exists
 import elo
 import message_handler
-from db_utils import select, exists
 
 
 def _process_rating_graph_command(player_id, command_text, *, vk, **kwargs):
@@ -32,14 +32,14 @@ def _process_rating_graph_command(player_id, command_text, *, vk, **kwargs):
         except ValueError:
             return ['Не удалось найти страницу пользователя по введённым данным.']
 
-        if not exists(cur, 'players', 'player_id = %s', target_id):
+        if not db_item_exists(cur, 'players', 'player_id = %s', target_id):
             message = 'Этот пользователь ещё не зарегистрирован в системе.'
             return [message]
 
         changes_history = elo.fetch_elos_changes_history(cur=cur)
         changes_history = tuple(changes_history)
-        ((joining_time,),) = select(cur, 'SELECT joining_time FROM players WHERE player_id = %s;', target_id)
-        ((now,),) = select(cur, 'SELECT NOW();')
+        ((joining_time,),) = db_execute(cur, 'SELECT joining_time FROM players WHERE player_id = %s;', target_id)
+        ((now,),) = db_execute(cur, 'SELECT NOW();')
 
     host_elos = [elo.DEFAULT_ELO.host]
     away_elos = [elo.DEFAULT_ELO.away]

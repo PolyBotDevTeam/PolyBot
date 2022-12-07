@@ -2,7 +2,7 @@ from collections import defaultdict
 from math import inf
 
 import message_handler
-from db_utils import select
+from db_utils import execute as db_execute
 
 
 
@@ -168,8 +168,8 @@ def elo_process_game(host_id, away_id, host_winner, *, elos, games_counts):
 
 def fetch_elos_changes_history(*, raw=False, cur):
     recalculate(cur=cur)
-    games_results = select(cur, 'SELECT host_id, away_id, host_winner, is_rated, game_id FROM results;')
-    games_times = select(cur, 'SELECT game_id, time_updated FROM games;')
+    games_results = db_execute(cur, 'SELECT host_id, away_id, host_winner, is_rated, game_id FROM results;')
+    games_times = db_execute(cur, 'SELECT game_id, time_updated FROM games;')
     games_times = dict(games_times)
 
     elos = defaultdict(lambda: MutableELO(*DEFAULT_ELO))
@@ -198,7 +198,7 @@ def compute_old_ratings(game_id, *, cur):
     del game_id
 
     recalculate(cur=cur)
-    games_results = select(cur, 'SELECT host_id, away_id, host_winner, is_rated, game_id FROM results;')
+    games_results = db_execute(cur, 'SELECT host_id, away_id, host_winner, is_rated, game_id FROM results;')
 
     elos = defaultdict(lambda: MutableELO(*DEFAULT_ELO))
     games_counts = defaultdict(lambda: {'host': 0, 'away': 0})
@@ -218,7 +218,7 @@ def fetch_rating_deltas(game_id, cur):
     del game_id
 
     recalculate(cur=cur)
-    games_results = select(cur, 'SELECT host_id, away_id, host_winner, is_rated, game_id FROM results;')
+    games_results = db_execute(cur, 'SELECT host_id, away_id, host_winner, is_rated, game_id FROM results;')
 
     elos = defaultdict(lambda: MutableELO(*DEFAULT_ELO))
     games_counts = defaultdict(lambda: {'host': 0, 'away': 0})
@@ -238,7 +238,7 @@ def fetch_rating_deltas(game_id, cur):
 
 
 def describe_rating_changes(game_id, *, cur):
-    ((host_id, away_id),) = select(cur, 'SELECT host_id, away_id FROM games WHERE game_id = %s;', game_id)
+    ((host_id, away_id),) = db_execute(cur, 'SELECT host_id, away_id FROM games WHERE game_id = %s;', game_id)
     deltas = fetch_rating_deltas(game_id, cur)
     changes_desc = "%s: %s\n%s: %s" % (
         message_handler.username(host_id), _get_change_desc(*deltas[0]),
@@ -324,8 +324,8 @@ def rating_to_power(rating):
 
 def __old_fetch_elos_changes_history(*, raw=False, cur):
     recalculate(cur=cur)
-    games_results = select(cur, 'SELECT host_id, away_id, host_winner, is_rated, game_id FROM results;')
-    games_times = select(cur, 'SELECT game_id, time_updated FROM games;')
+    games_results = db_execute(cur, 'SELECT host_id, away_id, host_winner, is_rated, game_id FROM results;')
+    games_times = db_execute(cur, 'SELECT game_id, time_updated FROM games;')
     games_times = dict(games_times)
 
     elos = defaultdict(lambda: MutableELO(*DEFAULT_ELO))
