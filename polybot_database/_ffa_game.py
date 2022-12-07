@@ -1,3 +1,4 @@
+import db_utils as _db_utils
 import polybot_utils as _polybot_utils
 import utils as _utils
 
@@ -148,8 +149,11 @@ class FFAGame:
     def finish_with_draw(self):
         return self.finish(winner_id=self._WINNER_ID_FOR_DRAW)
 
+    # TODO: Generalize and move out
+
     def _get_optional_field(self, field_name):
-        query = f'SELECT {field_name} FROM ffa_games WHERE game_id = %s;'
+        query = 'SELECT {field_name} FROM ffa_games WHERE game_id = %s;'
+        query = _db_utils.format_identifiers(query, field_name=field_name)
         [[field_value]] = self._execute(query, [self._id])
         return field_value
 
@@ -160,7 +164,8 @@ class FFAGame:
         return result
 
     def _set_field(self, field_name, new_value):
-        query = f'UPDATE ffa_games SET {field_name} = %s WHERE game_id = %s;'
+        query = 'UPDATE ffa_games SET {field_name} = %s WHERE game_id = %s;'
+        query = _db_utils.format_identifiers(query, field_name=field_name)
         self._execute(query, [new_value, self._id])
 
 
