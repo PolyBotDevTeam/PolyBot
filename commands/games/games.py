@@ -12,7 +12,7 @@ def _process_games_command(player_id, command_text, *, vk, **kwargs):
     connection = message_handler.create_connection()
     with connection:
         cur = connection.cursor()
-        cur.execute('SELECT game_id, is_rated, host_id, description FROM games WHERE type = \'o\' ORDER BY time_updated ASC;')
+        cur.execute('SELECT game_id, is_rated, host_id, description FROM games WHERE type = \'o\' ORDER BY time_updated DESC;')
         rows = cur.fetchall()
 
         texts_about_games = []
