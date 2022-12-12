@@ -122,7 +122,10 @@ def get_user_command_list():
 def parse_command(command_str):
     prefix = command_str[:1]
     command_body = command_str[len(prefix):]
-    command_name, command_text = split_one(command_body)
+    try:
+        command_name, command_text = split_one(command_body)
+    except ValueError:
+        command_name, command_text = '', ''
     command_name = command_name.lower()
     return prefix, command_name, command_text
 
