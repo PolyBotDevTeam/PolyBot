@@ -80,7 +80,7 @@ def win(player_id, command_text):
 
 def _select_engaged_elo(host_id, away_id, cur):
     ((host_elo,),) = db_execute(cur, 'SELECT host_elo FROM players WHERE player_id = %s;', host_id)
-    ((away_elo,),) = db_execute(cur, 'SELECT elo FROM players WHERE player_id = %s;', away_id)
+    ((away_elo,),) = db_execute(cur, 'SELECT away_elo FROM players WHERE player_id = %s;', away_id)
     return elo.ELO(host_elo, away_elo)
 
 

@@ -34,7 +34,7 @@ def _process_player_command(actor_id, command_text, *, cursor, actor_message, **
 
 
 def _compose_description(player_id, cursor):
-    cursor.execute('SELECT player_id, role, host_elo, elo, nickname, joining_time FROM players WHERE player_id = %s', player_id)
+    cursor.execute('SELECT player_id, role, host_elo, away_elo, nickname, joining_time FROM players WHERE player_id = %s', player_id)
     _player_id, role, elo_host, elo_away, nickname, joining_time = cursor.fetchone()
     username = message_handler.username(player_id)
     role = role if role is not None else 'Игрок'

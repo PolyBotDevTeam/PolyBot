@@ -58,7 +58,7 @@ def set_nickname(player_id, command_text):
             return [message]
         else:
             cur.execute(
-                'INSERT players(player_id, nickname, host_elo, elo, joining_time, banned) VALUES (%s, %s, %s, %s, NOW(), %s);',
+                'INSERT players(player_id, nickname, host_elo, away_elo, joining_time, banned) VALUES (%s, %s, %s, %s, NOW(), %s);',
                 (player_id, nickname, DEFAULT_ELO.host, DEFAULT_ELO.away, False)
             )
             cur.execute('SELECT COUNT(*) FROM players WHERE banned = 1;')

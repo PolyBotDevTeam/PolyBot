@@ -32,17 +32,17 @@ def top(max_places_count, *, sorting_mode, cursor, vk):
     elo_module.recalculate(cur=cursor)
 
     if sorting_mode == _SortingMode.SUM:
-        cursor.execute('SELECT player_id, host_elo, elo FROM players ORDER BY (host_elo + elo) DESC;')
+        cursor.execute('SELECT player_id, host_elo, away_elo FROM players ORDER BY (host_elo + away_elo) DESC;')
         top_item_template = '{place}. {host_emoji}{away_emoji} {player_name}\n' \
                             '{indent}{host_elo} / {away_elo} ЭЛО\n'
     elif sorting_mode == _SortingMode.HOST:
         title_template += ' (хост)'
-        cursor.execute('SELECT player_id, host_elo, elo FROM players ORDER BY host_elo DESC;')
+        cursor.execute('SELECT player_id, host_elo, away_elo FROM players ORDER BY host_elo DESC;')
         top_item_template = '{place}. {host_emoji} {player_name}\n' \
                             '{indent}{host_elo} ЭЛО\n'
     elif sorting_mode == _SortingMode.AWAY:
         title_template += ' (второй)'
-        cursor.execute('SELECT player_id, host_elo, elo FROM players ORDER BY elo DESC;')
+        cursor.execute('SELECT player_id, host_elo, away_elo FROM players ORDER BY away_elo DESC;')
         top_item_template = '{place}. {away_emoji} {player_name}\n' \
                             '{indent}{away_elo} ЭЛО\n'
     else:

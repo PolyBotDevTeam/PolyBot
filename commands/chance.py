@@ -26,7 +26,7 @@ def _process_chance_command(player_id, command_text, *, connection, **kwargs):
 
         try:
             [[host_elo]] = db_execute(cursor, 'SELECT host_elo FROM players WHERE player_id = %s;', host)
-            [[away_elo]] = db_execute(cursor, 'SELECT elo FROM players WHERE player_id = %s;', away)
+            [[away_elo]] = db_execute(cursor, 'SELECT away_elo FROM players WHERE player_id = %s;', away)
         except ValueError:
             return ['Кто-то из указанных пользователей ещё не зарегистрирован в системе.']
 

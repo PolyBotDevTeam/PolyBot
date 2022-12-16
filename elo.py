@@ -139,7 +139,7 @@ def recalculate(*, cur=None):
     for player_id, role, banned in cur.fetchall():
         roles[player_id] = _compute_role(role, elos[player_id], games_counts[player_id], banned)
 
-    cur.execute('SELECT player_id, host_elo, elo, role FROM players;')
+    cur.execute('SELECT player_id, host_elo, away_elo, role FROM players;')
     players_rows = cur.fetchall()
     for player_id, old_host_elo, old_away_elo, old_role in tuple(players_rows):
         p_id = player_id
@@ -147,7 +147,7 @@ def recalculate(*, cur=None):
         role = roles[p_id]
         if (round(host_elo), round(away_elo), role) != (old_host_elo, old_away_elo, old_role):
             cur.execute(
-                'UPDATE players SET host_elo = %s, elo = %s, role = %s WHERE player_id = %s;',
+                'UPDATE players SET host_elo = %s, away_elo = %s, role = %s WHERE player_id = %s;',
                 (host_elo, away_elo, role, player_id)
             )
 
