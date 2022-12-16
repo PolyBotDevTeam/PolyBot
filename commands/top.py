@@ -52,23 +52,23 @@ def top(max_places_count, *, sorting_mode, cursor, vk):
 
     members_ids = vk_utils.fetch_chat_members_ids(settings.main_chat_id, vk=vk)
 
-    top_players_data = _iterate_top_places(cursor, sorting_mode)
+    top_places = _iterate_top_places(cursor, sorting_mode)
 
-    top_players_data = (
+    top_places = (
         (player_id, host_elo, away_elo)
-        for player_id, host_elo, away_elo in top_players_data
+        for player_id, host_elo, away_elo in top_places
         if player_id in members_ids
     )
 
-    top_players_data = itertools.islice(top_players_data, max_places_count)
-    top_players_data = tuple(top_players_data)
-    places_count = len(top_players_data)
+    top_places = itertools.islice(top_places, max_places_count)
+    top_places = tuple(top_places)
+    places_count = len(top_places)
 
     title = title_template.format(places_count=places_count)
 
     message_text = f'{title}:\n'
 
-    for place, (player_id, host_elo, away_elo) in enumerate(top_players_data, 1):
+    for place, (player_id, host_elo, away_elo) in enumerate(top_places, 1):
         digits_n = len(str(places_count))
         numeric_space = '\u2007'
         place = str(place).rjust(digits_n, numeric_space)
