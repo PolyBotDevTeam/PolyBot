@@ -1,6 +1,7 @@
 import enum
 import itertools
 
+import db_utils
 import utils
 import vk_utils
 import vk_actions
@@ -36,17 +37,14 @@ def top(max_places_count, *, sorting_mode, cursor, vk):
     elo_module.recalculate(cur=cursor)
 
     if sorting_mode == _SortingMode.SUM:
-        cursor.execute('SELECT player_id, host_elo, away_elo FROM players ORDER BY (host_elo + away_elo) DESC;')
         top_item_template = '{place}. {host_emoji}{away_emoji} {player_name}\n' \
                             '{indent}{host_elo} / {away_elo} ЭЛО\n'
     elif sorting_mode == _SortingMode.HOST:
         title_template += ' (хост)'
-        cursor.execute('SELECT player_id, host_elo, away_elo FROM players ORDER BY host_elo DESC;')
         top_item_template = '{place}. {host_emoji} {player_name}\n' \
                             '{indent}{host_elo} ЭЛО\n'
     elif sorting_mode == _SortingMode.AWAY:
         title_template += ' (второй)'
-        cursor.execute('SELECT player_id, host_elo, away_elo FROM players ORDER BY away_elo DESC;')
         top_item_template = '{place}. {away_emoji} {player_name}\n' \
                             '{indent}{away_elo} ЭЛО\n'
     else:
@@ -54,9 +52,11 @@ def top(max_places_count, *, sorting_mode, cursor, vk):
 
     members_ids = vk_utils.fetch_chat_members_ids(settings.main_chat_id, vk=vk)
 
+    top_players_data = _iterate_top_places(cursor, sorting_mode)
+
     top_players_data = (
         (player_id, host_elo, away_elo)
-        for player_id, host_elo, away_elo in cursor
+        for player_id, host_elo, away_elo in top_players_data
         if player_id in members_ids
     )
 
@@ -101,6 +101,21 @@ def top(max_places_count, *, sorting_mode, cursor, vk):
     message = vk_actions.Message(text=message_text, disable_mentions=True)
 
     return [message]
+
+
+def _iterate_top_places(cursor, sorting_mode):
+    if sorting_mode == _SortingMode.SUM:
+        sql_sorting_key = 'host_elo + away_elo'
+    elif sorting_mode == _SortingMode.HOST:
+        sql_sorting_key = 'host_elo'
+    elif sorting_mode == _SortingMode.AWAY:
+        sql_sorting_key = 'away_elo'
+    else:
+        raise _UnexpectedSortingModeError(sorting_mode)
+
+    sql_query = f'SELECT player_id, host_elo, away_elo FROM players ORDER BY ({sql_sorting_key}) DESC;'
+
+    return db_utils.execute(cursor, sql_query, lazy_result=True)
 
 
 def _process_top_command(player_id, command_text, *, cursor, vk, **kwargs):
