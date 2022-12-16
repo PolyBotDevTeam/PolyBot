@@ -26,6 +26,10 @@ class _SortingMode(enum.Enum):
     AWAY = 3
 
 
+class _UnexpectedSortingModeError(TypeError):
+    pass
+
+
 def top(max_places_count, *, sorting_mode, cursor, vk):
     title_template = 'ТОП-{places_count}'
 
@@ -46,8 +50,7 @@ def top(max_places_count, *, sorting_mode, cursor, vk):
         top_item_template = '{place}. {away_emoji} {player_name}\n' \
                             '{indent}{away_elo} ЭЛО\n'
     else:
-        message_text = 'Данный критерий сортировки пока не поддерживается.'
-        return [message_text]
+        raise _UnexpectedSortingModeError(sorting_mode)
 
     members_ids = vk_utils.fetch_chat_members_ids(settings.main_chat_id, vk=vk)
 
