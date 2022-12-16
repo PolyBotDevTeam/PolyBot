@@ -1,6 +1,9 @@
-def execute(cursor, query, args=None):
+def execute(cursor, query, args=None, *, lazy_result=False):
     cursor.execute(query, args)
-    return cursor
+    result_items = cursor
+    if not lazy_result:
+        result_items = tuple(result_items)
+    return result_items
 
 
 def exists(cursor, table_name, condition, args=None):
