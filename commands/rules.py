@@ -37,13 +37,15 @@ games_rules = '''Правила игр.
             3.1. Использование не предусмотренных игрой способов получения игрового преимущества влечёт вечный бан в системе. К читерству относится накрутка звёзд, изменение карты, рестарты ходов для исследования территории, рестарты руин, спавна и т. п.'''
 
 
-def rules(player_id, command_text):
+def rules(player_id, command_text, **kwargs):
     chat_rules_message = vk_actions.Message(text=chat_rules, disable_mentions=True)
     return [chat_rules_message, games_rules]
 
 
-rules_command = command_system.UserCommand()
-
-rules_command.keys = ['правила', 'rules']
-rules_command.description = ' - Правила игр.'
-rules_command.process = rules
+rules_command = command_system.Command(
+    process=rules,
+    keys=['правила', 'rules'],
+    description='Правила игр',
+    signature='',
+    allow_users=True
+)
