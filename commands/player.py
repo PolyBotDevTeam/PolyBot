@@ -44,7 +44,7 @@ def _compose_description(player_id, cursor):
 
 player_command = command_system.Command(
     process=_process_player_command,
-    keys=['игрок', 'player'],
+    keys=['игрок', 'профиль', 'player', 'profile'],
     description='Подробная информация об игроке',
     signature='никнейм_игрока (или имя и фамилия, или ссылка на его профиль в формате @ссылка)',
     allow_users=True
