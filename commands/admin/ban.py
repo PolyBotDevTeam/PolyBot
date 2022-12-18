@@ -1,9 +1,8 @@
 import command_system
 import vk_utils
-import message_handler
 
 
-def ban(player_id, command_text):
+def ban(player_id, command_text, *, database, **kwargs):
     pointer = command_text.lstrip()
     if not pointer:
         message = 'Укажите пользователя.'
@@ -15,7 +14,7 @@ def ban(player_id, command_text):
         message = 'Некорректная ссылка. Нажмите @ или * чтобы выбрать среди участников беседы.'
         return [message]
 
-    connection = message_handler.create_connection()
+    connection = database.create_connection()
     with connection:
         cur = connection.cursor()
         cur.execute('SELECT EXISTS(SELECT player_id FROM players WHERE player_id = %s)', (player_id,))
@@ -27,8 +26,10 @@ def ban(player_id, command_text):
         return [message]
 
 
-ban_command = command_system.AdminCommand()
-
-ban_command.keys = ['ban']
-ban_command.description = ' упоминание - Бан пользователя в системе.'
-ban_command.process = ban
+ban_command = command_system.Command(
+    process=ban,
+    keys=['ban'],
+    description='Бан пользователя в системе',
+    signature='упоминание',
+    allow_users=False
+)

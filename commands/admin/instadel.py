@@ -1,9 +1,8 @@
 import command_system
-import message_handler
 import db_utils
 
 
-def instadel(player_id, command_text):
+def instadel(player_id, command_text, *, database, **kwargs):
     args = command_text.split()
     if not args:
         message = 'Необходимо ввести ID игры которую нужно удалить.'
@@ -24,7 +23,7 @@ def instadel(player_id, command_text):
         # TODO: new 'd' type is not supported yet by other commands
         return ['soft mode не поддерживается на данный момент.']
 
-    connection = message_handler.create_connection()
+    connection = database.create_connection()
     with connection:
         cur = connection.cursor()
         if not db_utils.exists(cur, 'games', 'game_id = %s', game_id):
@@ -41,8 +40,11 @@ def instadel(player_id, command_text):
             message += ' Также %s результат игры.' % ('стёрт' if mode == 'hard' else 'удалён')
         return [message]
 
-instadel_command = command_system.AdminCommand()
 
-instadel_command.keys = ['instadel']
-instadel_command.description = ' ID_игры - Удалить игру.'
-instadel_command.process = instadel
+instadel_command = command_system.Command(
+    process=instadel,
+    keys=['instadel'],
+    description='Удалить игру',
+    signature='ID_игры',
+    allow_users=False
+)

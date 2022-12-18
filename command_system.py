@@ -305,9 +305,3 @@ class UserCommand(CommandAbstract):
     @property
     def _command_list(self):
         return user_commands
-
-
-class AdminCommand(CommandAbstract):
-    @property
-    def _command_list(self):
-        return admin_commands
