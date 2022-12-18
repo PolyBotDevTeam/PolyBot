@@ -33,21 +33,33 @@ def _id_by_nickname(nickname, cur):
     return user_id
 
 
-def _player_id_by_username(username, cur, *, vk):
-    uname_need = username
+def _player_id_by_username(username, cursor, *, vk):
+    target_username = username
     del username
-    uname_need = uname_need.lower()
 
-    players_ids = _db_utils.execute(cur, 'SELECT player_id FROM players;')
+    players_ids = _db_utils.execute(cursor, 'SELECT player_id FROM players ORDER BY host_elo + away_elo DESC;')
     players_ids = [uid for (uid,) in players_ids]
 
-    usernames = _vk_utils.fetch_usernames(players_ids, vk=vk)
-    usernames = [uname.lower() for uname in usernames]
+    players_usernames = _vk_utils.fetch_usernames(players_ids, vk=vk)
 
-    if uname_need not in usernames and uname_need.count(' ') == 1:
-        last_name, first_name = uname_need.split(' ')
-        uname_need = first_name + ' ' + last_name
-    if uname_need not in usernames:
-        raise ValueError(uname_need)
+    best_candidate = _which_username_fits_best(players_usernames, target_username=target_username)
 
-    return players_ids[usernames.index(uname_need)]
+    return players_ids[players_usernames.index(best_candidate)]
+
+
+def _which_username_fits_best(username_candidates, *, target_username):
+    for candidate in username_candidates:
+        if _does_username_fit(candidate=candidate, target=target_username):
+            return candidate
+
+    raise ValueError(target_username)
+
+
+def _does_username_fit(*, candidate, target):
+    alternative_target = ' '.join(target.split()[::-1])
+    return _normalize_username(target) in _normalize_username(candidate) \
+        or _normalize_username(alternative_target) in _normalize_username(candidate)
+
+
+def _normalize_username(username):
+    return ' '.join(username.lower().split())
