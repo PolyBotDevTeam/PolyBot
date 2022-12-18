@@ -84,12 +84,15 @@ def create_mention(user_id, mention_text=None, *, vk=None):
     return f'[{user_address}|{mention_text}]'
 
 
-def fetch_usernames(users_ids, vk):
+def fetch_usernames(users_ids, vk, *, lang=None):
+    if lang is None:
+        lang = 'ru'
+
     users_ids = tuple(users_ids)
     assert len(users_ids) <= 1000
 
     ids_to_fetch = tuple(filter(lambda uid: uid > 0, users_ids))
-    response = vk.users.get(user_ids=ids_to_fetch) if ids_to_fetch else []
+    response = vk.users.get(user_ids=ids_to_fetch, lang=lang) if ids_to_fetch else []
 
     users_by_ids = _collections.defaultdict(lambda: {'first_name': 'NULL', 'last_name': 'NULL'})
     for user in response:
@@ -100,13 +103,13 @@ def fetch_usernames(users_ids, vk):
         if user_id >= 0:
             username = '{first_name} {last_name}'.format(**users_by_ids[user_id])
         else:
-            username = vk.groups.getById(group_id=-user_id)[0]['name']
+            username = vk.groups.getById(group_id=-user_id, lang=lang)[0]['name']
         result.append(username)
     return result
 
 
-def fetch_username(user_id, vk):
-    [username] = fetch_usernames([user_id], vk=vk)
+def fetch_username(user_id, vk, *, lang=None):
+    [username] = fetch_usernames([user_id], vk=vk, lang=lang)
     return username
 
 
