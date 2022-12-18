@@ -115,11 +115,15 @@ def emoji_by_elo(elo_host, elo_away):
 
 
 # TODO: to hide details, for example can make "EloSystem" class with method "process_game"
+def recalculate(*, database=None, cur=None):
+    if database is not None and cur is not None:
+        raise TypeError('both database and cursor passed')
 
-
-def recalculate(*, cur=None):
     if cur is None:
-        connection = message_handler.create_connection()
+        if database is not None:
+            connection = database.create_connection()
+        else:
+            connection = message_handler.create_connection()
         with connection:
             cur = connection.cursor()
             return recalculate(cur=cur)
