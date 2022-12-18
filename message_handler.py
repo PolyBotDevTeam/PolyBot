@@ -1,29 +1,37 @@
-# Deprecated module
+import warnings as _warnings
 
-import functools
+_warnings.warn(
+    'message_handler module is deprecated. '
+    'Never create new imports of this module, '
+    'and preferably remove old ones.',
+    DeprecationWarning
+)
 
-import vk_api
-import pymysql
+
+from functools import partial as _partial
+
+import vk_api as _vk_api
+import pymysql as _pymysql
 
 from command_parsing_utils import try_to_identify_id as _try_to_identify_id
-import vk_utils
-import settings
+import vk_utils as _vk_utils
+import settings as _settings
 
 
-_session = vk_api.VkApi(token=settings.token)
+_session = _vk_api.VkApi(token=_settings.token)
 _api = _session.get_api()
-fetch_usernames = functools.partial(vk_utils.fetch_usernames, vk=_api)
-username = functools.partial(vk_utils.fetch_username, vk=_api)
-create_mention = functools.partial(vk_utils.create_mention, vk=_api)
-try_to_identify_id = functools.partial(_try_to_identify_id, vk=_api)
+fetch_usernames = _partial(_vk_utils.fetch_usernames, vk=_api)
+username = _partial(_vk_utils.fetch_username, vk=_api)
+create_mention = _partial(_vk_utils.create_mention, vk=_api)
+try_to_identify_id = _partial(_try_to_identify_id, vk=_api)
+
 
 def create_connection():
-    connection = pymysql.connect(
-        host=settings.host,
-        user=settings.user,
-        password=settings.password,
-        database=settings.database,
+    connection = _pymysql.connect(
+        host=_settings.host,
+        user=_settings.user,
+        password=_settings.password,
+        database=_settings.database,
         autocommit=True
     )
     return connection
-
