@@ -11,8 +11,6 @@ def _process_chance_command(player_id, command_text, *, connection, **kwargs):
     except ValueError:
         return ['Должно быть ровно два аргумента.', 'Напишите /помощь шанс, чтобы узнать, как пользоваться командой.']
 
-    elo.recalculate()
-
     with connection.cursor() as cursor:
         try:
             host = message_handler.try_to_identify_id(host, cursor)

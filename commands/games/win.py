@@ -67,7 +67,6 @@ def win(player_id, command_text):
             result.append(notification)
         else:
             polybot_utils.process_game_finish(game_id, cursor=cur)
-            elo.recalculate(cur=cur)
             deltas = elo.fetch_rating_deltas(game_id, cur)
             changes_desc = "%s: %s\n%s: %s" % (
                 username(host_id), _get_change_desc(*deltas[0]),

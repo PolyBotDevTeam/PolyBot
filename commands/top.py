@@ -34,8 +34,6 @@ class _UnexpectedSortingModeError(TypeError):
 def top(max_places_count, *, sorting_mode, cursor, vk):
     title_template = 'ТОП-{places_count}'
 
-    elo_module.recalculate(cur=cursor)
-
     if sorting_mode == _SortingMode.SUM:
         top_item_template = '{place}. {host_emoji}{away_emoji} {player_name}\n' \
                             '{indent}{host_elo} / {away_elo} ЭЛО\n'

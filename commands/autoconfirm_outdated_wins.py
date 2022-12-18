@@ -10,7 +10,6 @@ def _process_command(actor_id, command_text, *, connection, vk, **kwargs):
     message = ''
     for game_id, host_id, away_id, host_winner in tuple(cursor):
         polybot_utils.process_game_finish(game_id, cursor=connection.cursor())
-        elo.recalculate(cur=connection.cursor())
         rating_changes_desc = elo.describe_rating_changes(game_id, cur=connection.cursor())
         winner_id = host_id if host_winner else away_id
         mention = vk_utils.create_mention(winner_id, vk=vk)

@@ -1,6 +1,5 @@
 import command_system
 import message_handler
-import elo
 import vk_utils
 import db_utils
 
@@ -28,7 +27,6 @@ def _process_player_command(actor_id, command_text, *, cursor, actor_message, **
             message = 'Этот пользователь ещё не зарегистрирован в системе.'
         return [message]
 
-    elo.recalculate(cur=cursor)
     message = _compose_description(player_to_describe_id, cursor)
     return [message]
 

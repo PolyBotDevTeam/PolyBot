@@ -1,5 +1,4 @@
 import command_system
-import elo
 import message_handler
 import vk_utils
 
@@ -8,7 +7,6 @@ import settings
 
 # TODO: page system
 def _process_games_command(player_id, command_text, *, vk, **kwargs):
-    elo.recalculate()
     connection = message_handler.create_connection()
     with connection:
         cur = connection.cursor()
