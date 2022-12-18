@@ -1,4 +1,5 @@
 import db_utils
+import elo
 from user_errors import UserError
 import string
 import utils
@@ -83,3 +84,5 @@ def process_game_finish(game_id, *, cursor):
             'INSERT results(host_id, away_id, host_winner, is_rated, game_id) VALUES (%s, %s, %s, %s, %s);',
             (host_id, away_id, host_winner, is_rated, game_id)
         )
+
+    elo.recalculate(cur=cursor)

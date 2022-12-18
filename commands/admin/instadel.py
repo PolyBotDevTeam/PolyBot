@@ -1,5 +1,6 @@
 import command_system
 import db_utils
+import elo
 
 
 def instadel(player_id, command_text, *, database, **kwargs):
@@ -38,7 +39,10 @@ def instadel(player_id, command_text, *, database, **kwargs):
         if db_utils.exists(cur, 'results', 'game_id = %s', game_id):
             cur.execute('DELETE FROM results WHERE game_id = %s;', game_id)
             message += ' Также %s результат игры.' % ('стёрт' if mode == 'hard' else 'удалён')
-        return [message]
+
+    elo.recalculate(database=database)
+
+    return [message]
 
 
 instadel_command = command_system.Command(
