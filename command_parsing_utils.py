@@ -2,7 +2,7 @@ import db_utils as _db_utils
 import vk_utils as _vk_utils
 
 
-def try_to_identify_id(text, cur, *, vk=vk):
+def try_to_identify_id(text, cur, *, vk):
     if _vk_utils.is_mention(text):
         result = _vk_utils.id_by_mention(text)
     else:
