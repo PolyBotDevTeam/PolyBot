@@ -10,21 +10,21 @@ import vk_utils
 import settings
 
 
-def try_to_identify_id(text, cur):
+def try_to_identify_id(text, cur, *, vk=_api):
     if vk_utils.is_mention(text):
         result = vk_utils.id_by_mention(text)
     else:
-        result = player_id_by_name(text, cur)
+        result = player_id_by_name(text, cur, vk=vk)
     return result
 
 
-def player_id_by_name(name, cur):
+def player_id_by_name(name, cur, *, vk):
     try:
         return id_by_nickname(name, cur)
     except ValueError:
         pass
     try:
-        return player_id_by_username(name, cur)
+        return player_id_by_username(name, cur, vk=vk)
     except ValueError:
         pass
     raise ValueError
@@ -41,7 +41,7 @@ def id_by_nickname(nickname, cur):
     return user_id
 
 
-def player_id_by_username(username, cur):
+def player_id_by_username(username, cur, *, vk):
     uname_need = username
     del username
     uname_need = uname_need.lower()
@@ -49,7 +49,7 @@ def player_id_by_username(username, cur):
     players_ids = db_utils.execute(cur, 'SELECT player_id FROM players;')
     players_ids = [uid for (uid,) in players_ids]
 
-    usernames = fetch_usernames(players_ids)
+    usernames = vk_utils.fetch_usernames(players_ids, vk=vk)
     usernames = [uname.lower() for uname in usernames]
 
     if uname_need not in usernames and uname_need.count(' ') == 1:
