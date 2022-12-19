@@ -53,20 +53,21 @@ def top(max_places_count, *, sorting_mode, cursor, vk):
     top_places = _iterate_top_places(cursor, sorting_mode)
 
     top_places = (
-        (player_id, host_elo, away_elo)
-        for player_id, host_elo, away_elo in top_places
+        (player_id, nickname, host_elo, away_elo)
+        for player_id, nickname, host_elo, away_elo in top_places
         if player_id in members_ids
     )
 
     top_places = itertools.islice(top_places, max_places_count)
     top_places = tuple(top_places)
+
     places_count = len(top_places)
 
     title = title_template.format(places_count=places_count)
 
     message_text = f'{title}:\n'
 
-    for place, (player_id, host_elo, away_elo) in enumerate(top_places, 1):
+    for place, (player_id, nickname, host_elo, away_elo) in enumerate(top_places, 1):
         digits_n = len(str(places_count))
         numeric_space = '\u2007'
         place = str(place).rjust(digits_n, numeric_space)
@@ -78,8 +79,6 @@ def top(max_places_count, *, sorting_mode, cursor, vk):
 
         host_emoji, away_emoji = elo_module.emoji_by_elo(host_elo, away_elo)
 
-        cursor.execute('SELECT nickname FROM players WHERE player_id = %s;', player_id)
-        [[nickname]] = cursor
         nickname = utils.truncate_string(nickname, max_length=15, truncated_end='..')
 
         player_name = vk_utils.create_mention(player_id, mention_text=nickname)
@@ -111,7 +110,7 @@ def _iterate_top_places(cursor, sorting_mode):
     else:
         raise _UnexpectedSortingModeError(sorting_mode)
 
-    sql_query = f'SELECT player_id, host_elo, away_elo FROM players ORDER BY ({sql_sorting_key}) DESC;'
+    sql_query = f'SELECT player_id, nickname, host_elo, away_elo FROM players ORDER BY ({sql_sorting_key}) DESC;'
 
     return db_utils.execute(cursor, sql_query, lazy_result=True)
 
