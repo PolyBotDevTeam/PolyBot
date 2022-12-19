@@ -36,6 +36,7 @@ def _compose_description(player_id, cursor):
     _player_id, role, elo_host, elo_away, nickname, joining_time = cursor.fetchone()
     username = message_handler.username(player_id)
     role = role if role is not None else 'Игрок'
+    joining_time = joining_time.strftime('%Y.%m.%d - %H:%M:%S')
     desc = f'{username} - {role}\nЭЛО: {elo_host} : {elo_away}\nНикнейм: {nickname}\nДата регистрации: {joining_time}'
     return desc
 
