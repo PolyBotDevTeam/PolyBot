@@ -8,7 +8,7 @@ def _process_help_command(player_id, command_text, **kwargs):
             command_text = '/' + command_text
         try:
             command = command_system.get_command(command_text)
-        except ValueError:
+        except command_system.CommandNotFoundError:
             return ['Указанная команда не найдена.']
         message = command_text + command.description
         return [message]
