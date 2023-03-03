@@ -11,18 +11,21 @@ def _process_games_command(player_id, command_text, *, vk, **kwargs):
     with connection:
         cur = connection.cursor()
         cur.execute('SELECT game_id, is_rated, host_id, description FROM games WHERE type = \'o\' ORDER BY time_updated DESC;')
-        rows = cur.fetchall()
+        games_rows = cur.fetchall()
+
+        host_ids = [host_id for game_id, is_rated, host_id, description in games_rows]
+
+        host_usernames = vk_utils.fetch_usernames(host_ids, vk=vk)
 
         texts_about_games = []
 
         chat_members_ids = vk_utils.fetch_chat_members_ids(chat_id=settings.main_chat_id, vk=vk)
 
-        for game_id, is_rated, host_id, description in rows:
+        for (game_id, is_rated, host_id, description), host_username in zip(games_rows, host_usernames):
             if host_id not in chat_members_ids:
                 continue
             cur.execute('SELECT host_elo FROM players WHERE player_id = %s;', host_id)
             rating = cur.fetchone()[0]
-            host_username = message_handler.username(host_id)
             rating_block = f'{rating} ELO' if is_rated else 'UNRATED'
             text_about_game = f'ID: {game_id} - {host_username} - {rating_block}\n{description}'
             texts_about_games.append(text_about_game)
