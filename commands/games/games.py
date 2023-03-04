@@ -7,13 +7,19 @@ import settings
 
 # TODO: page system
 def _process_games_command(player_id, command_text, *, vk, **kwargs):
+    db_query = (
+        'SELECT games.game_id, games.description, games.host_id, games.is_rated, players.host_elo FROM games '
+        'LEFT JOIN players ON players.player_id = games.host_id '
+        'WHERE games.type = \'o\' ORDER BY games.time_updated DESC;'
+    )
+
     connection = message_handler.create_connection()
     with connection:
         cur = connection.cursor()
-        cur.execute('SELECT game_id, is_rated, host_id, description FROM games WHERE type = \'o\' ORDER BY time_updated DESC;')
+        cur.execute(db_query)
         games_rows = cur.fetchall()
 
-        host_ids = [host_id for game_id, is_rated, host_id, description in games_rows]
+        host_ids = [host_id for game_id, description, host_id, is_rated, host_elo in games_rows]
 
         host_usernames = vk_utils.fetch_usernames(host_ids, vk=vk)
 
@@ -21,11 +27,9 @@ def _process_games_command(player_id, command_text, *, vk, **kwargs):
 
         chat_members_ids = vk_utils.fetch_chat_members_ids(chat_id=settings.main_chat_id, vk=vk)
 
-        for (game_id, is_rated, host_id, description), host_username in zip(games_rows, host_usernames):
+        for (game_id, description, host_id, is_rated, rating), host_username in zip(games_rows, host_usernames):
             if host_id not in chat_members_ids:
                 continue
-            cur.execute('SELECT host_elo FROM players WHERE player_id = %s;', host_id)
-            rating = cur.fetchone()[0]
             rating_block = f'{rating} ELO' if is_rated else 'UNRATED'
             text_about_game = f'ID: {game_id} - {host_username} - {rating_block}\n{description}'
             texts_about_games.append(text_about_game)
