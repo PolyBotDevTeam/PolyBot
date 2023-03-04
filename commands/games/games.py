@@ -44,7 +44,7 @@ def _process_games_command(player_id, command_text, *, database, vk, **kwargs):
         return messages
 
 
-_HostInfo = collection.namedtuple('HostInfo', 'id username host_elo')
+_HostInfo = collections.namedtuple('HostInfo', 'id username host_elo')
 _OpenGameInfo = collections.namedtuple('OpenGameInfo', 'game_id description is_rated host')
 
 
