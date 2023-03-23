@@ -51,7 +51,7 @@ def try_take_game_id(command_text, actor_message, *, cursor):
 def is_game_name_correct(game_name):
     chars_used = set(game_name)
     chars_allowed = set(string.ascii_letters + ' &-')
-    return chars_used.issubset(chars_allowed) and 0 < len(game_name) <= 30
+    return chars_used.issubset(chars_allowed) and 0 < len(game_name) <= 31
 
 
 def process_game_finish(game_id, *, cursor):
