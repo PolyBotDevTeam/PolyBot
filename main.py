@@ -18,12 +18,10 @@ import utils
 
 
 def main():
-    print('PolyBot Started!', flush=True)
+    _log_polybot_script_start()
 
     vk_session = vk_api.VkApi(token=settings.token)
     vk = vk_session.get_api()
-
-    _send_message('PolyBot Started!', vk=vk, chat_id=settings.polydev_chat_id)
 
     longpoll = VkBotLongPoll(vk_session, settings.group_id)
 
@@ -67,6 +65,10 @@ def main():
     except Exception as e:
         _process_exception(e, vk=vk)
         _restart()
+
+
+def _log_polybot_script_start():
+    print('PolyBot/main.py started at', time.time(), flush=True)
 
 
 def _process_exception_from_longpoll_check(exception, *, vk):
