@@ -1,4 +1,3 @@
-import io
 import os
 import time
 import sys as _sys
@@ -29,11 +28,9 @@ def main():
         commands_path = os.path.join(settings.project_folder, 'commands')
         command_system.load_commands_from_directory(commands_path)
     except ImportError as e:
-        [exceptions] = e.args
-        errors_log = io.StringIO()
-        for error in exceptions:
-            utils.print_exception(error, file=errors_log)
-        _send_message(errors_log.getvalue(), vk=vk, chat_id=settings.polydev_chat_id)
+        exceptions, = e.args
+        for command_loading_error in exceptions:
+            _process_exception(command_loading_error, vk=vk)
 
     polybot_database = PolyBotDatabase(
         create_connection=lambda: _create_connection(settings)
