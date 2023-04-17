@@ -22,8 +22,16 @@ def main():
     vk_session = vk_api.VkApi(token=settings.token)
     vk = vk_session.get_api()
 
-    longpoll = VkBotLongPoll(vk_session, settings.group_id)
+    polybot = _init_polybot(settings=settings, vk=vk)
 
+    try:
+        _run_polybot(polybot=polybot, settings=settings, vk_session=vk_session)
+    except Exception as e:
+        _process_exception(e, vk=vk)
+        _restart()
+
+
+def _init_polybot(*, settings, vk):
     try:
         commands_path = os.path.join(settings.project_folder, 'commands')
         command_system.load_commands_from_directory(commands_path)
@@ -46,22 +54,24 @@ def main():
         command_system=command_system
     )
 
-    try:
-        while True:
-            try:
-                new_events = longpoll.check()
-            except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError) as e:
-                new_events = []
-                _process_exception_from_longpoll_check(e, vk=vk)
+    return polybot
 
-            for event in new_events:
-                polybot.process_vk_event(event)
 
-            polybot.process_new_time(time.time())
+def _run_polybot(*, polybot, settings, vk_session):
+    longpoll = VkBotLongPoll(vk_session, settings.group_id)
+    vk = vk_session.get_api()
 
-    except Exception as e:
-        _process_exception(e, vk=vk)
-        _restart()
+    while True:
+        try:
+            new_events = longpoll.check()
+        except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError) as e:
+            new_events = []
+            _process_exception_from_longpoll_check(e, vk=vk)
+
+        for event in new_events:
+            polybot.process_vk_event(event)
+
+        polybot.process_new_time(time.time())
 
 
 def _log_polybot_script_start():
