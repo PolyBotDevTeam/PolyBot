@@ -1,5 +1,5 @@
 import command_system
-from elo import DEFAULT_ELO
+import elo
 import message_handler
 import vk_utils
 
@@ -59,8 +59,9 @@ def set_nickname(player_id, command_text):
         else:
             cur.execute(
                 'INSERT players(player_id, nickname, host_elo, away_elo, joining_time, banned) VALUES (%s, %s, %s, %s, NOW(), %s);',
-                (player_id, nickname, DEFAULT_ELO.host, DEFAULT_ELO.away, False)
+                (player_id, nickname, elo.DEFAULT_ELO.host, elo.DEFAULT_ELO.away, False)
             )
+            elo.recalculate(cur=cur)
             cur.execute('SELECT COUNT(*) FROM players WHERE banned = 1;')
             message = 'Вы успешно зарегистрированы в системе!\nВаш никнейм: {}\n\nИграйте честно!\nЧитеров уже забанено: {}'.format(nickname, cur.fetchone()[0])
             return [message, guide_after_registration]
