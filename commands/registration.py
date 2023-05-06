@@ -35,37 +35,64 @@ def _process_registration_command(player_id, command_text, *, database, **kwargs
 
     connection = database.create_connection()
     with connection:
-        cur = connection.cursor()
+        cursor = connection.cursor()
 
-        cur.execute('SELECT EXISTS(SELECT * FROM players WHERE nickname = %s);', nickname)
-        [[is_already_taken]] = cur
-        if is_already_taken:
-            cur.execute('SELECT player_id FROM players WHERE nickname = %s;', nickname)
-            [[nickname_owner]] = cur
-            if player_id == nickname_owner:
+        if _is_nickname_already_taken(nickname, cursor=cursor):
+            if player_id == _get_nickname_owner(nickname, cursor=cursor):
                 response = ['Вы уже зарегистрировались с данным никнеймом.']
             else:
                 message = 'Этот никнейм уже занят.'
                 hint = 'Если это ваш никнейм, обратитесь к администратору.'
                 response = [message, hint]
-            return response
 
-        cur.execute('SELECT EXISTS(SELECT player_id FROM players WHERE player_id = %s);', player_id)
-        if cur.fetchone()[0]:
-            cur.execute('UPDATE players SET nickname = %s WHERE player_id = %s;', (nickname, player_id))
-            message = 'Никнейм успешно обновлён.\nВаш новый никнейм: {}'.format(nickname)
+        elif _is_player_already_registered(player_id, cursor=cursor):
+            _update_nickname(player_id, nickname, cursor=cursor)
+            message = f'Никнейм успешно обновлён.\nВаш новый никнейм: {nickname}'
             response = [message]
+
         else:
-            cur.execute(
-                'INSERT players(player_id, nickname, host_elo, away_elo, joining_time, banned) VALUES (%s, %s, %s, %s, NOW(), %s);',
-                (player_id, nickname, elo.DEFAULT_ELO.host, elo.DEFAULT_ELO.away, False)
-            )
-            elo.recalculate(database=database)
-            cur.execute('SELECT COUNT(*) FROM players WHERE banned = 1;')
-            message = 'Вы успешно зарегистрированы в системе!\nВаш никнейм: {}\n\nИграйте честно!\nЧитеров уже забанено: {}'.format(nickname, cur.fetchone()[0])
+            _register_new_player(player_id, nickname, database=database, cursor=cursor)
+            players_banned = _count_players_banned(cursor=cursor)
+            message = f'Вы успешно зарегистрированы в системе!\nВаш никнейм: {nickname}\n\nИграйте честно!\nЧитеров уже забанено: {players_banned}'
             response = [message, guide_after_registration]
 
     return response
+
+
+def _is_nickname_already_taken(nickname, *, cursor):
+    cursor.execute('SELECT EXISTS(SELECT * FROM players WHERE nickname = %s);', nickname)
+    [[result]] = cursor
+    return result
+
+
+def _get_nickname_owner(nickname, *, cursor):
+    cursor.execute('SELECT player_id FROM players WHERE nickname = %s;', nickname)
+    [[result]] = cursor
+    return result
+
+
+def _is_player_already_registered(player_id, *, cursor):
+    cursor.execute('SELECT EXISTS(SELECT player_id FROM players WHERE player_id = %s);', player_id)
+    [[result]] = cursor
+    return result
+
+
+def _update_nickname(player_id, new_nickname, *, cursor):
+    cursor.execute('UPDATE players SET nickname = %s WHERE player_id = %s;', (new_nickname, player_id))
+
+
+def _register_new_player(player_id, nickname, *, database, cursor):
+    cursor.execute(
+        'INSERT players(player_id, nickname, host_elo, away_elo, joining_time, banned) VALUES (%s, %s, %s, %s, NOW(), %s);',
+        (player_id, nickname, elo.DEFAULT_ELO.host, elo.DEFAULT_ELO.away, False)
+    )
+    elo.recalculate(database=database)
+
+
+def _count_players_banned(*, cursor):
+    cursor.execute('SELECT COUNT(*) FROM players WHERE banned = 1;')
+    [[result]] = cursor
+    return result
 
 
 registration_command = command_system.Command(
