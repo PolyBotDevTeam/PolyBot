@@ -1,6 +1,5 @@
 import command_system
 import elo
-import message_handler
 import vk_utils
 
 
@@ -23,7 +22,7 @@ guide_after_registration = guide_after_registration.strip()
 guide_after_registration = vk_utils.highlight_marked_text_areas(guide_after_registration)
 
 
-def set_nickname(player_id, command_text):
+def _process_registration_command(player_id, command_text, *, database, **kwargs):
     args = command_text.split()
     if not args:
         message = 'Необходимо ввести свой никнейм. Его можно найти в Throne Room, а также во вкладках Friends и Profile. Вводите данные через пробел в формате /ник ваш_никнейм'
@@ -34,7 +33,7 @@ def set_nickname(player_id, command_text):
         message = 'Недопустимая длина никнейма. Убедитесь что указан ваш никнейм. Его можно найти в Throne Room, а также во вкладке Profile.'
         return [message]
 
-    connection = message_handler.create_connection()
+    connection = database.create_connection()
     with connection:
         cur = connection.cursor()
 
@@ -55,21 +54,27 @@ def set_nickname(player_id, command_text):
         if cur.fetchone()[0]:
             cur.execute('UPDATE players SET nickname = %s WHERE player_id = %s;', (nickname, player_id))
             message = 'Никнейм успешно обновлён.\nВаш новый никнейм: {}'.format(nickname)
-            return [message]
+            response = [message]
         else:
             cur.execute(
                 'INSERT players(player_id, nickname, host_elo, away_elo, joining_time, banned) VALUES (%s, %s, %s, %s, NOW(), %s);',
                 (player_id, nickname, elo.DEFAULT_ELO.host, elo.DEFAULT_ELO.away, False)
             )
-            elo.recalculate(cur=cur)
+            elo.recalculate(database=database)
             cur.execute('SELECT COUNT(*) FROM players WHERE banned = 1;')
             message = 'Вы успешно зарегистрированы в системе!\nВаш никнейм: {}\n\nИграйте честно!\nЧитеров уже забанено: {}'.format(nickname, cur.fetchone()[0])
-            return [message, guide_after_registration]
+            response = [message, guide_after_registration]
+
+    return response
 
 
-# TODO: вероятно стоит разделить registration и change_nickname на две отдельные команды
-registration_command = command_system.UserCommand()
-
-registration_command.keys = ['сменить_ник', 'сменить_никнейм', 'изменить_ник', 'изменить_никнейм', 'регистрация', 'change_nick', 'change_nickname', 'registration']
-registration_command.description = ' никнейм - Регистрация/обновление ника в боте посредством ввода своего никнейма.'
-registration_command.process = set_nickname
+registration_command = command_system.Command(
+    process=_process_registration_command,
+    keys=[
+        'сменить_ник', 'сменить_никнейм', 'изменить_ник', 'изменить_никнейм', 'регистрация',
+        'change_nick', 'change_nickname', 'registration'
+    ],
+    description='Регистрация/обновление ника в боте посредством ввода своего никнейма',
+    signature='никнейм',
+    allow_users=True
+)
