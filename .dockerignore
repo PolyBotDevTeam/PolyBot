@@ -1,0 +1,8 @@
+/logs/
+/settings.json
+
+/.idea/
+__pycache__/
+
+/.git/
+/.gitignore
