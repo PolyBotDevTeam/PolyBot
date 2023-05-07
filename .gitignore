@@ -1,8 +1,5 @@
-/pets/
 /logs/
-
-/common_main.py
 /settings.json
 
-.idea/
+/.idea/
 __pycache__/
